@@ -2,6 +2,8 @@
 using Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Interfaces;
 using Database_Manager.Database.Session_Details.Interfaces;
 using System.Data;
+using Firewind.Messages;
+using HabboEvents;
 
 namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Triggers
 {
@@ -31,6 +33,15 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Triggers
 
             if ((!isOwnerOnly && canBeTriggered(message)) || (isOwnerOnly && userSaying.IsOwner() && canBeTriggered(message)))
             {
+                // Send whisper to self
+                ServerMessage servermsg = new ServerMessage();
+                servermsg.Init(Outgoing.Whisp);
+                servermsg.AppendInt32(userSaying.VirtualId);
+                servermsg.AppendString(message);
+                servermsg.AppendInt32(0);
+                servermsg.AppendInt32(0);
+                servermsg.AppendInt32(-1);
+                userSaying.GetClient().SendMessage(servermsg);
                 handler.RequestStackHandle(item.Coordinate, null, userSaying, Games.Team.none);
                 handler.OnEvent(item.Id);
                 messageHandled = true;
