@@ -247,51 +247,37 @@ namespace Firewind.Messages
 
         internal void LoadProfile()
         {
-            try
-            {
-                int UserId = Request.ReadInt32();
-                Boolean IsMe = Request.ReadBoolean();
-                /* don't know
-                 * if (IsMe)
-                    UserId = (int)Session.GetHabbo().Id;*/
+            uint userID = Request.ReadUInt32();
+            bool unused = Request.ReadBoolean(); // Always true
 
-                Habbo Data = FirewindEnvironment.getHabboForId((uint)UserId);
-                if (Data == null)
-                {
-                    Logging.WriteLine("can't get data por profile with userid = " + UserId);
-                    return;
-                }
+            Habbo Data;
+            Data = userID == Session.GetHabbo().Id ? Session.GetHabbo() : FirewindEnvironment.getHabboForId(userID);
+            if (Data == null)
+                return;
 
-                Response.Init(Outgoing.ProfileInformation);
-                Response.AppendUInt(Data.Id);
-                Response.AppendString(Data.Username);
-                Response.AppendString(Data.Look);
-                Response.AppendString(Data.Motto);
-                Response.AppendString("12/12/12"); // created
-                Response.AppendInt32(Data.AchievementPoints); // Achievement Points
-                Response.AppendInt32(0); //friends
-                //Response.AppendString(String.Empty);
-                Response.AppendBoolean(Data.Id != Session.GetHabbo().Id); // is me maybe?
-                Response.AppendInt32(0); // group count
-                Response.AppendString("");
-                Response.AppendInt32(-1);
-                Response.AppendBoolean(true); // show it
-                /* group:
-                 * int(Id)
-                 * string(Name)
-                 * String(Badge)
-                 * String(FirstColor)
-                 * String(SecondColor)
-                 * Boolean(Fav)
-                 */
-                // and achiv points after dat if groups or sth???
-                SendResponse();
-            }
-            catch (Exception e)
-            {
+            // Get the info we need
+            bool isOnline = FirewindEnvironment.GetGame().GetClientManager().GetClientByUserID(userID) != null;
 
-            }
+            Response.Init(Outgoing.ProfileInformation);
+
+            Response.AppendInt32((int)Data.Id);
+            Response.AppendString(Data.Username);
+            Response.AppendString(Data.Look);
+            Response.AppendString(Data.Motto);
+            Response.AppendString("12/12/12"); // created
+            Response.AppendInt32(Data.AchievementPoints); // Achievement Points
+            Response.AppendInt32(Data.GetMessenger().myFriends); //friends
+
+            Response.AppendBoolean(userID != Session.GetHabbo().Id && Data.GetMessenger().FriendshipExists(Session.GetHabbo().Id)); // is friend
+            Response.AppendBoolean(Data.GetMessenger().requests.ContainsKey(Session.GetHabbo().Id)); // firend request sent
+            Response.AppendBoolean(isOnline); // is online
+            Response.AppendInt32(0); // group count
+            Response.AppendInt32(0); // last online in seconds
+            Response.AppendBoolean(true); // show it
+
+            SendResponse();
         }
+
 
         internal void ChangeLook()
         {
