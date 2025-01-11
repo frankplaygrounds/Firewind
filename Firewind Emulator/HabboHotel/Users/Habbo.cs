@@ -57,6 +57,7 @@ namespace Firewind.HabboHotel.Users
         internal uint HomeRoom;
 
         internal string LastOnline;
+        internal string AccountCreated;
 
         internal bool IsTeleporting;
         internal uint TeleportingRoomID;
@@ -143,7 +144,7 @@ namespace Firewind.HabboHotel.Users
             Int32 ActivityPoints, Double LastActivityPointsUpdate, bool Muted,
             UInt32 HomeRoom, Int32 Respect, Int32 DailyRespectPoints, Int32 DailyPetRespectPoints,
             bool MutantPenalty, bool HasFriendRequestsDisabled, uint currentQuestID, int currentQuestProgress, DataTable groups, int achievementPoints,
-            string LastOnline, int favouriteGroup)
+            string LastOnline, int favouriteGroup, string AccountCreated)
         {
             this.Id = Id;
             this.Username = Username;
@@ -182,6 +183,7 @@ namespace Firewind.HabboHotel.Users
             this.LastQuestId = 0;
             this.CurrentQuestId = currentQuestID;
             this.CurrentQuestProgress = currentQuestProgress;
+            this.AccountCreated = AccountCreated;
 
             //this.Groups = new List<int>();
             //if (groups != null)

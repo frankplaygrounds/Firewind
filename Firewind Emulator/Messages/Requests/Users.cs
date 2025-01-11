@@ -264,7 +264,7 @@ namespace Firewind.Messages
             Response.AppendString(Data.Username);
             Response.AppendString(Data.Look);
             Response.AppendString(Data.Motto);
-            Response.AppendString("12/12/12"); // created
+            Response.AppendString(Data.AccountCreated); // created
             Response.AppendInt32(Data.AchievementPoints); // Achievement Points
             Response.AppendInt32(Data.GetMessenger().myFriends); //friends
 
