@@ -1368,13 +1368,10 @@ namespace Firewind.HabboHotel.Misc
 
             int UsersOnline = FirewindEnvironment.GetGame().GetClientManager().ClientCount;
             int RoomsLoaded = FirewindEnvironment.GetGame().GetRoomManager().LoadedRoomsCount;
-
-            Alert.Append(FirewindEnvironment.PrettyVersion + " - Awasome version\n");
+            
+            Alert.Append("Firewind Emulator (Based on Butterfly) \n");
             Alert.Append("-----------------------------------------------\n");
-            Alert.Append("Thanks to:\n");
-            Alert.Append("      - All developers of butterfly/uber/everything really");
             Alert.Append("Server Status:\n");
-            Alert.Append("-----------------------------------------------\n\n");
             Alert.Append("Uptime: " + Uptime.Minutes + " minutes, " + Uptime.Hours + " hours and " + Uptime.Days + " day(s)\n");
             Alert.Append("Users online: " + UsersOnline + "\n");
             Alert.Append("Rooms loaded: " + RoomsLoaded + "\n\n");
