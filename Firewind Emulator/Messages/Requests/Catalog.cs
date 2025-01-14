@@ -34,11 +34,14 @@ namespace Firewind.Messages
                 return;
             }
 
+
+
             if (Page.Layout == "recycler")
             {
-                Session.SendNotif("Ecotron virker ikke enda, beklager!");
+                Session.SendNotif("Ecotron was not coded yet!");
                 return;
             }
+
 
             Session.SendMessage(Page.GetMessage);
 
@@ -53,8 +56,8 @@ namespace Firewind.Messages
                 clubBuy.AppendInt32(1); // sorry don't know :(!
                 Session.SendMessage(clubBuy);
             }
-
-            /*if (Page.Layout == "recycler")
+            /*
+            if (Page.Layout == "recycler")
             {
                 GetResponse().Init(507);
                 GetResponse().AppendBoolean(true);

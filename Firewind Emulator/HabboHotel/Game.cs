@@ -253,8 +253,8 @@ namespace Firewind.HabboHotel
                 Logging.WriteLine("Sound manager -> READY! (" + TimeUsed.Seconds + " s, " + TimeUsed.Milliseconds + " ms)");
 
 
-                //GuildsPartsData.InitGroups();
-                //groupManager = new GroupManager(dbClient);
+                GuildsPartsData.InitGroups();
+                groupManager = new GroupManager(dbClient);
 
 
                 Start = DateTime.Now;

@@ -113,7 +113,7 @@ namespace Firewind.HabboHotel.Rooms
             }
         }
 
-        internal void TeleportToItem(RoomUser user, RoomItem item)
+        internal void TeleportToItem(RoomUser user, RoomItem item, int banzai = 0)
         {
             GameMap[user.X, user.Y] = user.SqState;
             UpdateUserMovement(new Point(user.Coordinate.X, user.Coordinate.Y), new Point(item.Coordinate.X, item.Coordinate.Y), user);
@@ -125,8 +125,11 @@ namespace Firewind.HabboHotel.Rooms
 
             user.SqState = GameMap[item.GetX, item.GetY];
             GameMap[user.X, user.Y] = 1;
-            user.RotBody = item.Rot;
-            user.RotHead = item.Rot;
+            if (banzai == 0)
+            {
+                user.RotBody = item.Rot;
+                user.RotHead = item.Rot;
+            }
 
             user.GoalX = user.X;
             user.GoalY = user.Y;

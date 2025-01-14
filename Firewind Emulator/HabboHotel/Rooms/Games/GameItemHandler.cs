@@ -130,7 +130,7 @@ namespace Firewind.HabboHotel.Rooms
                     //User.RotBody = item.Rot;
                     //User.RotHead = item.Rot;
 
-                    room.GetGameMap().TeleportToItem(User, item);
+                    
 
                     ((StringData)item.data).Data = "1";
                     item.UpdateNeeded = true;
@@ -138,6 +138,8 @@ namespace Firewind.HabboHotel.Rooms
                     Item.UpdateNeeded = true;
                     item.UpdateState();
                     Item.UpdateState();
+
+                    room.GetGameMap().TeleportToItem(User, item,1);
 
                 }
 
