@@ -547,6 +547,12 @@ namespace Firewind.Messages
                         commandHandler.massclothes();
                         break;
                     }
+                case 1010:
+                    {
+                        commandHandler.bh();
+                        break;
+                    }
+
 
             }
         }

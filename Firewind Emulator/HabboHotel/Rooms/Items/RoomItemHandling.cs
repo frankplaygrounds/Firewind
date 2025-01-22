@@ -623,6 +623,8 @@ namespace Firewind.HabboHotel.Rooms
 
             // Start calculating new Z coordinate
             Double newZ = room.GetGameMap().Model.SqFloorHeight[newX, newY];
+            if (Math.Abs(Session.GetHabbo().StackHeight) > Math.Pow(1, -9))
+                newZ = Session.GetHabbo().StackHeight;
 
             if (!OnRoller)
             {

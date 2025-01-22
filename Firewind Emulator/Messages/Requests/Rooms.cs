@@ -3189,6 +3189,25 @@ namespace Firewind.Messages
         }
         #endregion
 
+        internal void FindFriends()
+        {
+            var activeRooms = FirewindEnvironment.GetGame().GetRoomManager().GetActiveRooms();
+
+            if (activeRooms == null || activeRooms.Count() == 0)
+            {
+                Session.SendNotif("There are no active rooms to join.");
+                return;
+            }
+
+            Random rnd = new Random();
+            var randomRoom = activeRooms[rnd.Next(activeRooms.Count())];
+            Room randomRoomPair = FirewindEnvironment.GetGame().GetRoomManager()
+                                     .LoadRoom(randomRoom.Key.Id);
+
+            Session.GetMessageHandler().ForwardToRoom((int)randomRoomPair.RoomId);
+            Session.GetMessageHandler().ForwardToRoom((int)randomRoomPair.RoomId);
+        }
+
         internal void MannequeNameChange()
         {
             if (Session.GetHabbo().CurrentRoom == null || !Session.GetHabbo().CurrentRoom.CheckRights(Session, true))

@@ -1359,6 +1359,31 @@ namespace Firewind.HabboHotel.Misc
             Session.SendMOTD(ChatCommandRegister.GenerateCommandList(Session));
         }
 
+        internal void bh()
+        {
+            Room Room = Session.GetHabbo().CurrentRoom;
+            RoomUser User = Room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+
+
+            if (Params.Length == 1) {
+                Session.GetHabbo().StackHeight = 0;
+                Session.SendNotif("Build height disabled.");
+                return;
+            }
+
+            if (!double.TryParse(Params[1], out Session.GetHabbo().StackHeight))
+                Session.SendNotif("Please enter a valid integer or double value.");
+
+            ServerMessage servermsg = new ServerMessage();
+            servermsg.Init(Outgoing.Whisp);
+            servermsg.AppendInt32(User.VirtualId);
+            servermsg.AppendString("Build height updated.");
+            servermsg.AppendInt32(0);
+            servermsg.AppendInt32(0);
+            servermsg.AppendInt32(-1);
+            Session.SendMessage(servermsg);
+        }
+
         internal void info()
         {
             DateTime Now = DateTime.Now;
@@ -1501,7 +1526,11 @@ namespace Firewind.HabboHotel.Misc
 
         internal void whosonline()
         {
-
+            int UsersOnline = FirewindEnvironment.GetGame().GetClientManager().ClientCount;
+            if (UsersOnline == 1)
+                Session.SendNotif("There is " + UsersOnline.ToString() + " user online.");
+            if (UsersOnline > 1)
+                Session.SendNotif("There are " + UsersOnline.ToString() + " users online.");
         }
 
         internal void registerIRC()

@@ -938,6 +938,10 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.MannequeNameChange();
         }
 
+        internal static void FindFriends(GameClientMessageHandler handler)
+        {
+            handler.FindFriends();
+        }
         internal static void MannequeFigureChange(GameClientMessageHandler handler)
         {
             handler.MannequeFigureChange();

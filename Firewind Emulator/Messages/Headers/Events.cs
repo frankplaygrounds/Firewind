@@ -136,7 +136,7 @@ namespace HabboEvents
 		public static int GoToHotelView = 2162;
         public static int RemoveHanditem = 3843;
         public static int GiveObject = 2566;
-
+		public static int FindFriends = 2441;
         public static int GetRecyclerPrizes = 3526;
 
         public static int ThrowDice = 2372;

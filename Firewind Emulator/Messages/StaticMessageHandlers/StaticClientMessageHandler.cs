@@ -188,7 +188,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(2340, new StaticRequestHandler(SharedPacketLib.Stream));
             handlers.Add(2011, new StaticRequestHandler(SharedPacketLib.SendStream));
             handlers.Add(1591, new StaticRequestHandler(SharedPacketLib.StreamLike));
-
+            handlers.Add(Incoming.FindFriends, new StaticRequestHandler(SharedPacketLib.FindFriends));
             handlers.Add(Incoming.MannequeNameChange, new StaticRequestHandler(SharedPacketLib.MannequeNameChange));
             handlers.Add(Incoming.MannequeFigureChange, new StaticRequestHandler(SharedPacketLib.MannequeFigureChange));
 

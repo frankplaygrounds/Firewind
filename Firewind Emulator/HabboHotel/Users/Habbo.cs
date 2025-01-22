@@ -112,6 +112,8 @@ namespace Firewind.HabboHotel.Users
         internal List<int> Groups;
         internal int FavouriteGroup;
 
+        public double StackHeight;
+
 
         internal Boolean InRoom
         {
