@@ -976,11 +976,8 @@ namespace Firewind.Messages
             if (ToUser == User.GetUsername() || User2 == null)
                 return;
 
-            if (!User2.IsBot)
-            {
-                if (!User2.GetClient().GetHabbo().MutedUsers.Contains(Session.GetHabbo().Id))
-                    User2.GetClient().SendMessage(TellMsg);
-            }
+            if (!User2.GetClient().GetHabbo().MutedUsers.Contains(Session.GetHabbo().Id))
+                User2.GetClient().SendMessage(TellMsg);
 
             List<RoomUser> ToNotify = Room.GetRoomUserManager().GetRoomUserByRank(6);
             if (ToNotify.Count > 0)

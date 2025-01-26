@@ -618,7 +618,13 @@ namespace Firewind.HabboHotel.Rooms
             ChatMessage.AppendInt32(-1);
 
             GetRoom().GetRoomUserManager().TurnHeads(X, Y, HabboId);
-            GetRoom().SendMessage(ChatMessage);
+
+            foreach (RoomUser user in GetRoom().GetRoomUserManager().GetRoomUsers())
+            {
+                if (user.GetClient().GetHabbo().MutedUsers.Contains(HabboId))
+                    continue;
+                user.GetClient().SendMessage(ChatMessage);
+            }
 
             if (!IsBot)
             {
