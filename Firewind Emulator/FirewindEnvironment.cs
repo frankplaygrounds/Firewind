@@ -207,17 +207,6 @@ namespace Firewind
                 Console.ReadKey();
                 Environment.Exit(1);
             }
-
-            // Check if this is habin or not
-            try
-            {
-                using (IQueryAdapter dbClient = manager.getQueryreactor())
-                {
-                    dbClient.setQuery("SELECT column_name FROM information_schema.columns WHERE table_schema = '" + FirewindEnvironment.GetConfig().data["db.name"] + "' AND table_name = 'users' AND column_name = 'hpo'");
-                    IsHabin = dbClient.findsResult();
-                }
-            }
-            catch { }
         }
 
 
