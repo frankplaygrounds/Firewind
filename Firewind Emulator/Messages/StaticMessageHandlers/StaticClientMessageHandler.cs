@@ -195,6 +195,8 @@ namespace Firewind.Messages.StaticMessageHandlers
 
             handlers.Add(Incoming.SetAdParameters, new StaticRequestHandler(SharedPacketLib.SetAdParameters));
 
+            handlers.Add(Incoming.AnswerQuestion, new StaticRequestHandler(SharedPacketLib.AnswerQuestion));
+
             // Load room
             handlers.Add(Incoming.GetGuestRoom, new StaticRequestHandler(SharedPacketLib.GetGuestRoom));
             handlers.Add(Incoming.GetFurnitureAliases, new StaticRequestHandler(SharedPacketLib.GetFurnitureAliases));

@@ -328,6 +328,10 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.FollowBuddy();
         }
 
+        internal static void AnswerQuestion(GameClientMessageHandler handler)
+        {
+            handler.AnswerInfobusPoll();
+        }
         internal static void SendInstantInvite(GameClientMessageHandler handler)
         {
             handler.SendInstantInvite();

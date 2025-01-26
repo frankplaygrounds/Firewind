@@ -208,5 +208,8 @@ namespace HabboEvents
 		// Trax/jukebox
 		public static int GetSoundMachinePlayList = 2520;
 		public static int GetSongInfo = 772;
+
+
+		public static int AnswerQuestion = 1251;
 	}
 }

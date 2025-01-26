@@ -23,6 +23,7 @@ using Firewind.HabboHotel.Groups;
 using HabboEvents;
 using Firewind.HabboHotel.Groups.Types;
 using Firewind.HabboHotel.Misc;
+using System.Threading;
 
 namespace Firewind.HabboHotel.Rooms
 {
@@ -78,6 +79,7 @@ namespace Firewind.HabboHotel.Rooms
         internal string Wallpaper;
         internal string Floor;
         internal string Landscape;
+        public int CurrentPollId;
         internal DateTime lastTimerReset;
 
         private GameManager game;
@@ -109,6 +111,67 @@ namespace Firewind.HabboHotel.Rooms
         
         private ChatMessageManager chatMessageManager;
         private Queue chatMessageQueue;
+
+
+        public static void ShowResults(Room Room, int QuestionId, GameClient Session)
+        {
+            try
+            {
+                Thread.Sleep(30000);
+                string Question;
+                DataTable Data = null;
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+                    dbClient.setQuery("SELECT question FROM infobus_questions WHERE id = '" + QuestionId + "' LIMIT 1");
+                    Question = dbClient.getString();
+                }
+
+
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+                    dbClient.setQuery("SELECT * FROM infobus_answers WHERE question_id = '" + QuestionId + "'");
+                    Data = dbClient.getTable();
+
+                }
+
+                ServerMessage InfobusQuestion = new ServerMessage(3042);
+                InfobusQuestion.AppendString(Question);
+                InfobusQuestion.AppendInt32(Data.Rows.Count);
+                if (Data != null)
+                {
+                    foreach (DataRow Row in Data.Rows)
+                    {
+                        int ResultCount;
+                        InfobusQuestion.AppendInt32((int)Row["id"]);
+                        InfobusQuestion.AppendString((string)Row["answer_text"]);
+                        using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                        {
+                            dbClient.setQuery("SELECT COUNT(*) FROM infobus_results WHERE answer_id = '" + (int)Row["id"] + "' AND question_id = '" + QuestionId + "'");
+                            ResultCount = dbClient.getInteger();
+                        }
+                        InfobusQuestion.AppendInt32(ResultCount);
+                    }
+                }
+                int AnswerUserCount;
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+                    dbClient.setQuery("SELECT COUNT(*) FROM infobus_results WHERE question_id = '" + QuestionId + "'");
+                    AnswerUserCount = dbClient.getInteger();
+                }
+                InfobusQuestion.AppendInt32(AnswerUserCount);
+                Room.SendMessage(InfobusQuestion);
+
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+                    dbClient.setQuery("DELETE FROM infobus_results WHERE question_id = '" + QuestionId + "'");
+                    dbClient.runQuery();
+                }
+            }
+            catch (Exception e)
+            {
+                Logging.WriteLine("ERR: " + e.Message);
+            }
+        }
 
         internal Gamemap GetGameMap()
         {

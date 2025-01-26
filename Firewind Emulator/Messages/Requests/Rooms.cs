@@ -2554,6 +2554,27 @@ namespace Firewind.Messages
             Room.GetRoomItemHandler().RemoveFurniture(Session, Item.Id);
         }
 
+
+        internal void AnswerInfobusPoll()
+        {
+            Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+            int AnswerId = Request.ReadInt32();
+            int QuestionId = Room.CurrentPollId;
+            DataTable Data = null;
+
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("SELECT * FROM infobus_answers WHERE question_id = '" + QuestionId + "'");
+                Data = dbClient.getTable();
+
+                dbClient.setQuery("INSERT INTO `infobus_results` (`question_id`, `answer_id`) VALUES ('" + QuestionId + "', '" + Data.Rows[AnswerId - 1]["id"] + "')");
+                dbClient.insertQuery();
+
+            }
+
+
+        }
+
         internal void OpenPresent()
         {
             Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);

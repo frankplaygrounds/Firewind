@@ -18,6 +18,7 @@ using System.Drawing;
 using Firewind.Util;
 using HabboEvents;
 using Firewind.Collections;
+using System.Threading;
 
 namespace Firewind.HabboHotel.Misc
 {
@@ -69,6 +70,58 @@ namespace Firewind.HabboHotel.Misc
                 Session.SendNotif("Moonwalk enabled");
             else
                 Session.SendNotif("Moonwalk disabled");
+        }
+
+        internal void startquestion()
+        {
+            try
+            {
+                Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+                DataTable Data = null;
+                int QuestionId = int.Parse(Params[1]);
+                Room.CurrentPollId = QuestionId;
+                string Question;
+
+
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+                    dbClient.setQuery("SELECT question FROM infobus_questions WHERE id = '" + QuestionId + "' LIMIT 1");
+                    Question = dbClient.getString();
+                }
+
+
+                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                {
+
+                    dbClient.setQuery("SELECT * FROM infobus_answers WHERE question_id = '" + QuestionId + "'");
+                    Data = dbClient.getTable();
+
+                }
+
+                ServerMessage InfobusQuestion = new ServerMessage(2600);
+                InfobusQuestion.AppendString(Question);
+                InfobusQuestion.AppendInt32(Data.Rows.Count);
+                if (Data != null)
+                {
+                    foreach (DataRow Row in Data.Rows)
+                    {
+                        InfobusQuestion.AppendInt32((int)Row["id"]);
+                        InfobusQuestion.AppendString((string)Row["answer_text"]);
+                    }
+                }
+                Room.SendMessage(InfobusQuestion);
+
+
+
+                Thread Infobus = new Thread(delegate () { Room.ShowResults(Room, QuestionId, Session); });
+                Infobus.Start();
+            }
+            catch
+            {
+                Session.SendNotif("Wrong syntax.");
+                //Room.HasThread.Add((uint)QuestionId, Infobus);
+            }
+
         }
 
         internal void givescore()

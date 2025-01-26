@@ -552,6 +552,11 @@ namespace Firewind.Messages
                         commandHandler.bh();
                         break;
                     }
+                case 1011:
+                    {
+                        commandHandler.startquestion();
+                        break;
+                    }
 
 
             }
