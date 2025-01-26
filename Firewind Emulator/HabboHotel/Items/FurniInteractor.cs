@@ -1143,6 +1143,10 @@ namespace Firewind.HabboHotel.Items.Interactors
 
                         message.AppendInt32(0); // intParams
 
+                        // 1=Perform the Effect on one random Furni whose type matches one of the picked Furnis
+                        // 2=Perform the Effect on a Furni defined by the Trigger or Condition
+                        // 0=Perform the Effect on picked Furnis
+
                         message.AppendInt32(8); // type
                         message.AppendInt32(0); // delayInPulses
                         message.AppendInt32(0); // conflictingTriggers
@@ -1242,7 +1246,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
                 case InteractionType.triggerwalkofffurni:
                     {
-                        ServerMessage message = new ServerMessage(Outgoing.WiredFurniTrigger);
+                        ServerMessage message = new ServerMessage(Outgoing.WiredEffect);
                         message.AppendBoolean(false);
                         message.AppendInt32(5);
                         message.AppendInt32(items.Count);
@@ -1331,7 +1335,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
                 case InteractionType.triggerstatechanged:
                     {
-                        ServerMessage message = new ServerMessage(Outgoing.WiredFurniTrigger);
+                        ServerMessage message = new ServerMessage(Outgoing.WiredEffect);
                         message.AppendBoolean(false);
                         message.AppendInt32(5);
                         message.AppendInt32(items.Count);

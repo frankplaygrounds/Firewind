@@ -281,7 +281,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         List<RoomItem> items = GetItems(clientMessage, room, out furniCount);
                         int delay = clientMessage.ReadInt32();
 
-                        IWiredTrigger handler = new WalksOnFurni(item, room.GetWiredHandler(), items, delay);
+                        IWiredTrigger handler = new WalksOffFurni(item, room.GetWiredHandler(), items, delay);
                         HandleTriggerSave(handler, room.GetWiredHandler(), room, itemID);
                         break;
                     }
