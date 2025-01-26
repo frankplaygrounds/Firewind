@@ -228,6 +228,10 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.GetBotInventory, new StaticRequestHandler(SharedPacketLib.GetBotInventory));
             handlers.Add(Incoming.PlaceBot, new StaticRequestHandler(SharedPacketLib.PlaceBot));
 
+            // Trax/Jukebox
+            handlers.Add(Incoming.GetSoundMachinePlayList, new StaticRequestHandler(SharedPacketLib.GetPlaylists));
+            handlers.Add(Incoming.GetSongInfo, new StaticRequestHandler(SharedPacketLib.GetMusicData));
+
             Logging.WriteLine("Logged " + handlers.Count + " packet handler(s)!");
         }
         #endregion

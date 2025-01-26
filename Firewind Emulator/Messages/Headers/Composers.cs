@@ -217,5 +217,9 @@ namespace HabboEvents
         public static int PurchaseError = 277;
         public static int PurchaseOK = 2069;
         public static int UnseenItems = 135;
+
+        // Trax/Jukebox
+        public static int JukeboxSongDisks = 1211;
+        public static int TraxSongInfo = 1882;
     }
 }

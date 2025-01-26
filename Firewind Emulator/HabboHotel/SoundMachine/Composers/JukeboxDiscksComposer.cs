@@ -3,6 +3,7 @@ using Firewind.HabboHotel.GameClients;
 using Firewind.HabboHotel.Items;
 using Firewind.Messages;
 using System.Collections;
+using HabboEvents;
 
 namespace Firewind.HabboHotel.SoundMachine.Composers
 {
@@ -15,7 +16,7 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
 
         internal static ServerMessage Compose(int PlaylistCapacity, List<SongInstance> Playlist)
         {
-            ServerMessage Message = new ServerMessage(334);
+            ServerMessage Message = new ServerMessage(Outgoing.JukeboxSongDisks);
             Message.AppendInt32(PlaylistCapacity);
             Message.AppendInt32(Playlist.Count);
 
@@ -23,6 +24,8 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
             {
                 Message.AppendUInt(Song.DiskItem.itemID);
                 Message.AppendUInt(Song.SongData.Id);
+                Message.AppendString(Song.SongData.Name);
+                Message.AppendString(Song.SongData.Data);
             }
 
             return Message;
@@ -54,7 +57,7 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
 
         public static ServerMessage Compose(List<SongData> Songs)
         {
-            ServerMessage Message = new ServerMessage(300);
+            ServerMessage Message = new ServerMessage(Outgoing.TraxSongInfo);
             Message.AppendInt32(Songs.Count);
 
             foreach (SongData Song in Songs)

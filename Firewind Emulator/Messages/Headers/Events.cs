@@ -204,5 +204,9 @@ namespace HabboEvents
 
 		// Wired
 		public static int UpdateCondition = 2013;
+
+		// Trax/jukebox
+		public static int GetSoundMachinePlayList = 2520;
+		public static int GetSongInfo = 772;
 	}
 }
