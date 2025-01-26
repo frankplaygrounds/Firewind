@@ -3205,7 +3205,6 @@ namespace Firewind.Messages
                                      .LoadRoom(randomRoom.Key.Id);
 
             Session.GetMessageHandler().ForwardToRoom((int)randomRoomPair.RoomId);
-            Session.GetMessageHandler().ForwardToRoom((int)randomRoomPair.RoomId);
         }
 
         internal void MannequeNameChange()

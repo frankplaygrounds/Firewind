@@ -623,8 +623,19 @@ namespace Firewind.HabboHotel.Rooms
 
             // Start calculating new Z coordinate
             Double newZ = room.GetGameMap().Model.SqFloorHeight[newX, newY];
-            if (Math.Abs(Session.GetHabbo().StackHeight) > Math.Pow(1, -9))
-                newZ = Session.GetHabbo().StackHeight;
+            try
+            {
+                if (Math.Abs(Session.GetHabbo().StackHeight) < 40 && Math.Abs(Session.GetHabbo().StackHeight) > -40)
+                {
+                    newZ = Session.GetHabbo().StackHeight;
+                } else
+                {
+                    Session.SendMOTD("Whoops, something went wrong!\n\nStack height must be between -40 and 40. \nThe item was placed at a stack height of 0.\n\nReset your stack height by typing :bh");
+                    newZ = 0;
+                }
+            } catch { 
+                //was either ran by wired or i fucked up
+            }
 
             if (!OnRoller)
             {
