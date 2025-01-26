@@ -244,6 +244,7 @@ namespace Firewind.HabboHotel.Users.Inventory
                         catch
                         {
                             Logging.LogException(string.Format("Error in furni data! Item ID: \"{0}\" and data: \"{1}\"", id, extradata.Replace(Convert.ToChar(1).ToString(), "[1]")));
+                            data = new StringData(extradata);
                         }
                     }
 

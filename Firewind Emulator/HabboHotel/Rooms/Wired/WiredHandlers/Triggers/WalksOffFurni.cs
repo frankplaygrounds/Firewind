@@ -127,7 +127,11 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Triggers
             dbClient.addParameter("id", (int)this.item.Id);
             DataRow dRow = dbClient.getRow();
             if (dRow != null)
-                this.requiredCycles = Convert.ToInt32(dRow[0].ToString());
+                try {
+                    this.requiredCycles = Convert.ToInt32(dRow[0].ToString());
+                } catch {
+                    this.requiredCycles = 0; //HUGE FUCK UP IDK WHAT IM DOING
+                }
             else
                 this.requiredCycles = 0;
 

@@ -718,16 +718,16 @@ namespace Firewind.HabboHotel.Rooms.Wired
             }*/
         }
 
-        internal static void HandleConditionSave(uint itemID, Room room, ClientMessage clientMessage)
+        internal static void HandleConditionSave(GameClient Session, uint itemID, Room room, ClientMessage clientMessage)
         {
             RoomItem item = room.GetRoomItemHandler().GetItem(itemID);
             if (item == null)
                 return;
 
-            if (item.wiredHandler != null)
+            if (item.wiredCondition != null)
             {
-                item.wiredHandler.Dispose();
-                item.wiredHandler = null;
+                item.wiredCondition.Dispose();
+                item.wiredCondition = null;
             }
 
             InteractionType type = item.GetBaseItem().InteractionType;
@@ -736,15 +736,17 @@ namespace Firewind.HabboHotel.Rooms.Wired
                 type != InteractionType.conditiontimelessthan && type != InteractionType.conditiontimemorethan &&
                 type != InteractionType.conditiontriggeronfurni)
                 return;
-            
-            clientMessage.AdvancePointer(1);
-            bool a = clientMessage.ReadBoolean();
-            bool b = clientMessage.ReadBoolean();
-            bool c = clientMessage.ReadBoolean();
-            clientMessage.AdvancePointer(2);
+
+            // Parse data
+            int[] intParams = new int[clientMessage.ReadInt32()];
+            for (int i = 0; i < intParams.Length; i++)
+                intParams[i] = clientMessage.ReadInt32();
+            string stringParam = clientMessage.ReadString();
 
             int furniCount;
             List<RoomItem> items = GetItems(clientMessage, room, out furniCount);
+
+            int stuffSelectionType = clientMessage.ReadInt32();
 
             IWiredCondition handler = null;
 
@@ -790,6 +792,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
             {
                 handler.SaveToDatabase(dbClient);
             }
+            Session.SendMessage(new ServerMessage(Outgoing.SaveWired));
         }
 
         private static List<RoomItem> GetItems(ClientMessage message, Room room, out int itemCount)

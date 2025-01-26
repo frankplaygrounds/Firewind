@@ -1257,7 +1257,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
                         message.AppendString(ExtraInfo);
                         message.AppendInt32(0);
-                        message.AppendInt32(8);
+                        message.AppendInt32(2);
                         message.AppendInt32(0);
                         message.AppendInt32(0);
                         message.AppendInt32(0);
