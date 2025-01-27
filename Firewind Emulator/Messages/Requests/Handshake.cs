@@ -13,7 +13,7 @@ namespace Firewind.Messages
 
             if (clientVersion != "RELEASE63-201207100852-501822384") // not using current supported client
             {
-                Session.SendMOTD(String.Format("Firewind doesn't support {0}!\rPlease use {1}.", clientVersion, "RELEASE63-201207100852-501822384"));
+                Session.SendMOTD(String.Format("Something went wrong while trying to connect.\nDEBUG: Server doesn't support {0}!\rPlease use {1}.", clientVersion, "RELEASE63-201207100852-501822384"));
             }
         }
 
