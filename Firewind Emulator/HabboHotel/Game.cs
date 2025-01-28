@@ -252,9 +252,11 @@ namespace Firewind.HabboHotel
                 TimeUsed = DateTime.Now - Start;
                 Logging.WriteLine("Sound manager -> READY! (" + TimeUsed.Seconds + " s, " + TimeUsed.Milliseconds + " ms)");
 
-
-                //GuildsPartsData.InitGroups();
-                //groupManager = new GroupManager(dbClient);
+                Start = DateTime.Now;
+                GuildsPartsData.InitGroups();
+                groupManager = new GroupManager(dbClient);
+                TimeUsed = DateTime.Now - Start;
+                Logging.WriteLine("Groups manager -> READY! (" + TimeUsed.Seconds + " s, " + TimeUsed.Milliseconds + " ms)");
 
 
                 Start = DateTime.Now;
