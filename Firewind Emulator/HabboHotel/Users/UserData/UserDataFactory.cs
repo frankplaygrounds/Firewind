@@ -40,7 +40,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             DataTable dPets;
             DataTable dQuests;
             //DataTable dSongs;
-            DataTable dGroups = null;
+            
 
             UInt32 userID;
 
@@ -398,7 +398,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             //    songs.Add(songItemID, song);
             //}
 
-            Habbo user = HabboFactory.GenerateHabbo(dUserInfo, dGroups);
+            Habbo user = HabboFactory.GenerateHabbo(dUserInfo);
 
             dUserInfo = null;
             dAchievements = null;
@@ -438,7 +438,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             DataTable dPets;
             DataTable dQuests;
             //DataTable dSongs;
-            DataTable dGroups = null;
+            //DataTable dGroups = null;
 
             UInt32 userID;
 
@@ -735,7 +735,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             //    songs.Add(songItemID, song);
             //}
             **/
-            Habbo user = HabboFactory.GenerateHabbo(dUserInfo, dGroups);
+            Habbo user = HabboFactory.GenerateHabbo(dUserInfo);
 
             dUserInfo = null;
             dAchievements = null;

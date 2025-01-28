@@ -185,12 +185,13 @@ namespace HabboEvents
         public static int DisconnectReason = 4000;
 
         // Groups/guilds
-        public static int PurchaseGuildInfo = 3341;
-        public static int GuildEditorData = 1725;
-        public static int HabboGroupJoinFailed = 2407;
-        public static int GroupInfo = 2602;
-        public static int OwnGuilds = 1463;
         public static int GroupCreated = 1327;
+        public static int HabboGroupDetails = 2602;
+        public static int GuildEditInfo = 3529;
+        public static int GuildEditorData = 1725;
+        public static int GuildFurniInfo = 113;
+        public static int HabboGroupJoinFailed = 2407;
+        public static int HabboGroupsWhereMember = 1463;
 
         // User
         public static int SoundSettings = 89;

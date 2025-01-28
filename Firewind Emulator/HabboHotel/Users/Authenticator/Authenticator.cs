@@ -6,7 +6,7 @@ namespace Firewind.HabboHotel.Users.Authenticator
 {
     static class HabboFactory
     {
-        internal static Habbo GenerateHabbo(DataRow dRow, DataTable group)
+        internal static Habbo GenerateHabbo(DataRow dRow)
         {
             uint id = Convert.ToUInt32(dRow["id"]);
             string username = (string)dRow["username"];
@@ -30,9 +30,9 @@ namespace Firewind.HabboHotel.Users.Authenticator
             int questProgress = Convert.ToInt32(dRow["currentquestprogress"]);
             int achiecvementPoints = Convert.ToInt32(dRow["achievement_points"]);
             int vippoints = Convert.ToInt32(dRow["vip_points"]);
-            int favgroup = 0;// dRow["favourite_group"] == DBNull.Value ? 0 : Convert.ToInt32(dRow["favourite_group"]);
+            int favgroup = dRow["favourite_group"] == DBNull.Value ? 0 : Convert.ToInt32(dRow["favourite_group"]);
             string AccountCreated = (string)dRow["account_created"];
-            return new Habbo(id, username, realname, rank, motto, look, gender, credits, vippoints, activityPoints, activityPointsLastUpdate, isMuted, homeRoom, respect, dailyRespect, dailyPetRespect, mtantPenalty, blockFriends, questID, questProgress, group, achiecvementPoints, lastonline, favgroup, AccountCreated);
+            return new Habbo(id, username, realname, rank, motto, look, gender, credits, vippoints, activityPoints, activityPointsLastUpdate, isMuted, homeRoom, respect, dailyRespect, dailyPetRespect, mtantPenalty, blockFriends, questID, questProgress, achiecvementPoints, lastonline, favgroup, AccountCreated);
         }
     }
 }

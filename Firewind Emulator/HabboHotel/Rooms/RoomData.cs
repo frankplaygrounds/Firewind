@@ -39,7 +39,18 @@ namespace Firewind.HabboHotel.Rooms
         internal int FloorThickness;
         internal string Badge;
         internal int GroupID;
-        internal Group Group;
+        private Group _group;
+        internal Group Group
+        {
+            get
+            {
+                if (GroupID == 0) // no group
+                    return null;
+                if (_group == null)
+                    _group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(GroupID);
+                return _group;
+            }
+        }
 
         internal int TagCount
         {
@@ -154,6 +165,7 @@ namespace Firewind.HabboHotel.Rooms
             this.Landscape = (string)Row["landscape"];
             this.FloorThickness = Convert.ToInt32(Row["floorthickness"]);
             this.WallThickness = Convert.ToInt32(Row["wallthickness"]);
+            this.GroupID = Convert.ToInt32(Row["groups_id"]);
             //this.Event = null;
 
             foreach (string Tag in Row["tags"].ToString().Split(','))
@@ -191,10 +203,11 @@ namespace Firewind.HabboHotel.Rooms
             this.Landscape = Room.Landscape;
             this.FloorThickness = Room.FloorThickness;
             this.WallThickness = Room.WallThickness;
+            this.GroupID = Room.Group != null ? Room.Group.ID : 0;
 
             mModel = FirewindEnvironment.GetGame().GetRoomManager().GetModel(ModelName, Id);
         }
-
+        /*
         internal void DeadFill(DataRow Row)
         {
             this.Id = Convert.ToUInt32(Row["id"]);
@@ -249,7 +262,7 @@ namespace Firewind.HabboHotel.Rooms
                 this.Tags.Add(Tag);
             }
         }
-
+        */
         internal void Serialize(ServerMessage Message, Boolean ShowEvents)
         {
             Message.AppendUInt(Id);

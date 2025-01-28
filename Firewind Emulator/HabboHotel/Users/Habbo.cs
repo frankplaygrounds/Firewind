@@ -145,7 +145,7 @@ namespace Firewind.HabboHotel.Users
             uint Rank, string Motto, string Look, string Gender, Int32 Credits, Int32 VipPoints,
             Int32 ActivityPoints, Double LastActivityPointsUpdate, bool Muted,
             UInt32 HomeRoom, Int32 Respect, Int32 DailyRespectPoints, Int32 DailyPetRespectPoints,
-            bool MutantPenalty, bool HasFriendRequestsDisabled, uint currentQuestID, int currentQuestProgress, DataTable groups, int achievementPoints,
+            bool MutantPenalty, bool HasFriendRequestsDisabled, uint currentQuestID, int currentQuestProgress, int achievementPoints,
             string LastOnline, int favouriteGroup, string AccountCreated)
         {
             this.Id = Id;
@@ -196,6 +196,8 @@ namespace Firewind.HabboHotel.Users
             //    }
             //}
             //this.FavouriteGroup = favouriteGroup;
+            this.Groups = new List<int>();
+            this.FavouriteGroup = favouriteGroup;
         }
 
         internal void InitInformation(UserData data)
@@ -546,8 +548,8 @@ namespace Firewind.HabboHotel.Users
 
         internal void SendGroupList()
         {
-            List<Group> groups = FirewindEnvironment.GetGame().GetGroupManager().GetGroups(this.Groups);
-            ServerMessage message = new ServerMessage(Outgoing.OwnGuilds);
+            List<Group> groups = FirewindEnvironment.GetGame().GetGroupManager().GetMemberships((int)Id);
+            ServerMessage message = new ServerMessage(Outgoing.HabboGroupsWhereMember);
 
             message.AppendInt32(groups.Count); // count
             foreach (Group group in groups)
@@ -557,7 +559,7 @@ namespace Firewind.HabboHotel.Users
                 message.AppendString(group.BadgeCode); // badge
                 message.AppendString(group.Color1); // color 1
                 message.AppendString(group.Color2); // color 2
-                message.AppendBoolean(true); // favourite
+                message.AppendBoolean(group.ID == FavouriteGroup); // favourite
             }
 
             GetClient().SendMessage(message);

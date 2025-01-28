@@ -173,6 +173,15 @@ namespace Firewind.HabboHotel.Groups
                 dbClient.addParameter("badge", badgeCode);
                 dbClient.addParameter("date", createTime);
                 groupID = (int)dbClient.insertQuery();
+
+                // Create membership for owner
+                dbClient.setQuery("INSERT INTO group_memberships VALUES(@id,@groupid,3,1)");
+                dbClient.addParameter("id", creator.GetHabbo().Id);
+                dbClient.addParameter("groupid", groupID);
+                dbClient.runQuery();
+
+                // Update room
+                dbClient.runFastQuery("UPDATE rooms SET groups_id = " + groupID + " WHERE id = " + roomID);
             }
 
             Group group = new Group()
@@ -187,6 +196,9 @@ namespace Firewind.HabboHotel.Groups
                 DateCreated = createTime,
                 
             };
+            group.Members.Add(creator.GetHabbo().Id);
+            string s = group.BadgeCode;
+
             return group;
         }
 
@@ -201,6 +213,19 @@ namespace Firewind.HabboHotel.Groups
                 groups.Add(g);
             }
 
+            return groups;
+        }
+
+        public List<Group> GetMemberships(int userID)
+        {
+            List<Group> groups = new List<Group>();
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("SELECT groups_id FROM group_memberships WHERE users_id = @id");
+                dbClient.addParameter("id", userID);
+                foreach (DataRow row in dbClient.getTable().Rows)
+                    groups.Add(GetGroup(Convert.ToInt32(row["groups_id"])));
+            }
             return groups;
         }
     }

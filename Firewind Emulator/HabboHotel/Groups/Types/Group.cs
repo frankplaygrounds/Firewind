@@ -1,6 +1,8 @@
 ﻿using Firewind.HabboHotel.Rooms;
 using Firewind.HabboHotel.Users;
 using Firewind.HabboHotel.Users.UserDataManagement;
+using Database_Manager.Database.Session_Details.Interfaces;
+using Firewind.HabboHotel.Rooms;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -82,7 +84,7 @@ namespace Firewind.HabboHotel.Groups.Types
         public int Type { get; set; }
         public int RightsType { get; set; }
 
-        public Group(DataRow Data, DataTable Members)
+        public Group(DataRow Data, IQueryAdapter dbClient)
         {
             this.ID = (int)Data["id"];
             this.Name = (string)Data["name"];
@@ -91,22 +93,31 @@ namespace Firewind.HabboHotel.Groups.Types
             this.DateCreated = (string)Data["date_created"];
             this.OwnerID = Convert.ToInt32(Data["users_id"]);
             this.RoomID = (int)Data["rooms_id"];
-            this.ColorID1 = (int)Data["color1"];
-            this.ColorID2 = (int)Data["color2"];
-            this.Type = (int)Data["type"];
-            this.RightsType = (int)Data["rights_type"];
+            this.ColorID1 = Convert.ToInt32(Data["color1"]);
+            this.ColorID2 = Convert.ToInt32(Data["color2"]);
+            this.Type = Convert.ToInt32(Data["type"]);
+            this.RightsType = Convert.ToInt32(Data["rights_type"]);
 
             this.Members = new List<uint>();
 
-            foreach (DataRow Member in Members.Rows)
+            // Load members
+            dbClient.setQuery("SELECT * FROM group_memberships WHERE groups_id = @id");
+            dbClient.addParameter("id", ID);
+            foreach (DataRow row in dbClient.getTable().Rows)
             {
-                this.Members.Add((uint)Member["user_id"]);
+                this.Members.Add((uint)row["users_id"]);
             }
         }
 
         public Group()
         {
-            // TODO: Complete member initialization
+            this.Members = new List<uint>();
+        }
+        public bool IsAdmin(int userID)
+        {
+            if (OwnerID == userID)
+                return true;
+            return false;
         }
 
         public static string GenerateBadgeImage(List<Tuple<int, int, int>> parts)
