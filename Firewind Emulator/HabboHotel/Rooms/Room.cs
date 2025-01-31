@@ -1029,7 +1029,7 @@ namespace Firewind.HabboHotel.Rooms
         }
 
         private bool mDisposed;
-        internal Group Group;
+        private Group Group;
 
         #region IDisposable members
 
