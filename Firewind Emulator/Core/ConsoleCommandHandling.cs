@@ -143,7 +143,7 @@ namespace Firewind.Core
                                                                 getGame().GetCatalog().Initialize(dbClient);
                                                             }
                                                             getGame().GetCatalog().InitCache();
-                                                            getGame().GetClientManager().QueueBroadcaseMessage(new ServerMessage(441));
+                                                            getGame().GetClientManager().QueueBroadcaseMessage(new ServerMessage(Outgoing.UpdateShop));
 
                                                             Logging.WriteLine("Catalog flushed");
 

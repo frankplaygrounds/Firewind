@@ -44,7 +44,7 @@ namespace Firewind.Core
 
         internal static void WriteLine(string Line)
         {
-            Logging.WriteText(Line, false);
+            Console.WriteLine(Line);
         }
 
         internal static void WriteLine(string Line, bool Debug)
