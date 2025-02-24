@@ -176,8 +176,14 @@ namespace HabboEvents
         public static int GetBadgePointLimits = 2344;
         public static int GetSoundSettings = 3995;
 
-        // Pets
-        public static int GetPetInventory = 3127;
+		//Quests
+		public static int OpenQuests = 1455;
+		public static int StartQuest = 1306;
+		public static int StopQuest = 3027;
+		public static int GetCurrentQuest = 1907;
+
+		// Pets
+		public static int GetPetInventory = 3127;
         public static int PlacePet = 461;
         public static int PickupPet = 2378;
         public static int RespetPet = 112;

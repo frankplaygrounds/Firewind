@@ -29,32 +29,32 @@ namespace Firewind.HabboHotel.Quests
         {
             quests.Clear();
 
-            //dbClient.setQuery("SELECT * FROM quests");
-            //DataTable dTable = dbClient.getTable();
+            dbClient.setQuery("SELECT * FROM quests");
+            DataTable dTable = dbClient.getTable();
 
-            //uint id;
-            //string category;
-            //int num;
-            //int type;
-            //uint goalData;
-            //string name;
-            //int reward;
-            //string dataBit;
-            //foreach (DataRow dRow in dTable.Rows)
-            //{
-            //    id = Convert.ToUInt32(dRow["id"]);
-            //    category = (string)dRow["category"];
-            //    num = (int)dRow["series_number"];
-            //    type = (int)dRow["goal_type"];
-            //    goalData = Convert.ToUInt32(dRow["goal_data"]);
-            //    name = (string)dRow["name"];
-            //    reward = (int)dRow["reward"];
-            //    dataBit = (string)dRow["data_bit"];
+            uint id;
+            string category;
+            int num;
+            int type;
+            uint goalData;
+            string name;
+            int reward;
+            string dataBit;
+            foreach (DataRow dRow in dTable.Rows)
+            {
+                id = Convert.ToUInt32(dRow["id"]);
+                category = (string)dRow["category"];
+                num = (int)dRow["series_number"];
+                type = (int)dRow["goal_type"];
+                goalData = Convert.ToUInt32(dRow["goal_data"]);
+                name = (string)dRow["name"];
+                reward = (int)dRow["reward"];
+                dataBit = (string)dRow["data_bit"];
 
-            //    Quest quest = new Quest(id, category, num, (QuestType)type, goalData, name, reward, dataBit);
-            //    quests.Add(id, quest);
-            //    AddToCounter(category);
-            //}
+                Quest quest = new Quest(id, category, num, (QuestType)type, goalData, name, reward, dataBit);
+                quests.Add(id, quest);
+                AddToCounter(category);
+            }
         }
 
         private void AddToCounter(string category)
@@ -141,12 +141,12 @@ namespace Firewind.HabboHotel.Quests
 
             Session.GetHabbo().quests[Session.GetHabbo().CurrentQuestId] = NewProgress;
             Session.SendMessage(QuestStartedComposer.Compose(Session, UserQuest));
-
+            
             if (PassQuest)
             {
                 Session.GetHabbo().CurrentQuestId = 0;
                 Session.GetHabbo().LastCompleted = UserQuest.Id;
-                Session.SendMessage(QuestCompletedComposer.Compose(Session, UserQuest));
+                Session.SendMessage(QuestAbortedComposer.Compose());
                 Session.GetHabbo().ActivityPoints += UserQuest.Reward;
                 Session.GetHabbo().UpdateActivityPointsBalance(false);
                 GetList(Session, null);

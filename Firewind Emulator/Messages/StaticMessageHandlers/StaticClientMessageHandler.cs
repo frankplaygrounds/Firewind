@@ -225,6 +225,12 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.GetBadgePointLimits, new StaticRequestHandler(SharedPacketLib.GetBadgePointLimits));
             handlers.Add(Incoming.GetSoundSettings, new StaticRequestHandler(SharedPacketLib.GetSoundSettings));
 
+            //Quests
+            handlers.Add(Incoming.OpenQuests, new StaticRequestHandler(SharedPacketLib.OpenQuests));
+            handlers.Add(Incoming.StartQuest, new StaticRequestHandler(SharedPacketLib.StartQuest));
+            handlers.Add(Incoming.StopQuest, new StaticRequestHandler(SharedPacketLib.StopQuest));
+            handlers.Add(Incoming.GetCurrentQuest, new StaticRequestHandler(SharedPacketLib.GetCurrentQuest));
+
             // Bots/pets
             handlers.Add(Incoming.GetPetCommands, new StaticRequestHandler(SharedPacketLib.GetPetCommands));
             handlers.Add(Incoming.GetBotInventory, new StaticRequestHandler(SharedPacketLib.GetBotInventory));

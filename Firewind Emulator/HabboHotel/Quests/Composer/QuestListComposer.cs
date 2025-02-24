@@ -55,7 +55,7 @@ namespace Firewind.HabboHotel.Quests.Composer
                 }
             }
 
-            ServerMessage Message = new ServerMessage(800);
+            ServerMessage Message = new ServerMessage(389);
             Message.AppendInt32(UserQuests.Count);
 
             // Active ones first
@@ -96,18 +96,61 @@ namespace Firewind.HabboHotel.Quests.Composer
             }
 
             Message.AppendString(Category);
-            Message.AppendInt32(Number); // Quest progress in this cat
-            Message.AppendInt32(AmountInCat); // Total quests in this cat
-            Message.AppendInt32((int)QuestRewardType.Pixels); // Reward type (1 = Snowflakes, 2 = Love hearts, 3 = Pixels, 4 = Seashells, everything else is pixels
-            Message.AppendUInt(Quest == null ? 0 : Quest.Id); // Quest id
-            Message.AppendBoolean(Quest == null ? false : Session.GetHabbo().CurrentQuestId == Quest.Id); // Quest started
+            Message.AppendInt32(Number);
+            Message.AppendInt32(AmountInCat);
+            Message.AppendInt32(-1);
+            Message.AppendUInt(Quest == null ? 0 : Quest.Id);
+
+            if (Quest == null)
+            {
+                Message.AppendBoolean(true);
+            }
+            else
+            {
+                Message.AppendBoolean(false);
+            }
+
             Message.AppendString(Quest == null ? string.Empty : Quest.ActionName);
             Message.AppendString(Quest == null ? string.Empty : Quest.DataBit);
             Message.AppendInt32(Quest == null ? 0 : Quest.Reward);
             Message.AppendString(Quest == null ? string.Empty : Quest.Name);
-            Message.AppendInt32(UserProgress); // Current progress
-            Message.AppendUInt(Quest == null ? 0 : Quest.GoalData); // Target progress
-            Message.AppendInt32(0); // "Next quest available countdown" in seconds
+            Message.AppendInt32(UserProgress);
+            Message.AppendUInt(Quest == null ? 0 : Quest.GoalData);
+
+            Message.AppendInt32(0);
+            Message.AppendString("");
+            Message.AppendString("");
+            Message.AppendBoolean(true);
         }
     }
 }
+
+/*
+internal static void SerializeQuest(ServerMessage Message, GameClient Session, Quest Quest, string Category)
+{
+    int AmountInCat = FirewindEnvironment.GetGame().GetQuestManager().GetAmountOfQuestsInCategory(Category);
+    int Number = Quest == null ? AmountInCat : Quest.Number - 1;
+    int UserProgress = Quest == null ? 0 : Session.GetHabbo().GetQuestProgress(Quest.Id);
+
+    if (Quest != null && Quest.IsCompleted(UserProgress))
+    {
+        Number++;
+    }
+
+    Message.AppendString(Category);
+    Message.AppendInt32(Number); // Quest progress in this cat
+    Message.AppendInt32(AmountInCat); // Total quests in this cat
+    Message.AppendInt32(-1);
+    //Message.AppendInt32((int)QuestRewardType.Pixels); // Reward type (1 = Snowflakes, 2 = Love hearts, 3 = Pixels, 4 = Seashells, everything else is pixels
+    Message.AppendUInt(Quest == null ? 0 : Quest.Id); // Quest id
+    Message.AppendBoolean(Quest == null ? false : Session.GetHabbo().CurrentQuestId == Quest.Id); // Quest started
+    Message.AppendString(Quest == null ? string.Empty : Quest.ActionName);
+    Message.AppendString(Quest == null ? string.Empty : Quest.DataBit);
+    Message.AppendInt32(Quest == null ? 0 : Quest.Reward);
+    Message.AppendString(Quest == null ? string.Empty : Quest.Name);
+    Message.AppendInt32(UserProgress); // Current progress
+    Message.AppendUInt(Quest == null ? 0 : Quest.GoalData); // Target progress
+    Message.AppendInt32(0); // "Next quest available countdown" in seconds
+}
+}
+} */

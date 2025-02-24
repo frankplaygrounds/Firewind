@@ -12,7 +12,7 @@ namespace Firewind.HabboHotel.Quests.Composer
     {
         internal static ServerMessage Compose(GameClient Session, Quest Quest)
         {
-            ServerMessage Message = new ServerMessage(802);
+            ServerMessage Message = new ServerMessage(3396);
             QuestListComposer.SerializeQuest(Message, Session, Quest, Quest.Category);
             return Message;
         }
