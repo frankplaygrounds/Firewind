@@ -6,6 +6,7 @@ using Firewind.HabboHotel.Quests.Composer;
 using Firewind.Messages;
 using Database_Manager.Database.Session_Details.Interfaces;
 using System;
+using System.Threading.Tasks;
 
 namespace Firewind.HabboHotel.Quests
 {
@@ -141,14 +142,31 @@ namespace Firewind.HabboHotel.Quests
 
             Session.GetHabbo().quests[Session.GetHabbo().CurrentQuestId] = NewProgress;
             Session.SendMessage(QuestStartedComposer.Compose(Session, UserQuest));
-            
+            Quest NextQuest = GetNextQuestInSeries(UserQuest.Category, UserQuest.Number + 1);
+
             if (PassQuest)
             {
                 Session.GetHabbo().CurrentQuestId = 0;
                 Session.GetHabbo().LastCompleted = UserQuest.Id;
-                Session.SendMessage(QuestAbortedComposer.Compose());
                 Session.GetHabbo().ActivityPoints += UserQuest.Reward;
                 Session.GetHabbo().UpdateActivityPointsBalance(false);
+                Session.SendMessage(QuestAbortedComposer.Compose());
+                if (NextQuest != null)
+                {
+                    using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                    {
+                        dbClient.runFastQuery("REPLACE INTO user_quests VALUES (" + Session.GetHabbo().Id + ", " + NextQuest.Id + ", 0)");
+                        dbClient.runFastQuery("UPDATE users SET currentquestid = " + NextQuest.Id + " WHERE id = " + Session.GetHabbo().Id);
+                    }
+
+                    Session.GetHabbo().CurrentQuestId = NextQuest.Id;
+                    Task.Delay(2000).ContinueWith(t => Session.SendMessage(QuestStartedComposer.Compose(Session, NextQuest)));
+                } 
+                else 
+                {
+                    Session.SendMessage(QuestAbortedComposer.Compose());
+                    Session.SendNotif("You have completed all the quests in this category."); 
+                }
                 GetList(Session, null);
             }
         }
