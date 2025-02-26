@@ -239,6 +239,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             // Trax/Jukebox
             handlers.Add(Incoming.GetSoundMachinePlayList, new StaticRequestHandler(SharedPacketLib.GetPlaylists));
             handlers.Add(Incoming.GetSongInfo, new StaticRequestHandler(SharedPacketLib.GetMusicData));
+            handlers.Add(Incoming.GetDisks, new StaticRequestHandler(SharedPacketLib.GetDisks));
 
             Logging.WriteLine("Logged " + handlers.Count + " packet handler(s)!");
         }
