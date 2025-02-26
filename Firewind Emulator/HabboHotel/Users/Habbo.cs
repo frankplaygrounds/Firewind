@@ -113,6 +113,7 @@ namespace Firewind.HabboHotel.Users
         internal int FavouriteGroup;
 
         public double StackHeight;
+        public bool StackHeightStatus = false;
 
 
         internal Boolean InRoom

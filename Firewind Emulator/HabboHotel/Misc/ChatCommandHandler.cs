@@ -1420,12 +1420,19 @@ namespace Firewind.HabboHotel.Misc
 
             if (Params.Length == 1) {
                 Session.GetHabbo().StackHeight = 0;
+                Session.GetHabbo().StackHeightStatus = false;
                 Session.SendNotif("Build height disabled.");
                 return;
             }
 
             if (!double.TryParse(Params[1], out Session.GetHabbo().StackHeight))
+            {
                 Session.SendNotif("Please enter a valid integer or double value.");
+                Session.GetHabbo().StackHeightStatus = false;
+                return;
+            }
+
+            Session.GetHabbo().StackHeightStatus = true;
 
             ServerMessage servermsg = new ServerMessage();
             servermsg.Init(Outgoing.Whisp);

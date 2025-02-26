@@ -713,6 +713,12 @@ namespace Firewind.HabboHotel.Rooms
                 // Check for items in the stack that do not allow stacking on top of them
                 foreach (RoomItem I in ItemsComplete)
                 {
+                    if (Session.GetHabbo().StackHeightStatus)
+                    {
+                        // we dont care
+                        continue;
+                    }
+
                     if (I == null)
                         continue;
 
@@ -747,9 +753,17 @@ namespace Firewind.HabboHotel.Rooms
                 // Are there any higher objects in the stack!?
                 foreach (RoomItem I in ItemsComplete)
                 {
+                    Console.WriteLine("Triggered."); 
+
                     if (I.Id == Item.Id)
                     {
                         continue; // cannot stack on self
+                    }
+
+                    if (Session.GetHabbo().StackHeightStatus) 
+                    {
+                        newZ = Session.GetHabbo().StackHeight;
+                        continue;
                     }
 
                     if (I.TotalHeight > newZ)
