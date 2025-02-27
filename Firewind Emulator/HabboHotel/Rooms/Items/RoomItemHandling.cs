@@ -753,7 +753,6 @@ namespace Firewind.HabboHotel.Rooms
                 // Are there any higher objects in the stack!?
                 foreach (RoomItem I in ItemsComplete)
                 {
-                    Console.WriteLine("Triggered."); 
 
                     if (I.Id == Item.Id)
                     {
