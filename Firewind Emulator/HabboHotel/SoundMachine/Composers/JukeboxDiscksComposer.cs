@@ -75,7 +75,7 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
 
         public static ServerMessage ComposePlayingComposer(uint SongId, int PlaylistItemNumber, int SyncTimestampMs)
         {
-            ServerMessage Message = new ServerMessage(327);
+            ServerMessage Message = new ServerMessage(Outgoing.NowPlaying);
 
             if (SongId == 0)
             {
@@ -99,16 +99,15 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
 
         internal static ServerMessage SerializeSongInventory(Hashtable songs)
         {
-            ServerMessage message = new ServerMessage(333);
+            ServerMessage message = new ServerMessage(Outgoing.UserSongDisksInventory);
             message.AppendInt32(songs.Count);
 
-            foreach (UserItem userItem in songs.Values)
-            {
-                uint songID = (uint)TextHandling.Parse(userItem.Data.ToString());
-
-                message.AppendUInt(userItem.Id);
-                message.AppendUInt(songID);
-            }
+                foreach (UserItem item in songs.Values)
+                {
+                    int i = (int)TextHandling.Parse(item.Data.ToString());
+                    message.AppendInt32((int)item.Id);
+                    message.AppendInt32(i);
+                }
 
             return message;
         }

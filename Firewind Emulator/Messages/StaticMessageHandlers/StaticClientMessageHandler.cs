@@ -237,9 +237,12 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.PlaceBot, new StaticRequestHandler(SharedPacketLib.PlaceBot));
 
             // Trax/Jukebox
-            handlers.Add(Incoming.GetSoundMachinePlayList, new StaticRequestHandler(SharedPacketLib.GetPlaylists));
+            handlers.Add(Incoming.GetPlaylists, new StaticRequestHandler(SharedPacketLib.GetPlaylists));
             handlers.Add(Incoming.GetSongInfo, new StaticRequestHandler(SharedPacketLib.GetMusicData));
             handlers.Add(Incoming.GetDisks, new StaticRequestHandler(SharedPacketLib.GetDisks));
+            handlers.Add(Incoming.AddJukeboxDisk, new StaticRequestHandler(SharedPacketLib.AddPlaylistItem));
+            handlers.Add(Incoming.RemoveJukeboxDisk, new StaticRequestHandler(SharedPacketLib.RemovePlaylistItem));
+            //handlers.Add(Incoming.GetNowPlaying, new StaticRequestHandler(SharedPacketLib.OnNewUserEnter));
 
             Logging.WriteLine("Logged " + handlers.Count + " packet handler(s)!");
         }

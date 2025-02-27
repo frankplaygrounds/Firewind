@@ -23,7 +23,7 @@ using Firewind.HabboHotel.Rooms.Wired;
 using System.Drawing;
 using HabboEvents;
 using System.Reflection;
-
+using Firewind.HabboHotel.SoundMachine;
 
 namespace Firewind.Messages
 {

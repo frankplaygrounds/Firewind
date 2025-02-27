@@ -160,6 +160,8 @@ namespace Firewind.HabboHotel.SoundMachine
                 mPlaylist.Add(NewPlaylistId, new SongInstance(DiskItem, SongData));
             }
 
+            Start();
+
             return NewPlaylistId;
         }
 

@@ -110,7 +110,7 @@ namespace Firewind.Messages
 
             Room currentRoom = Session.GetHabbo().CurrentRoom;
 
-            if (!currentRoom.CheckRights(Session, true) || !currentRoom.GotMusicController())
+            if (!currentRoom.GotMusicController())
                 return;
 
             RoomMusicController musicController = currentRoom.GetRoomMusicController();
