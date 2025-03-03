@@ -1671,7 +1671,10 @@ namespace Firewind.HabboHotel.Items.Interactors
 
         internal override bool OnTrigger(GameClient Session, RoomItem Item, int Request, bool UserHasRights)
         {
-            /*if (((StringData)Item.data).Data == "1")
+            if (UserHasRights == false || Session == null || Item == null || Request == -1)
+                return false;
+
+            if (((StringData)Item.data).Data == "1")
             {
                 Item.GetRoom().GetRoomMusicController().Stop();
                 Item.data = new StringData("0");
@@ -1682,7 +1685,7 @@ namespace Firewind.HabboHotel.Items.Interactors
                 ((StringData)Item.data).Data = "1";
             }
 
-            Item.UpdateState();*/
+            Item.UpdateState();
             return true;
         }
     }

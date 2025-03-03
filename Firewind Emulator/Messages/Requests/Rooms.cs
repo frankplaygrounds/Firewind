@@ -2364,6 +2364,7 @@ namespace Firewind.Messages
 
         internal void TriggerItem()
         {
+
             Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
             if (Room == null)

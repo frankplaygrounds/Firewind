@@ -18,15 +18,15 @@ namespace Firewind.HabboHotel.SoundMachine.Composers
         internal static ServerMessage Compose(int PlaylistCapacity, List<SongInstance> Playlist)
         {
             ServerMessage Message = new ServerMessage(Outgoing.JukeboxSongDisks);
-            Message.AppendInt32(PlaylistCapacity);
+            Message.AppendInt32(PlaylistCapacity); //20
             Message.AppendInt32(Playlist.Count);
 
             foreach (SongInstance Song in Playlist)
             {
                 Message.AppendUInt(Song.DiskItem.itemID);
                 Message.AppendUInt(Song.SongData.Id);
-                Message.AppendString(Song.SongData.Name);
-                Message.AppendString(Song.SongData.Data);
+                //Message.AppendString(Song.SongData.Name);
+                //Message.AppendString(Song.SongData.Data);
             }
 
             return Message;

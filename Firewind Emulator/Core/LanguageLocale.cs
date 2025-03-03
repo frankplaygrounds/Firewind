@@ -83,7 +83,7 @@ namespace Firewind.Core
             
             foreach (string word in swearwords)
             {
-                original = ReplaceEx(original, word, "*******");
+                original = ReplaceEx(original, word, "bobba");
             }
             return original;
         }
