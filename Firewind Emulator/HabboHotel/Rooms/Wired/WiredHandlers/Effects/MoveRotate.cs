@@ -99,7 +99,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
             if (newPoint != item.Coordinate || newRotation != item.Rot)
             {
                 if (room.GetGameMap().SquareIsOpen(newPoint.X, newPoint.Y, false))
-                    return room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true);
+                    return room.GetRoomItemHandler().SetFloorItem(null, item, newPoint.X, newPoint.Y, newRotation, false, false, true, true);
             }
 
             return false;

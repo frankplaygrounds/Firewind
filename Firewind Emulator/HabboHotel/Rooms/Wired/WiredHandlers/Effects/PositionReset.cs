@@ -64,7 +64,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
             foreach (RoomItem item in items)
             {
                 Point oldCoordinate = item.GetPlacementPosition();
-                if (roomItemHandler.SetFloorItem(null, item, oldCoordinate.X, oldCoordinate.Y, item.Rot, false, false, true))
+                if (roomItemHandler.SetFloorItem(null, item, oldCoordinate.X, oldCoordinate.Y, item.Rot, false, false, true, true))
                     itemIsMoved = true;
             }
 
