@@ -1361,7 +1361,7 @@ namespace Firewind.HabboHotel.Items.Interactors
                     {
                         ServerMessage message = new ServerMessage(Outgoing.WiredEffect);
                         message.AppendBoolean(false);
-                        message.AppendInt32(5);
+                        message.AppendInt32(10);
                         message.AppendInt32(items.Count);
                         foreach (RoomItem item in items)
                             message.AppendUInt(item.Id);

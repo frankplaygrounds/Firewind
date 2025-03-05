@@ -433,9 +433,10 @@ namespace Firewind.HabboHotel.Users
             Client.SendMessage(Messenger.SerializeFriends());
             Client.SendMessage(Messenger.SerializeRequests());
 
-            // TODO: Change spanishfuck into locale message
+            //TODO: Change to locale message
+
             if (Messenger.requests.Count > FirewindEnvironment.friendRequestLimit)
-                Client.SendNotif("Tienes más de " + FirewindEnvironment.friendRequestLimit + " peticiones de amigos, por lo que solo hemos cargado " + FirewindEnvironment.friendRequestLimit + " y las próximas serán cargadas una vez aceptes estas y reinicies sesión!");
+                Client.SendNotif("You have more than " + FirewindEnvironment.friendRequestLimit + " friend requests. Only " + FirewindEnvironment.friendRequestLimit + "were loaded, accept/reject some and reload to see the other ones.");
         }
 
         internal void UpdateCreditsBalance()

@@ -111,7 +111,7 @@ namespace Firewind.Messages
                             GetResponse().AppendString(Convert.ToString(dRow[0])); // String ID
                             GetResponse().AppendString((string)xRow[1]);
                             GetResponse().AppendString((string)xRow[3]);
-                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://yourhotel.com/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
+                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://furni.cc/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
                             GetResponse().AppendInt32(time); // Time
                             GetResponse().AppendInt32(3);
                             GetResponse().AppendInt32((int)dRow[4]); // Likes
@@ -128,7 +128,7 @@ namespace Firewind.Messages
                             GetResponse().AppendString(Convert.ToString(dRow[0])); // String ID
                             GetResponse().AppendString((string)xRow[1]);
                             GetResponse().AppendString((string)xRow[3]);
-                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://yourhotel.com/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
+                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://furni.cc/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
                             GetResponse().AppendInt32(time); // Time
                             GetResponse().AppendInt32(0);
                             GetResponse().AppendInt32((int)dRow[4]); // Likes
@@ -174,7 +174,7 @@ namespace Firewind.Messages
                                 GetResponse().AppendString(Convert.ToString(dRow[0])); // String ID
                                 GetResponse().AppendString((string)xRow[1]);
                                 GetResponse().AppendString((string)xRow[3]);
-                                GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://yourhotel.com/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
+                                GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://furni.cc/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
                                 GetResponse().AppendInt32(time); // Time
                                 GetResponse().AppendInt32(3);
                                 GetResponse().AppendInt32((int)dRow[4]); // Likes
@@ -191,7 +191,7 @@ namespace Firewind.Messages
                             GetResponse().AppendString(Convert.ToString(dRow[0])); // String ID
                             GetResponse().AppendString((string)xRow[1]);
                             GetResponse().AppendString((string)xRow[3]);
-                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://yourhotel.com/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
+                            GetResponse().AppendString(String.Format(FirewindEnvironment.GetConfig().GetEntry("game.friendstream.imagerurl", "http://furni.cc/stream-imager/{0}.gif"), (string)xRow[2])); // User-Image/Badge
                             GetResponse().AppendInt32(time); // Time
                             GetResponse().AppendInt32(0);
                             GetResponse().AppendInt32((int)dRow[4]); // Likes
