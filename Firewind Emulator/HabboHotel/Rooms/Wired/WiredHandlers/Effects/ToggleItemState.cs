@@ -11,7 +11,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
 {
     class ToggleItemState: IWiredTrigger, IWiredCycleable, IWiredEffect
     {
-        private RoomItem item;
+        private uint itemID;
         private Gamemap gamemap;
         private WiredHandler handler;
 
@@ -24,7 +24,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
 
         public ToggleItemState(Gamemap gamemap, WiredHandler handler, List<RoomItem> items, int delay, RoomItem Item)
         {
-            this.item = Item;
+            this.itemID = Item.Id;
             this.gamemap = gamemap;
             this.handler = handler;
             this.items = items;
@@ -83,14 +83,12 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
         {
             if (disposed)
                 return false;
-            handler.OnEvent(item.Id);
+            handler.OnEvent(itemID);
             bool itemTriggered = false;
-            //Logging.WriteLine("serialize action babe!");
             foreach (RoomItem i in items)
             {
                 if (i == null)
                     continue;
-                //Logging.WriteLine("do it!");
                 if (user != null && user.GetClient() != null)
                     i.Interactor.OnTrigger(user.GetClient(), i, 0, true);
                 else
@@ -118,29 +116,28 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
 
         public void SaveToDatabase(IQueryAdapter dbClient)
         {
-            WiredUtillity.SaveTriggerItem(dbClient, (int)item.Id, "integer", string.Empty, delay.ToString(), false);
+            WiredUtillity.SaveTriggerItem(dbClient, (int)itemID, "integer", string.Empty, delay.ToString(), false);
             lock (items)
             {
-                dbClient.runFastQuery("DELETE FROM trigger_in_place WHERE original_trigger = '" + this.item.Id + "'"); 
+                dbClient.runFastQuery("DELETE FROM trigger_in_place WHERE original_trigger = '" + this.itemID + "'"); 
                 foreach (RoomItem i in items)
                 {
-                    WiredUtillity.SaveTrigger(dbClient, (int)item.Id, (int)i.Id);
+                    WiredUtillity.SaveTrigger(dbClient, (int)itemID, (int)i.Id);
                 }
-                //Logging.WriteLine("save trigger 'updatestate' items: " + items.Count);
             }
         }
 
         public void LoadFromDatabase(IQueryAdapter dbClient, Room insideRoom)
         {
             dbClient.setQuery("SELECT trigger_data FROM trigger_item WHERE trigger_id = @id ");
-            dbClient.addParameter("id", (int)this.item.Id);
+            dbClient.addParameter("id", (int)this.itemID);
             DataRow dRow = dbClient.getRow();
             if (dRow != null)
                 this.delay = Convert.ToInt32(dRow[0].ToString());
             else
                 this.delay = 20;
 
-            dbClient.setQuery("SELECT triggers_item FROM trigger_in_place WHERE original_trigger = " + this.item.Id);
+            dbClient.setQuery("SELECT triggers_item FROM trigger_in_place WHERE original_trigger = " + this.itemID);
             DataTable dTable = dbClient.getTable();
             RoomItem targetItem;
             foreach (DataRow dRows in dTable.Rows)
@@ -154,8 +151,8 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
 
         public void DeleteFromDatabase(IQueryAdapter dbClient)
         {
-            dbClient.runFastQuery("DELETE FROM trigger_item WHERE trigger_id = '" + this.item.Id + "'");
-            dbClient.runFastQuery("DELETE FROM trigger_in_place WHERE original_trigger = '" + this.item.Id + "'");
+            dbClient.runFastQuery("DELETE FROM trigger_item WHERE trigger_id = '" + this.itemID + "'");
+            dbClient.runFastQuery("DELETE FROM trigger_in_place WHERE original_trigger = '" + this.itemID + "'");
         }
 
         public bool Disposed()
