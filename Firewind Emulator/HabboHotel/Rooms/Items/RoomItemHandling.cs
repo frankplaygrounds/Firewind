@@ -588,7 +588,14 @@ namespace Firewind.HabboHotel.Rooms
 
         internal bool SetFloorItem(GameClient Session, RoomItem Item, int newX, int newY, int newRot, bool newItem, bool OnRoller, bool sendMessage, bool SpecialMove = false)
         {
+            try
+            {
                 return SetFloorItem(Session, Item, newX, newY, newRot, newItem, OnRoller, sendMessage, true, SpecialMove);
+            } catch
+            {
+                return false;
+            }
+            return false; //wired probably shit itself
         }
 
         internal bool SetFloorItem(GameClient Session, RoomItem Item, int newX, int newY, int newRot, bool newItem, bool OnRoller, bool sendMessage, bool updateRoomUserStatuses, bool SpecialMove = false)
