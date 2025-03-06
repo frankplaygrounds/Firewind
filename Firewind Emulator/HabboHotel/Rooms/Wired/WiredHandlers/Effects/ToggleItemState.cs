@@ -22,9 +22,9 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
 
         private bool disposed;
 
-        public ToggleItemState(Gamemap gamemap, WiredHandler handler, List<RoomItem> items, int delay, RoomItem Item)
+        public ToggleItemState(Gamemap gamemap, WiredHandler handler, List<RoomItem> items, int delay, uint itemID)
         {
-            this.itemID = Item.Id;
+            this.itemID = itemID;
             this.gamemap = gamemap;
             this.handler = handler;
             this.items = items;

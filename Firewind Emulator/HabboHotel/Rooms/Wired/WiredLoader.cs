@@ -67,7 +67,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
                 case InteractionType.actiontogglestate:
                     {
-                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), new List<RoomItem>(), 0, item);
+                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), new List<RoomItem>(), 0, item.Id);
                         action.LoadFromDatabase(dbClient, room);
                         item.wiredHandler = action;
                         HandleItemLoad(action, room.GetWiredHandler(), item);
