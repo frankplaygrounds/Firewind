@@ -588,15 +588,7 @@ namespace Firewind.HabboHotel.Rooms
 
         internal bool SetFloorItem(GameClient Session, RoomItem Item, int newX, int newY, int newRot, bool newItem, bool OnRoller, bool sendMessage, bool SpecialMove = false)
         {
-            try
-            {
                 return SetFloorItem(Session, Item, newX, newY, newRot, newItem, OnRoller, sendMessage, true, SpecialMove);
-            } catch
-            {
-                return false;
-                //huge fuckup
-            }
-            return false;
         }
 
         internal bool SetFloorItem(GameClient Session, RoomItem Item, int newX, int newY, int newRot, bool newItem, bool OnRoller, bool sendMessage, bool updateRoomUserStatuses, bool SpecialMove = false)
@@ -859,17 +851,23 @@ namespace Firewind.HabboHotel.Rooms
                 {
                     if (SpecialMove)
                     {
-                        ServerMessage Message = new ServerMessage(Outgoing.ObjectOnRoller);
-                        Message.AppendInt32(oldX);
-                        Message.AppendInt32(oldY);
-                        Message.AppendInt32(Item.GetX);
-                        Message.AppendInt32(Item.GetY);
-                        Message.AppendInt32(1);
-                        Message.AppendUInt(Item.Id);
-                        Message.AppendString(String.Format("{0:0.00}", TextHandling.GetString(Item.GetZ))); // altura a la que se encuentra
-                        Message.AppendString(String.Format("{0:0.00}", TextHandling.GetString(Item.GetZ))); // altura del furni
-                        Message.AppendInt32(-1);
-                        room.SendMessage(Message);
+                        try
+                        {
+                            ServerMessage Message = new ServerMessage(Outgoing.ObjectOnRoller);
+                            Message.AppendInt32(oldX);
+                            Message.AppendInt32(oldY);
+                            Message.AppendInt32(Item.GetX);
+                            Message.AppendInt32(Item.GetY);
+                            Message.AppendInt32(1);
+                            Message.AppendUInt(Item.Id);
+                            Message.AppendString(String.Format("{0:0.00}", TextHandling.GetString(Item.GetZ))); // altura a la que se encuentra
+                            Message.AppendString(String.Format("{0:0.00}", TextHandling.GetString(Item.GetZ))); // altura del furni
+                            Message.AppendInt32(-1);
+                            room.SendMessage(Message);
+                        } catch
+                        {
+                            ServerMessage Message = new ServerMessage(Outgoing.ObjectUpdate);
+                        }
                     }
                     else 
                     { 
