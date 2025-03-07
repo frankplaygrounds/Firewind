@@ -91,7 +91,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         List<RoomItem> items = new List<RoomItem>();
                         int delay = 0;
 
-                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), items, delay, itemID);
+                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), items, delay, item);
                         HandleTriggerSave(action, room.GetWiredHandler(), room, itemID);
                         break;
                     }
@@ -315,7 +315,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         int delay = clientMessage.ReadInt32();
                         //Logging.WriteLine("Save action toogle wired with " + items.Count + " item(s) and " + delay + " second(s) of delay!");
 
-                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), items, delay, itemID);
+                        IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), items, delay, item);
                         HandleTriggerSave(action, room.GetWiredHandler(), room, itemID);
                         break;
                     }
