@@ -50,8 +50,11 @@
             //}
             Writer.Init();
 
-            _handler += Handler;
-            SetConsoleCtrlHandler(_handler, true);
+            if (OperatingSystem.IsWindows())
+            {
+                _handler += Handler;
+                SetConsoleCtrlHandler(_handler, true);
+            }
 
             InitEnvironment();
 
