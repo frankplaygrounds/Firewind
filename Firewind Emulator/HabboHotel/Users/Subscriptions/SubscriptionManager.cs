@@ -80,8 +80,8 @@ namespace Firewind.HabboHotel.Users.Subscriptions
                 
                 using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
                 {
-                    dbClient.setQuery("UPDATE user_subscriptions SET timestamp_expire = " + Sub.ExpireTime + " WHERE user_id = " + UserId + " AND subscription_id = 'habbo_vip'");
-                    //dbClient.addParameter("subcrbr", SubscriptionId);
+                    dbClient.setQuery("UPDATE user_subscriptions SET timestamp_expire = " + Sub.ExpireTime + " WHERE user_id = " + UserId + " AND subscription_id = @subscription_id");
+                    dbClient.addParameter("subscription_id", SubscriptionId);
                     dbClient.runQuery();
                 }
 
@@ -95,8 +95,8 @@ namespace Firewind.HabboHotel.Users.Subscriptions
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("INSERT INTO user_subscriptions (user_id,subscription_id,timestamp_activated,timestamp_expire) VALUES (" + UserId + ",'habbo_vip'," + TimeCreated + "," + TimeExpire + ")");
-                //dbClient.addParameter("subcrbr", SubscriptionId);
+                dbClient.setQuery("INSERT INTO user_subscriptions (user_id,subscription_id,timestamp_activated,timestamp_expire) VALUES (" + UserId + ",@subscription_id," + TimeCreated + "," + TimeExpire + ")");
+                dbClient.addParameter("subscription_id", SubscriptionId);
                 dbClient.runQuery();
             }
 

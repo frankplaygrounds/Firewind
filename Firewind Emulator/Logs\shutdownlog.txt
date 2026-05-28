@@ -1,0 +1,28 @@
+
+Hotel pre-warning =>[0 s, 0 ms]
+Socket close =>[0 s, 0 ms]
+Furni pre-save and connection close =>[0 s, 5 ms]
+Room destructor =>[0 s, 1 ms]
+Database pre-save =>[0 s, 16 ms]
+Connection shutdown =>[0 s, 0 ms]
+Game destroy =>[0 s, 7 ms]
+Database shutdown =>[0 s, 0 ms]
+Total time on shutdown 0 s, 32 ms
+You have reached ==> [END OF SESSION]
+
+
+
+
+Hotel pre-warning =>[0 s, 0 ms]
+Socket close =>[0 s, 0 ms]
+Furni pre-save and connection close =>[0 s, 1 ms]
+Room destructor =>[0 s, 0 ms]
+Database pre-save =>[0 s, 20 ms]
+Connection shutdown =>[0 s, 0 ms]
+Game destroy =>[0 s, 12 ms]
+Database shutdown =>[0 s, 0 ms]
+Total time on shutdown 0 s, 35 ms
+You have reached ==> [END OF SESSION]
+
+
+

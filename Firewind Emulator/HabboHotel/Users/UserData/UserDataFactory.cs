@@ -213,10 +213,11 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             int expireTimestamp;
             foreach (DataRow dRow in dSubscriptions.Rows)
             {
-                subscriptionID = (string)dRow["subscription_id"];
+                subscriptionID = ((string)dRow["subscription_id"]).ToLower();
                 expireTimestamp = (int)dRow["timestamp_expire"];
 
-                subscriptions.Add(subscriptionID, new Subscription(subscriptionID, expireTimestamp));
+                if (!subscriptions.ContainsKey(subscriptionID) || subscriptions[subscriptionID].ExpireTime < expireTimestamp)
+                    subscriptions[subscriptionID] = new Subscription(subscriptionID, expireTimestamp);
             }
 
             List<Badge> badges = new List<Badge>();

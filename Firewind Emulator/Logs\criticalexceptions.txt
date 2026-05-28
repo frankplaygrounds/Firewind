@@ -1,0 +1,9 @@
+
+User frank shut down the server 28/05/2026 18:14:08
+
+
+Invalid Dario bug duing user login (progress = 0): System.ArgumentException: An item with the same key has already been added. Key: habbo_vip
+   at System.Collections.Generic.Dictionary`2.Add(TKey key, TValue value)
+   at Firewind.HabboHotel.Users.UserDataManagement.UserDataFactory.GetUserData(String sessionTicket, String ip, Byte& errorCode) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Users/UserData/UserDataFactory.cs:line 219
+   at Firewind.HabboHotel.GameClients.GameClient.tryLogin(String AuthTicket) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/GameClients/GameClient.cs:line 131
+
