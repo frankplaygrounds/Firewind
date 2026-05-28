@@ -28,6 +28,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Effects
             this.handler = handler;
             this.items = items;
             this.delay = delay;
+            this.itemID = itemID;
             this.cycles = 0;
             this.disposed = false;
         }

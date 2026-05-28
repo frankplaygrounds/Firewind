@@ -26,7 +26,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Conditions
 
         public bool AllowsExecution(RoomUser user)
         {
-            if (room.lastTimerReset == null)
+            if (room.lastTimerReset == DateTime.MinValue)
                 return false;
 
             TimeSpan sinceTimerReset = DateTime.Now - room.lastTimerReset;

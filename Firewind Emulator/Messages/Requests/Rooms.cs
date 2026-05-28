@@ -18,6 +18,7 @@ using Firewind.HabboHotel.Users.Badges;
 using Firewind.Collections;
 using Database_Manager.Database.Session_Details.Interfaces;
 using Firewind.HabboHotel.Groups;
+using Firewind.HabboHotel.Groups.Types;
 using System.Collections;
 using Firewind.HabboHotel.Rooms.Wired;
 using System.Drawing;
@@ -198,7 +199,43 @@ namespace Firewind.Messages
 
         internal void GetHabboGroupBadges()
         {
-            //
+            Dictionary<int, string> groupBadges = new Dictionary<int, string>();
+
+            if (CurrentLoadingRoom != null && CurrentLoadingRoom.RoomData.Group != null)
+                groupBadges[CurrentLoadingRoom.RoomData.Group.ID] = CurrentLoadingRoom.RoomData.Group.BadgeCode;
+
+            if (CurrentLoadingRoom != null)
+            {
+                foreach (RoomUser user in CurrentLoadingRoom.GetRoomUserManager().UserList.Values)
+                {
+                    if (user == null || user.IsBot || user.IsPet || user.GetClient() == null || user.GetClient().GetHabbo() == null)
+                        continue;
+
+                    int favouriteGroup = user.GetClient().GetHabbo().FavouriteGroup;
+                    if (favouriteGroup <= 0 || FirewindEnvironment.GetGame().GetGroupManager() == null)
+                        continue;
+
+                    Group group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(favouriteGroup);
+                    if (group != null)
+                        groupBadges[group.ID] = group.BadgeCode;
+                }
+            }
+
+            if (Session.GetHabbo().FavouriteGroup > 0 && FirewindEnvironment.GetGame().GetGroupManager() != null)
+            {
+                Group group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(Session.GetHabbo().FavouriteGroup);
+                if (group != null)
+                    groupBadges[group.ID] = group.BadgeCode;
+            }
+
+            Response.Init(Outgoing.HabboGroupBadges);
+            Response.AppendInt32(groupBadges.Count);
+            foreach (KeyValuePair<int, string> groupBadge in groupBadges)
+            {
+                Response.AppendInt32(groupBadge.Key);
+                Response.AppendString(groupBadge.Value);
+            }
+            SendResponse();
         }
 
         // GetRoomData1

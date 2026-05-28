@@ -50,7 +50,8 @@ namespace HabboEvents
 		public static int AcceptTrade = 3435;
 		public static int UnacceptTrade = 1960;
 		public static int ConfirmTrade = 3147;
-		public static int CancelTrade = 937;
+			public static int CancelTrade = 937;
+			public static int CancelTradeConfirmation = 1762;
 		public static int Move = 970;
 		public static int Talk = 1972;
 		public static int Shout = 3277;
@@ -99,8 +100,10 @@ namespace HabboEvents
 		public static int GiveRights = 3768;
 		public static int RemoveAllRights = 1479;
         public static int RemoveRights = 2990;
-		public static int PickupItem = 1128;
-		public static int SaveWiredTrigger = 981;
+			public static int PickupItem = 1128;
+			public static int EjectItem = 1788;
+			public static int SaveWiredTrigger = 981;
+			public static int SaveWiredCondition = 2013;
 		public static int SaveWiredEffect = 682;
 		public static int ToolForThisRoom = 514;
 		public static int ToolForUser = 2452;
@@ -118,7 +121,8 @@ namespace HabboEvents
         public static int CloseIssues = 3087;
 		public static int ReleaseIssue = 2294;
 		public static int OpenRoomChatlog = 96;
-		public static int GiveRoomScore = 1173;
+			public static int GiveRoomScore = 1173;
+			public static int RateFlat = 1173;
 		public static int SendRoomAlert = 126;
 		public static int KickUserOfRoom = 18;
 		public static int BanUserOfRoom = 2790;
@@ -133,7 +137,8 @@ namespace HabboEvents
 		public static int ApplyBadge = 1321;
 		public static int GetUserBadges = 1699;
 		public static int GetUserTags = 2253;
-		public static int GoToHotelView = 2162;
+			public static int GoToHotelView = 3603;
+			public static int PersonalMessage = 2162;
         public static int RemoveHanditem = 3843;
         public static int GiveObject = 2566;
 		public static int FindFriends = 2441;
@@ -159,6 +164,7 @@ namespace HabboEvents
 
         // Furniture
         public static int EnterOneWayDoor = 2505;
+        public static int SetClothingChangeData = 666;
 
         public static int UseWallItem = 3793;
 
@@ -166,6 +172,24 @@ namespace HabboEvents
         public static int StartGuildPurchase = 1137;
         public static int GetGuildInfo = 1660;
         public static int CreateGuild = 2282;
+        public static int GetGuildFurniInfo = 3015;
+        public static int GetGuildManageInfo = 1811;
+        public static int GetHabboGroupsWhereMember = 1557;
+        public static int GetGroupBadgeParts = 677;
+        public static int GetGroupMemberList = 170;
+        public static int SelectFavouriteHabboGroup = 1911;
+        public static int DeselectFavouriteHabboGroup = 1666;
+        public static int PromoteGroupMember = 2445;
+        public static int DemoteGroupMember = 1595;
+        public static int KickGroupMember = 3663;
+        public static int AcceptMembershipRequest = 758;
+        public static int DeclineMembershipRequest = 456;
+        public static int FindHotGroups = 1176;
+        public static int UpdateGuildBadge = 2616;
+        public static int UpdateGuildIdentity = 3438;
+        public static int UpdateGuildColors = 2044;
+        public static int UpdateGuildSettings = 2105;
+        public static int JoinGroup = 9;
 
         // Engine
         public static int EventLog = 2087;
@@ -177,17 +201,22 @@ namespace HabboEvents
         public static int GetSoundSettings = 3995;
 
 		//Quests
-		public static int OpenQuests = 1455;
-		public static int StartQuest = 1306;
-		public static int StopQuest = 3027;
-		public static int GetCurrentQuest = 1907;
+			public static int OpenQuests = 1455;
+			public static int GetQuests = 1455;
+			public static int StartQuest = 1306;
+			public static int AcceptQuest = 1306;
+			public static int StopQuest = 3027;
+			public static int RejectQuest = 3027;
+			public static int GetCurrentQuest = 1907;
+			public static int OpenQuestTracker = 1907;
 
 		// Pets
 		public static int GetPetInventory = 3127;
         public static int PlacePet = 461;
         public static int PickupPet = 2378;
         public static int RespetPet = 112;
-        public static int AddSaddleToPet = 243;
+	        public static int AddSaddleToPet = 243;
+	        public static int ApplyHorseItem = 243;
         public static int RemoveSaddle = 809;
         public static int MountOnPet = 296;
         public static int PetInfo = 303;
@@ -216,8 +245,10 @@ namespace HabboEvents
 		public static int GetSongInfo = 772;
 		public static int AddJukeboxDisk = 2648;
 		public static int RemoveJukeboxDisk = 2361;
-		public static int GetPlaylists = 227;
-		public static int GetDisks = 1493;
+			public static int GetPlaylists = 227;
+			public static int GetJukeboxPlayList = 227;
+			public static int GetDisks = 1493;
+			public static int GetUserSongDisks = 1493;
 		public static int GetNowPlaying = 2061;
 
 

@@ -88,8 +88,10 @@ namespace HabboEvents
         public static int OpenGift = 1252;
         public static int Objects = 362;
         public static int SerializeWallItems = 801;
+        public static int Items = 801;
         public static int FloodFilter = 3153;
         public static int SetRoomUser = 780;
+        public static int Users = 780;
         public static int ConfigureWallandFloor = 2006;
         public static int SerializeClub = 3208;
         public static int ClubComposer = 3432;
@@ -119,6 +121,7 @@ namespace HabboEvents
         public static int GivePowers = 212;
         public static int RemovePowers = 701;
         public static int FlatControllerAdded = 658;
+        public static int FlatControllers = 658;
         public static int TypingStatus = 467;
         public static int RemoveObjectFromInventory = 1259;
         public static int AddWallItemToRoom = 1739;
@@ -142,8 +145,11 @@ namespace HabboEvents
         public static int WardrobeData = 2355;
         public static int HelpRequest = 230; // don't know at all
         public static int SerializeCompetitionWinners = 2344;
+        public static int CommunityGoalHallOfFame = 2344;
 
         public static int RecyclePrizes = 1244;
+        public static int RecyclerStatus = 2806;
+        public static int RecyclerFinished = 2470;
         public static int PetRespectNotification = 3692;
         public static int PetAddedToInventory = 3947;
         public static int MOTDNotification = 3677;
@@ -191,6 +197,14 @@ namespace HabboEvents
         public static int GroupInfo = 2602;
         public static int OwnGuilds = 1463;
         public static int GroupCreated = 1327;
+        public static int GuildEditInfo = 3529;
+        public static int GuildFurniInfo = 113;
+        public static int GroupMemberList = 1621;
+        public static int FavoritemembershipUpdate = 348;
+        public static int HabboGroupBadges = 3834;
+        public static int FavouriteGroupUserShit = 1806;
+        public static int HabboGroupDetails = 2602;
+        public static int HabboGroupsWhereMember = 1463;
 
         // User
         public static int SoundSettings = 89;
@@ -201,6 +215,7 @@ namespace HabboEvents
 
         // Messenger
         public static int MessengerError = 3736;
+        public static int FriendNotification = 2473;
 
         // Engine
         public static int GenericError = 3192;

@@ -332,7 +332,8 @@ namespace Firewind
             {
                 using (IQueryAdapter dbClient = GetDatabaseManager().getQueryreactor())
                 {
-                    dbClient.setQuery("SELECT id FROM users WHERE username = '" + UserName + "'");
+                    dbClient.setQuery("SELECT id FROM users WHERE username = @username");
+                    dbClient.addParameter("username", UserName);
                     int id = dbClient.getInteger();
                     if (id > 0)
                     {

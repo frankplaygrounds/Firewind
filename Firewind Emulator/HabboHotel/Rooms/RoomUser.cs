@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Firewind.HabboHotel.ChatMessageStorage;
 using Firewind.HabboHotel.GameClients;
+using Firewind.HabboHotel.Groups.Types;
 using Firewind.HabboHotel.Misc;
 using Firewind.HabboHotel.Pathfinding;
 using Firewind.HabboHotel.Pets;
@@ -903,9 +904,13 @@ namespace Firewind.HabboHotel.Rooms
                 Message.AppendInt32(1);
                 Message.AppendString(User.Gender.ToLower());
 
-                Message.AppendInt32(0); // group ID
+                Group favouriteGroup = null;
+                if (User.FavouriteGroup > 0 && FirewindEnvironment.GetGame().GetGroupManager() != null)
+                    favouriteGroup = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(User.FavouriteGroup);
+
+                Message.AppendInt32(favouriteGroup != null ? favouriteGroup.ID : 0); // group ID
                 Message.AppendInt32(0); // Looks like unused
-                Message.AppendString(""); // groupName
+                Message.AppendString(favouriteGroup != null ? favouriteGroup.BadgeCode : ""); // group badge
 
                 Message.AppendString(""); // botFigure
                 Message.AppendInt32(User.AchievementPoints);

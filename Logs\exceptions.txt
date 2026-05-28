@@ -1,0 +1,15 @@
+
+Exception logged 28/05/2026 00:49:24 in FirewindEnvironment.SendMassMessage:
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.FirewindEnvironment.SendMassMessage(String Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/FirewindEnvironment.cs:line 440
+Source:
+Firewind Emulator
+Data:
+Message:
+Object reference not set to an instance of an object.
+Stack trace:
+   at Firewind.FirewindEnvironment.SendMassMessage(String Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/FirewindEnvironment.cs:line 440
+
+
+
+

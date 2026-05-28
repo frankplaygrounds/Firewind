@@ -173,7 +173,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.MountOnPet, new StaticRequestHandler(SharedPacketLib.Ride));
             handlers.Add(Incoming.SaveWiredEffect, new StaticRequestHandler(SharedPacketLib.SaveWired));
             handlers.Add(Incoming.SaveWiredTrigger, new StaticRequestHandler(SharedPacketLib.SaveWired));
-            handlers.Add(Incoming.UpdateCondition, new StaticRequestHandler(SharedPacketLib.SaveWiredCondition));
+            handlers.Add(Incoming.SaveWiredCondition, new StaticRequestHandler(SharedPacketLib.SaveWiredCondition));
             handlers.Add(Incoming.UserInformation, new StaticRequestHandler(SharedPacketLib.GetUserInfo));
             handlers.Add(Incoming.LoadProfile, new StaticRequestHandler(SharedPacketLib.LoadProfile));
             handlers.Add(Incoming.ScrGetUserInfo, new StaticRequestHandler(SharedPacketLib.ScrGetUserInfo));
@@ -215,6 +215,24 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.StartGuildPurchase, new StaticRequestHandler(SharedPacketLib.StartGuildPurchase));
             handlers.Add(Incoming.GetGuildInfo, new StaticRequestHandler(SharedPacketLib.GetGuildInfo));
             handlers.Add(Incoming.CreateGuild, new StaticRequestHandler(SharedPacketLib.CreateGuild));
+            handlers.Add(Incoming.GetGroupBadgeParts, new StaticRequestHandler(SharedPacketLib.GetGroupBadgeParts));
+            handlers.Add(Incoming.GetGuildFurniInfo, new StaticRequestHandler(SharedPacketLib.GetGuildFurniInfo));
+            handlers.Add(Incoming.GetGuildManageInfo, new StaticRequestHandler(SharedPacketLib.GetGuildManageInfo));
+            handlers.Add(Incoming.GetHabboGroupsWhereMember, new StaticRequestHandler(SharedPacketLib.GetHabboGroupsWhereMember));
+            handlers.Add(Incoming.GetGroupMemberList, new StaticRequestHandler(SharedPacketLib.GetGroupMemberList));
+            handlers.Add(Incoming.SelectFavouriteHabboGroup, new StaticRequestHandler(SharedPacketLib.SelectFavouriteHabboGroup));
+            handlers.Add(Incoming.DeselectFavouriteHabboGroup, new StaticRequestHandler(SharedPacketLib.DeselectFavouriteHabboGroup));
+            handlers.Add(Incoming.PromoteGroupMember, new StaticRequestHandler(SharedPacketLib.PromoteGroupMember));
+            handlers.Add(Incoming.DemoteGroupMember, new StaticRequestHandler(SharedPacketLib.DemoteGroupMember));
+            handlers.Add(Incoming.KickGroupMember, new StaticRequestHandler(SharedPacketLib.KickGroupMember));
+            handlers.Add(Incoming.AcceptMembershipRequest, new StaticRequestHandler(SharedPacketLib.AcceptMembershipRequest));
+            handlers.Add(Incoming.DeclineMembershipRequest, new StaticRequestHandler(SharedPacketLib.DeclineMembershipRequest));
+            handlers.Add(Incoming.UpdateGuildBadge, new StaticRequestHandler(SharedPacketLib.UpdateGuildBadge));
+            handlers.Add(Incoming.UpdateGuildIdentity, new StaticRequestHandler(SharedPacketLib.UpdateGuildIdentity));
+            handlers.Add(Incoming.UpdateGuildColors, new StaticRequestHandler(SharedPacketLib.UpdateGuildColors));
+            handlers.Add(Incoming.UpdateGuildSettings, new StaticRequestHandler(SharedPacketLib.UpdateGuildSettings));
+            handlers.Add(Incoming.JoinGroup, new StaticRequestHandler(SharedPacketLib.JoinGroup));
+            handlers.Add(Incoming.FindHotGroups, new StaticRequestHandler(SharedPacketLib.FindHotGroups));
 
             // Engine
             handlers.Add(Incoming.EventLog, new StaticRequestHandler(SharedPacketLib.EventLog));

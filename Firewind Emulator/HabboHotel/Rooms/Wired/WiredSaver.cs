@@ -749,6 +749,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
             int stuffSelectionType = clientMessage.ReadInt32();
 
             IWiredCondition handler = null;
+            int timerValue = intParams.Length > 0 ? intParams[0] : 0;
 
             switch (type)
             {
@@ -765,13 +766,13 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
                 case InteractionType.conditiontimelessthan:
                     {
-                        handler = new LessThanTimer(500, room, item);
+                        handler = new LessThanTimer(timerValue, room, item);
                         break;
                     }
 
                 case InteractionType.conditiontimemorethan:
                     {
-                        handler = new MoreThanTimer(500, room, item);
+                        handler = new MoreThanTimer(timerValue, room, item);
                         break;
                     }
 

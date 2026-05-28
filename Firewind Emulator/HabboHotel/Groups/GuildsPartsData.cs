@@ -81,7 +81,19 @@ namespace Firewind.HabboHotel.Groups
                         ColorBadges3.Add(data);
                     }
                 }
+
+                if (table.Rows.Count == 0)
+                    AddFallbackParts();
             }
+        }
+
+        private static void AddFallbackParts()
+        {
+            BaseBadges.Add(new GuildsPartsData { Id = 1, ExtraData1 = "base_basic_1.gif", ExtraData2 = "" });
+            SymbolBadges.Add(new GuildsPartsData { Id = 2, ExtraData1 = "symbol_background_1.gif", ExtraData2 = "" });
+            ColorBadges1.Add(new GuildsPartsData { Id = 3, ExtraData1 = "ffffff" });
+            ColorBadges2.Add(new GuildsPartsData { Id = 4, ExtraData1 = "ffffff" });
+            ColorBadges3.Add(new GuildsPartsData { Id = 5, ExtraData1 = "ffffff" });
         }
     }
 }

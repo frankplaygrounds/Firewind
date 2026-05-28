@@ -19,8 +19,9 @@ namespace Firewind.HabboHotel.ChatMessageStorage
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("INSERT into `chatlogs`(`user_id`, `room_id`, `hour`, `minute`, `full_date`, `timestamp`, `message`, `user_name`) VALUES(" + userID + ", " + roomID + ", " + timeSpoken.Hour + ", " + timeSpoken.Minute + ", '" + timeSpoken.ToString() + "', " + FirewindEnvironment.GetUnixTimestamp() + ", @msg, '" + user.GetHabbo().Username + "');");
+                dbClient.setQuery("INSERT into `chatlogs`(`user_id`, `room_id`, `hour`, `minute`, `full_date`, `timestamp`, `message`, `user_name`) VALUES(" + userID + ", " + roomID + ", " + timeSpoken.Hour + ", " + timeSpoken.Minute + ", '" + timeSpoken.ToString() + "', " + FirewindEnvironment.GetUnixTimestamp() + ", @msg, @username);");
                 dbClient.addParameter("msg", message);
+                dbClient.addParameter("username", username);
                 dbClient.runQuery();
             }
 

@@ -96,7 +96,8 @@ namespace Firewind.Messages
                 GetResponse().AppendInt32(StreamCount);
                 foreach (DataRow dRow in dTable.Rows)
                 {
-                    dbClient.setQuery("SELECT id,username,look,gender,rank FROM users WHERE username='" + (string)dRow[1] + "' ORDER BY id DESC LIMIT 1");
+                    dbClient.setQuery("SELECT id,username,look,gender,rank FROM users WHERE username = @username ORDER BY id DESC LIMIT 1");
+                    dbClient.addParameter("username", (string)dRow[1]);
                     DataTable mTable = dbClient.getTable();
                     foreach (DataRow xRow in mTable.Rows)
                     {
@@ -159,7 +160,8 @@ namespace Firewind.Messages
                 GetResponse().AppendInt32(StreamCount);
                 foreach (DataRow dRow in dTable.Rows)
                 {
-                    dbClient.setQuery("SELECT id,username,look,gender,rank FROM users WHERE username='" + (string)dRow[1] + "' ORDER BY id DESC LIMIT 1");
+                    dbClient.setQuery("SELECT id,username,look,gender,rank FROM users WHERE username = @username ORDER BY id DESC LIMIT 1");
+                    dbClient.addParameter("username", (string)dRow[1]);
                     DataTable mTable = dbClient.getTable();
                     foreach (DataRow xRow in mTable.Rows)
                     {

@@ -188,15 +188,24 @@ namespace Firewind.HabboHotel.Users
             this.CurrentQuestProgress = currentQuestProgress;
             this.AccountCreated = AccountCreated;
 
-            //this.Groups = new List<int>();
-            //if (groups != null)
-            //{
-            //    foreach (DataRow row in groups.Rows)
-            //    {
-            //        this.Groups.Add(Convert.ToInt32(row["id"]));
-            //    }
-            //}
-            //this.FavouriteGroup = favouriteGroup;
+            this.Groups = new List<int>();
+            this.FavouriteGroup = favouriteGroup;
+            if (groups != null)
+            {
+                foreach (DataRow row in groups.Rows)
+                {
+                    int groupId = Convert.ToInt32(row["groupid"]);
+                    bool isPending = row.Table.Columns.Contains("is_pending") && row["is_pending"].ToString() == "1";
+                    if (isPending)
+                        continue;
+
+                    if (!this.Groups.Contains(groupId))
+                        this.Groups.Add(groupId);
+
+                    if (row.Table.Columns.Contains("is_current") && row["is_current"].ToString() == "1")
+                        this.FavouriteGroup = groupId;
+                }
+            }
         }
 
         internal void InitInformation(UserData data)
@@ -549,7 +558,7 @@ namespace Firewind.HabboHotel.Users
         internal void SendGroupList()
         {
             List<Group> groups = FirewindEnvironment.GetGame().GetGroupManager().GetGroups(this.Groups);
-            ServerMessage message = new ServerMessage(Outgoing.OwnGuilds);
+            ServerMessage message = new ServerMessage(Outgoing.HabboGroupsWhereMember);
 
             message.AppendInt32(groups.Count); // count
             foreach (Group group in groups)
@@ -559,7 +568,7 @@ namespace Firewind.HabboHotel.Users
                 message.AppendString(group.BadgeCode); // badge
                 message.AppendString(group.Color1); // color 1
                 message.AppendString(group.Color2); // color 2
-                message.AppendBoolean(true); // favourite
+                message.AppendBoolean(group.ID == FavouriteGroup); // favourite
             }
 
             GetClient().SendMessage(message);

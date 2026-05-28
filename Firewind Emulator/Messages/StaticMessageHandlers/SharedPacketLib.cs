@@ -981,6 +981,96 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.GetGuildInfo();
         }
 
+        internal static void GetGroupBadgeParts(GameClientMessageHandler handler)
+        {
+            handler.GetGroupBadgeParts();
+        }
+
+        internal static void GetGuildFurniInfo(GameClientMessageHandler handler)
+        {
+            handler.GetGuildFurniInfo();
+        }
+
+        internal static void GetGuildManageInfo(GameClientMessageHandler handler)
+        {
+            handler.GetGuildManageInfo();
+        }
+
+        internal static void GetHabboGroupsWhereMember(GameClientMessageHandler handler)
+        {
+            handler.GetHabboGroupsWhereMember();
+        }
+
+        internal static void GetGroupMemberList(GameClientMessageHandler handler)
+        {
+            handler.GetGroupMemberList();
+        }
+
+        internal static void SelectFavouriteHabboGroup(GameClientMessageHandler handler)
+        {
+            handler.SelectFavouriteHabboGroup();
+        }
+
+        internal static void DeselectFavouriteHabboGroup(GameClientMessageHandler handler)
+        {
+            handler.DeselectFavouriteHabboGroup();
+        }
+
+        internal static void PromoteGroupMember(GameClientMessageHandler handler)
+        {
+            handler.PromoteGroupMember();
+        }
+
+        internal static void DemoteGroupMember(GameClientMessageHandler handler)
+        {
+            handler.DemoteGroupMember();
+        }
+
+        internal static void KickGroupMember(GameClientMessageHandler handler)
+        {
+            handler.KickGroupMember();
+        }
+
+        internal static void AcceptMembershipRequest(GameClientMessageHandler handler)
+        {
+            handler.AcceptMembershipRequest();
+        }
+
+        internal static void DeclineMembershipRequest(GameClientMessageHandler handler)
+        {
+            handler.DeclineMembershipRequest();
+        }
+
+        internal static void UpdateGuildBadge(GameClientMessageHandler handler)
+        {
+            handler.UpdateGuildBadge();
+        }
+
+        internal static void UpdateGuildIdentity(GameClientMessageHandler handler)
+        {
+            handler.UpdateGuildIdentity();
+        }
+
+        internal static void UpdateGuildColors(GameClientMessageHandler handler)
+        {
+            handler.UpdateGuildColors();
+        }
+
+        internal static void UpdateGuildSettings(GameClientMessageHandler handler)
+        {
+            handler.UpdateGuildSettings();
+        }
+
+        internal static void JoinGroup(GameClientMessageHandler handler)
+        {
+            handler.JoinGroup();
+        }
+
+        internal static void FindHotGroups(GameClientMessageHandler handler)
+        {
+            handler.FindHotGroups();
+        }
+
         internal static void EventLog(GameClientMessageHandler handler)
         {
             handler.EventLog();
