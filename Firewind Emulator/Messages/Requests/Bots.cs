@@ -374,17 +374,51 @@ namespace Firewind.Messages
 
         internal void GetBotInventory()
         {
+            if (Session == null || Session.GetHabbo() == null || Session.GetHabbo().GetInventoryComponent() == null)
+                return;
 
+            Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
         }
 
         internal void PlaceBot()
         {
-            // int, int, int
-            int botID = Request.ReadInt32();
+            Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
+
+            if (Room == null || !Room.CheckRights(Session, true))
+                return;
+
+            uint botID = Request.ReadUInt32();
             int x = Request.ReadInt32();
             int y = Request.ReadInt32();
 
+            RoomBot Bot = Session.GetHabbo().GetInventoryComponent().GetBot(botID);
+            if (Bot == null)
+                return;
 
+            if (!Room.GetGameMap().SquareIsOpen(x, y, false) || !Room.GetGameMap().CanWalk(x, y, false))
+                return;
+
+            int z = (int)Room.GetGameMap().SqAbsoluteHeight(x, y);
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("UPDATE user_bots SET room_id = @room_id, x = @x, y = @y, z = @z WHERE id = @id AND user_id = @user_id LIMIT 1");
+                dbClient.addParameter("room_id", Room.RoomId);
+                dbClient.addParameter("x", x);
+                dbClient.addParameter("y", y);
+                dbClient.addParameter("z", z);
+                dbClient.addParameter("id", botID);
+                dbClient.addParameter("user_id", Session.GetHabbo().Id);
+                dbClient.runQuery();
+            }
+
+            Bot.RoomId = Room.RoomId;
+            Bot.X = x;
+            Bot.Y = y;
+            Bot.Z = z;
+            Room.GetRoomUserManager().DeployBot(Bot, null);
+
+            Session.GetHabbo().GetInventoryComponent().MoveBotToRoom(botID);
+            Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
         }
     }
 }

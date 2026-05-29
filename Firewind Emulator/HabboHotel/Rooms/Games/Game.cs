@@ -257,7 +257,8 @@ namespace Firewind.HabboHotel.Rooms.Games
         private void LockGate(RoomItem item)
         {
             InteractionType type = item.GetBaseItem().InteractionType;
-            if (type == InteractionType.freezebluegate || type == InteractionType.freezegreengate || type == InteractionType.freezeredgate || type == InteractionType.freezeyellowgate)
+            if (type == InteractionType.freezebluegate || type == InteractionType.freezegreengate || type == InteractionType.freezeredgate || type == InteractionType.freezeyellowgate
+                || type == InteractionType.banzaigateblue || type == InteractionType.banzaigatered || type == InteractionType.banzaigategreen || type == InteractionType.banzaigateyellow)
             {
                 foreach (RoomUser user in room.GetGameMap().GetRoomUsers(new System.Drawing.Point(item.GetX, item.GetY)))
                 {
@@ -271,7 +272,8 @@ namespace Firewind.HabboHotel.Rooms.Games
         private void UnlockGate(RoomItem item)
         {
             InteractionType type = item.GetBaseItem().InteractionType;
-            if (type == InteractionType.freezebluegate || type == InteractionType.freezegreengate || type == InteractionType.freezeredgate || type == InteractionType.freezeyellowgate)
+            if (type == InteractionType.freezebluegate || type == InteractionType.freezegreengate || type == InteractionType.freezeredgate || type == InteractionType.freezeyellowgate
+                || type == InteractionType.banzaigateblue || type == InteractionType.banzaigatered || type == InteractionType.banzaigategreen || type == InteractionType.banzaigateyellow)
             {
                 foreach (RoomUser user in room.GetGameMap().GetRoomUsers(new System.Drawing.Point(item.GetX, item.GetY)))
                 {

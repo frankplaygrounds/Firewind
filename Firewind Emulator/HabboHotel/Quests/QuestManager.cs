@@ -6,7 +6,6 @@ using Firewind.HabboHotel.Quests.Composer;
 using Firewind.Messages;
 using Database_Manager.Database.Session_Details.Interfaces;
 using System;
-using System.Threading.Tasks;
 
 namespace Firewind.HabboHotel.Quests
 {
@@ -29,6 +28,7 @@ namespace Firewind.HabboHotel.Quests
         public void ReloadQuests(IQueryAdapter dbClient)
         {
             quests.Clear();
+            questCount.Clear();
 
             dbClient.setQuery("SELECT * FROM quests");
             DataTable dTable = dbClient.getTable();
@@ -41,18 +41,22 @@ namespace Firewind.HabboHotel.Quests
             string name;
             int reward;
             string dataBit;
+            int rewardType;
+            int timeUnlock;
             foreach (DataRow dRow in dTable.Rows)
             {
                 id = Convert.ToUInt32(dRow["id"]);
-                category = (string)dRow["category"];
-                num = (int)dRow["series_number"];
-                type = (int)dRow["goal_type"];
+                category = Convert.ToString(dRow["category"]);
+                num = Convert.ToInt32(dRow["series_number"]);
+                type = Convert.ToInt32(dRow["goal_type"]);
                 goalData = Convert.ToUInt32(dRow["goal_data"]);
-                name = (string)dRow["name"];
-                reward = (int)dRow["reward"];
-                dataBit = (string)dRow["data_bit"];
+                name = Convert.ToString(dRow["name"]);
+                reward = Convert.ToInt32(dRow["reward"]);
+                dataBit = Convert.ToString(dRow["data_bit"]);
+                rewardType = dTable.Columns.Contains("reward_type") && dRow["reward_type"] != DBNull.Value ? Convert.ToInt32(dRow["reward_type"]) : 3;
+                timeUnlock = dTable.Columns.Contains("timestamp_unlock") && dRow["timestamp_unlock"] != DBNull.Value ? Convert.ToInt32(dRow["timestamp_unlock"]) : 0;
 
-                Quest quest = new Quest(id, category, num, (QuestType)type, goalData, name, reward, dataBit);
+                Quest quest = new Quest(id, category, num, (QuestType)type, goalData, name, reward, dataBit, rewardType, timeUnlock);
                 quests.Add(id, quest);
                 AddToCounter(category);
             }
@@ -117,12 +121,24 @@ namespace Firewind.HabboHotel.Quests
                     break;
 
                 case QuestType.EXPLORE_FIND_ITEM:
+                case QuestType.STAND_ON:
+                case QuestType.GIVE_ITEM:
 
                     if (EventData != UserQuest.GoalData)
                         return;
 
                     NewProgress = (int)UserQuest.GoalData;
                     PassQuest = true;
+                    break;
+
+                case QuestType.XMAS_PARTY:
+                    NewProgress++;
+
+                    if (NewProgress == UserQuest.GoalData)
+                    {
+                        PassQuest = true;
+                    }
+
                     break;
             }
 
@@ -140,9 +156,8 @@ namespace Firewind.HabboHotel.Quests
                 }
             }
 
-            Session.GetHabbo().quests[Session.GetHabbo().CurrentQuestId] = NewProgress;
+            Session.GetHabbo().quests[UserQuest.Id] = NewProgress;
             Session.SendMessage(QuestStartedComposer.Compose(Session, UserQuest));
-            Quest NextQuest = GetNextQuestInSeries(UserQuest.Category, UserQuest.Number + 1);
 
             if (PassQuest)
             {
@@ -150,23 +165,7 @@ namespace Firewind.HabboHotel.Quests
                 Session.GetHabbo().LastCompleted = UserQuest.Id;
                 Session.GetHabbo().ActivityPoints += UserQuest.Reward;
                 Session.GetHabbo().UpdateActivityPointsBalance(false);
-                Session.SendMessage(QuestAbortedComposer.Compose());
-                if (NextQuest != null)
-                {
-                    using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
-                    {
-                        dbClient.runFastQuery("REPLACE INTO user_quests VALUES (" + Session.GetHabbo().Id + ", " + NextQuest.Id + ", 0)");
-                        dbClient.runFastQuery("UPDATE users SET currentquestid = " + NextQuest.Id + " WHERE id = " + Session.GetHabbo().Id);
-                    }
-
-                    Session.GetHabbo().CurrentQuestId = NextQuest.Id;
-                    Task.Delay(2000).ContinueWith(t => Session.SendMessage(QuestStartedComposer.Compose(Session, NextQuest)));
-                } 
-                else 
-                {
-                    Session.SendMessage(QuestAbortedComposer.Compose());
-                    Session.SendNotif("You have completed all the quests in this category."); 
-                }
+                Session.SendMessage(QuestCompletedComposer.Compose(Session, UserQuest));
                 GetList(Session, null);
             }
         }
@@ -186,7 +185,7 @@ namespace Firewind.HabboHotel.Quests
 
         internal void GetList(GameClient Session, ClientMessage Message)
         {
-            Session.SendMessage(QuestListComposer.Compose(Session, quests.Values.ToList(), (Message != null)));
+            Session.SendMessage(QuestListComposer.Compose(Session, quests.Values.OrderBy(quest => quest.Category).ThenBy(quest => quest.Number).ToList(), (Message != null)));
         }
 
         internal void ActivateQuest(GameClient Session, ClientMessage Message)
@@ -201,11 +200,12 @@ namespace Firewind.HabboHotel.Quests
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
 
-                dbClient.runFastQuery("REPLACE INTO user_quests VALUES (" + Session.GetHabbo().Id + ", " + Quest.Id + ", 0)");
+                dbClient.runFastQuery("REPLACE INTO user_quests (user_id, quest_id, progress) VALUES (" + Session.GetHabbo().Id + ", " + Quest.Id + ", 0)");
                 dbClient.runFastQuery("UPDATE users SET currentquestid = " + Quest.Id + " WHERE id = " + Session.GetHabbo().Id);
             }
 
             Session.GetHabbo().CurrentQuestId = Quest.Id;
+            Session.GetHabbo().quests[Quest.Id] = 0;
             GetList(Session, null);
             Session.SendMessage(QuestStartedComposer.Compose(Session, Quest));
         }
@@ -217,7 +217,20 @@ namespace Firewind.HabboHotel.Quests
                 return;
             }
 
+            Quest ActiveQuest = GetQuest(Session.GetHabbo().CurrentQuestId);
+
+            if (ActiveQuest != null)
+            {
+                Session.SendMessage(QuestStartedComposer.Compose(Session, ActiveQuest));
+                return;
+            }
+
             Quest UserQuest = GetQuest(Session.GetHabbo().LastCompleted);
+            if (UserQuest == null)
+            {
+                return;
+            }
+
             Quest NextQuest = GetNextQuestInSeries(UserQuest.Category, UserQuest.Number + 1);
 
             if (NextQuest == null)
@@ -229,11 +242,12 @@ namespace Firewind.HabboHotel.Quests
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.runFastQuery("REPLACE INTO user_quests VALUES (" + Session.GetHabbo().Id + ", " + NextQuest.Id + ", 0)");
+                dbClient.runFastQuery("REPLACE INTO user_quests (user_id, quest_id, progress) VALUES (" + Session.GetHabbo().Id + ", " + NextQuest.Id + ", 0)");
                 dbClient.runFastQuery("UPDATE users SET currentquestid = " + NextQuest.Id + " WHERE id = " + Session.GetHabbo().Id);
             }
 
             Session.GetHabbo().CurrentQuestId = NextQuest.Id;
+            Session.GetHabbo().quests[NextQuest.Id] = 0;
             GetList(Session, null);
             Session.SendMessage(QuestStartedComposer.Compose(Session, NextQuest));
 
@@ -253,8 +267,11 @@ namespace Firewind.HabboHotel.Quests
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
                 dbClient.runFastQuery("DELETE FROM user_quests WHERE user_id = " + Session.GetHabbo().Id + " AND quest_id = " + Quest.Id);
+                dbClient.runFastQuery("UPDATE users SET currentquestid = 0 WHERE id = " + Session.GetHabbo().Id);
             }
 
+            Session.GetHabbo().CurrentQuestId = 0;
+            Session.GetHabbo().quests.Remove(Quest.Id);
             Session.SendMessage(QuestAbortedComposer.Compose());
             GetList(Session, null);
         }

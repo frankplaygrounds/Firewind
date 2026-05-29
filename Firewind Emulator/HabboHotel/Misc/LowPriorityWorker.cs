@@ -13,8 +13,6 @@ namespace Firewind.HabboHotel.Misc
         private static int UserPeak;
 
 
-        private static DateTime consoleLastExecution;
-
         internal static void Init(IQueryAdapter dbClient)
         {
             dbClient.setQuery("SELECT userpeak FROM server_status");

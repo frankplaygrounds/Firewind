@@ -26,6 +26,14 @@ namespace Firewind.HabboHotel.Catalogs
         internal byte MinimumClubLevel;
         internal bool AllowGift;
 
+        internal static string DefaultBotFigure
+        {
+            get
+            {
+                return "hr-3020-34.hd-3091-2.ch-225-92.lg-3058-100.sh-3089-1338.ca-3084-78-108.wa-2005";
+            }
+        }
+
         internal CatalogItem(DataRow Row)
         {
             this.Id = Convert.ToUInt32(Row["id"]);
@@ -69,6 +77,11 @@ namespace Firewind.HabboHotel.Catalogs
             }
 
             return Return;
+        }
+
+        internal bool IsBotProduct(uint ItemIds)
+        {
+            return ItemIds == 0 || Name.StartsWith("bot_", StringComparison.OrdinalIgnoreCase);
         }
 
         internal void SerializeClub(ServerMessage Message, GameClients.GameClient Session)
@@ -147,31 +160,42 @@ namespace Firewind.HabboHotel.Catalogs
                 // and serialize it
                 foreach (uint i in Items)
                 {
-                    Message.AppendString(GetBaseItem(i).Type.ToString());
-                    Message.AppendInt32(GetBaseItem(i).SpriteId);
-
-                    if (GetBaseItem(i).Type == 'r') // b for bot!
+                    if (IsBotProduct(i))
                     {
-                        // bot_bartender - bartender                = hr-9534-39.hd-600-1.ch-819-92.lg-3058-64.sh-3064-110.wa-2005                   - F
-                        // bot_generic -   generic                  = hr-3020-34.hd-3091-2.ch-225-92.lg-3058-100.sh-3089-1338.ca-3084-78-108.wa-2005 - M
-                        // spybot -        rentable_bot_visitor_log = hd-3096-1.sh-3064-90.lg-3166-79.hr-3251-34-56.ch-3076-78-73                    - F (replicated from image) 
-                        Message.AppendString("hr-3020-34.hd-3091-2.ch-225-92.lg-3058-100.sh-3089-1338.ca-3084-78-108.wa-2005"); // default bot figure
-                        //continue;
-                    }
-                    // extradata
-                    else if (Name.Contains("wallpaper_single") || Name.Contains("floor_single") || Name.Contains("landscape_single"))
-                    {
-                        string[] Analyze = Name.Split('_');
-                        Message.AppendString(Analyze[2]);
-                    }
-                    else if (this.songID > 0 && GetBaseItem(i).InteractionType == InteractionType.musicdisc)
-                    {
-                        Message.AppendString(songID.ToString());
+                        Message.AppendString("r");
+                        Message.AppendInt32(0);
+                        Message.AppendString(DefaultBotFigure);
                     }
                     else
                     {
-                        Message.AppendString(string.Empty);
+                        Item baseItem = GetBaseItem(i);
+                        if (baseItem == null)
+                        {
+                            Message.AppendString("s");
+                            Message.AppendInt32(0);
+                            Message.AppendString(string.Empty);
+                        }
+                        else
+                        {
+                            Message.AppendString(baseItem.Type.ToString());
+                            Message.AppendInt32(baseItem.SpriteId);
+
+                            if (Name.Contains("wallpaper_single") || Name.Contains("floor_single") || Name.Contains("landscape_single"))
+                            {
+                                string[] Analyze = Name.Split('_');
+                                Message.AppendString(Analyze[2]);
+                            }
+                            else if (this.songID > 0 && baseItem.InteractionType == InteractionType.musicdisc)
+                            {
+                                Message.AppendString(songID.ToString());
+                            }
+                            else
+                            {
+                                Message.AppendString(string.Empty);
+                            }
+                        }
                     }
+
                     Message.AppendInt32(Amount);
                     Message.AppendInt32(-1); // getItemDuration
 

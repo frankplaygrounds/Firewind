@@ -25,11 +25,10 @@ namespace Firewind.HabboHotel.Catalogs
         {
             UserItem Item = Session.GetHabbo().GetInventoryComponent().GetItem(ItemId);
             
-            if (Item == null || SellingPrice > 10000 || !CanSellItem(Item))
+            if (Item == null || SellingPrice < 1 || SellingPrice > 10000 || !CanSellItem(Item))
             {
                 Session.GetMessageHandler().GetResponse().Init(610);
                 Session.GetMessageHandler().GetResponse().AppendBoolean(false);
-                Session.GetMessageHandler().GetResponse();
                 Session.GetMessageHandler().SendResponse();
                 return;
             }
@@ -45,8 +44,15 @@ namespace Firewind.HabboHotel.Catalogs
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("INSERT INTO catalog_marketplace_offers (item_id,user_id,asking_price,total_price,public_name,sprite_id,item_type,timestamp,extra_data) VALUES (" + Item.BaseItem + "," + Session.GetHabbo().Id + "," + SellingPrice + "," + TotalPrice + ",@public_name," + Item.GetBaseItem().SpriteId + "," + ItemType + "," + FirewindEnvironment.GetUnixTimestamp() + ",@extra_data)");
-                dbClient.addParameter("public_name", "NEEDS REPLACMENT HERE");
+                dbClient.setQuery("INSERT INTO catalog_marketplace_offers (item_id,user_id,asking_price,total_price,public_name,sprite_id,item_type,timestamp,extra_data) VALUES (@item_id,@user_id,@asking_price,@total_price,@public_name,@sprite_id,@item_type,@timestamp,@extra_data)");
+                dbClient.addParameter("item_id", Item.BaseItem);
+                dbClient.addParameter("user_id", Session.GetHabbo().Id);
+                dbClient.addParameter("asking_price", SellingPrice);
+                dbClient.addParameter("total_price", TotalPrice);
+                dbClient.addParameter("public_name", Item.GetBaseItem().Name);
+                dbClient.addParameter("sprite_id", Item.GetBaseItem().SpriteId);
+                dbClient.addParameter("item_type", ItemType);
+                dbClient.addParameter("timestamp", FirewindEnvironment.GetUnixTimestamp());
                 dbClient.addParameter("extra_data", Item.Data);
                 dbClient.runQuery();
             }
@@ -115,7 +121,8 @@ namespace Firewind.HabboHotel.Catalogs
 
 
                 dbClient.setQuery("SELECT offer_id, item_type, sprite_id, total_price FROM catalog_marketplace_offers " + WhereClause.ToString() + " " + OrderMode + " LIMIT 100");
-                dbClient.addParameter("search_query", SearchQuery + "%");
+                if (SearchQuery.Length >= 1)
+                    dbClient.addParameter("search_query", SearchQuery + "%");
 
                 Data = dbClient.getTable();
             }
@@ -159,7 +166,8 @@ namespace Firewind.HabboHotel.Catalogs
                 Data = dbClient.getTable();
 
                 dbClient.setQuery("SELECT SUM(asking_price) FROM catalog_marketplace_offers WHERE state = '2' AND user_id = " + HabboId);
-                RawProfit = dbClient.getRow()[0].ToString();
+                DataRow profitRow = dbClient.getRow();
+                RawProfit = profitRow == null || profitRow[0] == DBNull.Value ? string.Empty : profitRow[0].ToString();
             }
 
             if (RawProfit.Length > 0)

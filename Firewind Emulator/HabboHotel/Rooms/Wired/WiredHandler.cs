@@ -61,10 +61,12 @@ namespace Firewind.HabboHotel.Rooms.Wired
         {
             AddFurnitureToItems(item);
             AddFurnitureToItemStack(item);
+            conditionHandler.AddOrIgnoreRefferance(item);
         }
 
         internal void RemoveFurniture(RoomItem item)
         {
+            conditionHandler.RemoveRefferance(item, item.Coordinate);
             RemoveFurnitureFromItems(item);
             RemoveFurnitureFromStack(item);
             if (item.GetBaseItem().Name == "wf_xtra_unseen")
@@ -78,7 +80,11 @@ namespace Firewind.HabboHotel.Rooms.Wired
                 return;
 
             if (actionItems.ContainsKey(type))
-                ((List<RoomItem>)actionItems[type]).Add(item);
+            {
+                List<RoomItem> items = (List<RoomItem>)actionItems[type];
+                if (!items.Contains(item))
+                    items.Add(item);
+            }
             else
             {
                 List<RoomItem> stack = new List<RoomItem>();
@@ -92,8 +98,13 @@ namespace Firewind.HabboHotel.Rooms.Wired
         private void RemoveFurnitureFromItems(RoomItem item)
         {
             InteractionType type = item.GetBaseItem().InteractionType;
-            if (actionItems.ContainsKey(type))
-                ((List<RoomItem>)actionItems[type]).Remove(item);
+            if (!actionItems.ContainsKey(type))
+                return;
+
+            List<RoomItem> items = (List<RoomItem>)actionItems[type];
+            items.RemoveAll(stackItem => stackItem == item);
+            if (items.Count == 0)
+                actionItems.Remove(type);
         }
 
         private void AddFurnitureToItemStack(RoomItem item)
@@ -101,7 +112,11 @@ namespace Firewind.HabboHotel.Rooms.Wired
             Point itemCoord = item.Coordinate;
 
             if (actionStacks.ContainsKey(itemCoord))
-                ((List<RoomItem>)actionStacks[itemCoord]).Add(item);
+            {
+                List<RoomItem> stack = (List<RoomItem>)actionStacks[itemCoord];
+                if (!stack.Contains(item))
+                    stack.Add(item);
+            }
             else
             {
                 List<RoomItem> stack = new List<RoomItem>();
@@ -114,8 +129,13 @@ namespace Firewind.HabboHotel.Rooms.Wired
         private void RemoveFurnitureFromStack(RoomItem item)
         {
             Point itemCoord = item.Coordinate;
-            if (actionStacks.ContainsKey(itemCoord))
-                ((List<RoomItem>)actionStacks[itemCoord]).Remove(item);
+            if (!actionStacks.ContainsKey(itemCoord))
+                return;
+
+            List<RoomItem> stack = (List<RoomItem>)actionStacks[itemCoord];
+            stack.RemoveAll(stackItem => stackItem == item);
+            if (stack.Count == 0)
+                actionStacks.Remove(itemCoord);
         }
         #endregion
 

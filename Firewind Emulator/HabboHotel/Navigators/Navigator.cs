@@ -353,7 +353,6 @@ namespace Firewind.HabboHotel.Navigators
             Message.AppendString(SearchQuery);
             Message.AppendInt32(Results.Count);
 
-            int i = 0;
             foreach (RoomData Room in Results)
             {
                 Room.Serialize(Message, false);
@@ -495,7 +494,6 @@ namespace Firewind.HabboHotel.Navigators
             reply.AppendString("");
             reply.AppendInt32(rooms.Count);
 
-            bool headerSerialized = false;
             foreach (RoomData data in rooms)
             {
 

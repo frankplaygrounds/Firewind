@@ -69,7 +69,6 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredTrigger action = new ToggleItemState(room.GetGameMap(), room.GetWiredHandler(), new List<RoomItem>(), 0, item);
                         action.LoadFromDatabase(dbClient, room);
-                        item.wiredHandler = action;
                         HandleItemLoad(action, room.GetWiredHandler(), item);
                         break;
                     }
@@ -210,7 +209,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
         private static void HandleItemLoad(IWiredTrigger handler, WiredHandler wiredHandler, RoomItem item)
         {
-            if (item.wiredHandler != null)
+            if (item.wiredHandler != null && item.wiredHandler != handler)
                 item.wiredHandler.Dispose();
 
             item.wiredHandler = handler;

@@ -62,6 +62,24 @@ namespace Firewind.HabboHotel.Quests
                 case QuestType.FURNI_MOVE:
                     return "MOVE_ITEM";
 
+                case QuestType.SUMMER_ENTER_ROOM:
+                    return "ENTER_ROOM";
+
+                case QuestType.ADD_FRIENDS:
+                    return "add_25_friends";
+
+                case QuestType.WAVE_USERS:
+                    return "wave_10_users";
+
+                case QuestType.STAND_ON:
+                    return "STAND_ON";
+
+                case QuestType.GIVE_ITEM:
+                    return "GIVE_ITEM";
+
+                case QuestType.XMAS_PARTY:
+                    return "XMAS_PARTY";
+
                 default:
                 case QuestType.EXPLORE_FIND_ITEM:
                     return "FIND_STUFF";

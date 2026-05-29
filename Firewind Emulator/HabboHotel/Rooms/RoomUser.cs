@@ -403,11 +403,6 @@ namespace Firewind.HabboHotel.Rooms
                                         Session.SendMOTD("Du må være medlem av Mafia eller Police for å ha kommandoene til forhold.");
                                         break;
                                     }
-                                    if (false)
-                                    {
-                                        Session.SendMOTD("Du er i et forhold med {0}, vil du avslutte forholdet skriv :remove {0}");
-                                        return;
-                                    }
                                     StringBuilder statusMessage = new StringBuilder();
                                     statusMessage.AppendLine("Du har følgende forespørsler:");
                                     dbClient.setQuery("SELECT sender_id FROM users_relationships WHERE accepted = '0' AND recipent_id = @myid LIMIT 6");
@@ -859,7 +854,6 @@ namespace Firewind.HabboHotel.Rooms
                 // // typeId + paletteId + color + unkcount + 3 int
                 // hair -1 hairid
                 // tail -1 tailid
-                string horseData = "";
                 //string[,] data = new string[,] { [2, };
 
                 Message.AppendInt32(BotAI.BaseId);

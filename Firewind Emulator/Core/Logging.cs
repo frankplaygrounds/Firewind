@@ -8,8 +8,6 @@ namespace Firewind.Core
 {
     public static class Logging
     {
-        private static int tokenID = 0;
-
         internal static bool DisabledState
         {
             get

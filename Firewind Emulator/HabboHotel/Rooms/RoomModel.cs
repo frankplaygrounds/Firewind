@@ -80,7 +80,7 @@ namespace Firewind.HabboHotel.Rooms
                     }
                 }
             }
-            catch (Exception e)
+            catch
             {
                 Logging.WriteLine("Error during room modeldata loading for model " + Heightmap);
                 //throw e;

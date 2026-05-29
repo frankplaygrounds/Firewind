@@ -277,7 +277,7 @@ namespace Firewind.HabboHotel.Support
         {
             foreach (SupportTicket ticket in Tickets)
             {
-                if (ticket.Status == TicketStatus.OPEN || (ticket.Status == TicketStatus.PICKED && ticket.ModeratorId == userID) || (ticket.Status == TicketStatus.PICKED && ticket.ModeratorId == null))
+                if (ticket.Status == TicketStatus.OPEN || (ticket.Status == TicketStatus.PICKED && ticket.ModeratorId == userID))
                     serverMessages.appendResponse(ticket.Serialize());
             }
         }

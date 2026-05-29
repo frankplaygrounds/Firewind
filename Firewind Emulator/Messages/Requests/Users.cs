@@ -241,7 +241,7 @@ namespace Firewind.Messages
 
                 
             }
-            catch (Exception e)
+            catch
             {
                 //Logging.WriteLine("Weird campaing not serialized!");
             }

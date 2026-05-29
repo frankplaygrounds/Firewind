@@ -11,6 +11,8 @@ using Firewind.Messages;
 using Database_Manager.Database.Session_Details.Interfaces;
 using HabboEvents;
 using Firewind.HabboHotel.Rooms;
+using Firewind.HabboHotel.RoomBots;
+using Firewind.HabboHotel.Groups.Types;
 
 
 namespace Firewind.HabboHotel.Catalogs
@@ -293,16 +295,10 @@ namespace Firewind.HabboHotel.Catalogs
 
             Boolean CreditsError = false;
             Boolean PixelError = false;
-            Boolean CrystalError = false;
 
             if (Session.GetHabbo().Credits < (Item.CreditsCost * finalAmount))
             {
                 CreditsError = true;
-            }
-
-            if (Session.GetHabbo().VipPoints < (Item.CrystalCost * finalAmount))
-            {
-                CrystalError = true;
             }
 
             if (Session.GetHabbo().ActivityPoints < (Item.PixelsCost * finalAmount))
@@ -368,10 +364,30 @@ namespace Firewind.HabboHotel.Catalogs
 
             foreach (uint i in Item.Items)
             {
+                if (Item.IsBotProduct(i))
+                {
+                    RoomBot bot = CreateBot(Session.GetHabbo().Id, "Jon", CatalogItem.DefaultBotFigure, string.Empty, "M");
+
+                    Session.GetMessageHandler().GetResponse().Init(Outgoing.PurchaseOK);
+                    Item.Serialize(Session.GetMessageHandler().GetResponse());
+                    Session.GetMessageHandler().SendResponse();
+
+                    Session.GetHabbo().GetInventoryComponent().AddBot(bot);
+                    Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
+                    continue;
+                }
+
+                Item baseItem = Item.GetBaseItem(i);
+                if (baseItem == null)
+                {
+                    Session.SendMessage(new ServerMessage(Outgoing.PurchaseError));
+                    return;
+                }
+
                 //Logging.WriteLine(Item.GetBaseItem().ItemId);
                 //Logging.WriteLine(Item.GetBaseItem().InteractionType.ToLower());
                 // Extra Data is _NOT_ filtered at this point and MUST BE VERIFIED BELOW:
-                if (Item.GetBaseItem(i).Type == 'h') // Subscription
+                if (baseItem.Type == 'h') // Subscription
                 {
                     int Months = 0;
                     int Days = 0;
@@ -414,13 +430,13 @@ namespace Firewind.HabboHotel.Catalogs
 
 
 
-                if (IsGift && Item.GetBaseItem(i).Type == 'e')
+                if (IsGift && baseItem.Type == 'e')
                 {
                     Session.SendNotif(LanguageLocale.GetValue("catalog.gift.send.error"));
                     return;
                 }
                 IRoomItemData itemData = new StringData(extraParameter);
-                switch (Item.GetBaseItem(i).InteractionType)
+                switch (baseItem.InteractionType)
                 {
                     case InteractionType.none:
                         //itemData = new StringData(extraParameter);
@@ -494,6 +510,16 @@ namespace Firewind.HabboHotel.Catalogs
 
                     case InteractionType.trophy:
                         itemData = new StringData(String.Format("{0}\t{1}\t{2}", Session.GetHabbo().Username, DateTime.Now.ToString("d-M-yyy"), extraParameter));
+                        break;
+
+                    case InteractionType.guildgeneric:
+                    case InteractionType.guilddoor:
+                        itemData = BuildGroupItemData(Session, extraParameter, baseItem.InteractionType == InteractionType.guilddoor);
+                        if (itemData == null)
+                        {
+                            Session.SendMessage(new ServerMessage(Outgoing.PurchaseError));
+                            return;
+                        }
                         break;
 
                     //case InteractionType.mannequin:
@@ -637,6 +663,90 @@ namespace Firewind.HabboHotel.Catalogs
             return true;
         }
 
+        internal static RoomBot GenerateBotFromRow(DataRow Row)
+        {
+            if (Row == null)
+                return null;
+
+            List<RandomSpeech> randomSpeech = new List<RandomSpeech>();
+            List<BotResponse> botResponses = new List<BotResponse>();
+
+            uint botId = Convert.ToUInt32(Row["id"]);
+            uint ownerId = Row.Table.Columns.Contains("user_id") ? Convert.ToUInt32(Row["user_id"]) : 0;
+            uint roomId = Row.Table.Columns.Contains("room_id") ? Convert.ToUInt32(Row["room_id"]) : 0;
+            string name = GetBotString(Row, "name", "Jon");
+            string motto = GetBotString(Row, "motto", string.Empty);
+            string figure = GetBotString(Row, "look", string.Empty);
+            if (string.IsNullOrEmpty(figure))
+                figure = GetBotString(Row, "figure", CatalogItem.DefaultBotFigure);
+            string gender = GetBotString(Row, "gender", "M").ToUpper();
+            int x = GetBotInt(Row, "x");
+            int y = GetBotInt(Row, "y");
+            int z = GetBotInt(Row, "z");
+            int rotation = GetBotInt(Row, "rotation");
+            string walkingMode = GetBotString(Row, "walk_mode", "freeroam");
+
+            return new RoomBot(botId, roomId, AIType.Generic, walkingMode, name, motto, figure,
+                x, y, z, rotation, 0, 0, 0, 0, ref randomSpeech, ref botResponses, ownerId, gender);
+        }
+
+        internal static RoomBot CreateBot(uint userId, string name, string look, string motto, string gender)
+        {
+            List<RandomSpeech> randomSpeech = new List<RandomSpeech>();
+            List<BotResponse> botResponses = new List<BotResponse>();
+            RoomBot bot = new RoomBot(0, 0, AIType.Generic, "freeroam", name, motto, look, 0, 0, 0, 0, 0, 0, 0, 0,
+                ref randomSpeech, ref botResponses, userId, gender);
+
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("INSERT INTO user_bots (user_id,name,gender,figure,motto,room_id,walk_mode) VALUES (@user_id,@name,@gender,@figure,@motto,0,'freeroam')");
+                dbClient.addParameter("user_id", userId);
+                dbClient.addParameter("name", name);
+                dbClient.addParameter("gender", gender);
+                dbClient.addParameter("figure", look);
+                dbClient.addParameter("motto", motto);
+                bot.BotId = (uint)dbClient.insertQuery();
+            }
+
+            return bot;
+        }
+
+        private static string GetBotString(DataRow row, string column, string defaultValue)
+        {
+            if (!row.Table.Columns.Contains(column) || row[column] == DBNull.Value)
+                return defaultValue;
+
+            return row[column].ToString();
+        }
+
+        private static int GetBotInt(DataRow row, string column)
+        {
+            if (!row.Table.Columns.Contains(column) || row[column] == DBNull.Value)
+                return 0;
+
+            return Convert.ToInt32(row[column]);
+        }
+
+        private static IRoomItemData BuildGroupItemData(GameClient Session, string groupData, bool isDoor)
+        {
+            int groupId;
+            if (!int.TryParse(groupData, out groupId) || groupId <= 0)
+                groupId = Session.GetHabbo().FavouriteGroup;
+
+            Group group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(groupId);
+            if (group == null || !group.Members.Contains(Session.GetHabbo().Id))
+                return null;
+
+            StringArrayStuffData data = new StringArrayStuffData();
+            data.Data = new List<string>();
+            data.Data.Add(isDoor ? "0" : string.Empty);
+            data.Data.Add(group.ID.ToString());
+            data.Data.Add(group.BadgeCode);
+            data.Data.Add(group.Color1);
+            data.Data.Add(group.Color2);
+            return data;
+        }
+
         internal List<UserItem> DeliverItems(GameClient Session, Item Item, int Amount, String ExtraData, uint songID = 0)
         {
             List<UserItem> result = new List<UserItem>();
@@ -709,11 +819,17 @@ namespace Firewind.HabboHotel.Catalogs
                             case InteractionType.guildgeneric:
                             case InteractionType.guilddoor:
                                 StringArrayStuffData stringData = new StringArrayStuffData();
-                                stringData.Data.Add(""); // furniture state
-                                stringData.Data.Add("1"); // guild id
-                                stringData.Data.Add(""); // badge string
-                                stringData.Data.Add("FFFFFF"); // COLOR_1_STUFFDATA
-                                stringData.Data.Add("FFFFFF"); // COLOR_2_STUFFDATA
+                                if (ExtraData.Contains(Convert.ToChar(1).ToString()))
+                                {
+                                    stringData.Parse(ExtraData);
+                                }
+                                else
+                                {
+                                    stringData = BuildGroupItemData(Session, ExtraData, Item.InteractionType == InteractionType.guilddoor) as StringArrayStuffData;
+                                }
+
+                                if (stringData == null)
+                                    break;
 
                                 result.Add(Session.GetHabbo().GetInventoryComponent().AddNewItem(0, Item.ItemId, stringData, 0, true, false, songID));
                                 break;

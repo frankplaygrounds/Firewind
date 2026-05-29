@@ -10,6 +10,8 @@
         internal readonly string Name;
         internal readonly int Reward;
         internal readonly string DataBit;
+        internal readonly int RewardType;
+        internal readonly int TimeUnlock;
 
         public string ActionName
         {
@@ -20,7 +22,7 @@
         }
         
         public Quest(uint Id, string Category, int Number, QuestType GoalType, uint GoalData, string Name, int Reward,
-            string DataBit)
+            string DataBit, int RewardType = 3, int TimeUnlock = 0)
         {
             this.Id = Id;
             this.Category = Category;
@@ -30,6 +32,8 @@
             this.Name = Name;
             this.Reward = Reward;
             this.DataBit = DataBit;
+            this.RewardType = RewardType;
+            this.TimeUnlock = TimeUnlock;
         }
 
         public bool IsCompleted(int UserProgress)
@@ -39,6 +43,8 @@
                 default:
                     return (UserProgress >= GoalData);
                 case QuestType.EXPLORE_FIND_ITEM:
+                case QuestType.STAND_ON:
+                case QuestType.GIVE_ITEM:
                     return (UserProgress >= 1);
             }
         }

@@ -39,6 +39,7 @@ namespace Firewind.HabboHotel.Items
                 bool allowTrade;
                 bool allowMarketplace;
                 bool allowInventoryStack;
+                bool allowGroupItem;
                 InteractionType interactionType;
                 int cycleCount;
                 string vendingIDS;
@@ -61,14 +62,19 @@ namespace Firewind.HabboHotel.Items
                         allowTrade = Convert.ToInt32(dRow["allow_trade"]) == 1;
                         allowMarketplace = Convert.ToInt32(dRow["allow_marketplace_sell"]) == 1;
                         allowInventoryStack = Convert.ToInt32(dRow["allow_inventory_stack"]) == 1;
+                        allowGroupItem = dRow.Table.Columns.Contains("allow_group_item") && Convert.ToInt32(dRow["allow_group_item"]) == 1;
                         string interactionTypeName = (string)dRow["interaction_type"];
                         interactionType = InterractionTypes.GetTypeFromString(interactionTypeName);
                         if (interactionType == InteractionType.none && interactionTypeName == "wired")
                             interactionType = InterractionTypes.GetTypeFromString(itemName);
+                        if (interactionType == InteractionType.none && itemName.StartsWith("gld_"))
+                            interactionType = itemName.Contains("gate") ? InteractionType.guilddoor : InteractionType.guildgeneric;
+                        if (interactionType == InteractionType.guilddoor || interactionType == InteractionType.guildgeneric || itemName.StartsWith("gld_"))
+                            allowGroupItem = true;
                         cycleCount = (int)dRow["interaction_modes_count"];
                         vendingIDS = (string)dRow["vending_ids"];
 
-                        Item item = new Item(id, spriteID, itemName, type, width, length, height, allowStack, allowWalk, allowSit, allowRecycle, allowTrade, allowMarketplace, allowInventoryStack, interactionType, cycleCount, vendingIDS);
+                        Item item = new Item(id, spriteID, itemName, type, width, length, height, allowStack, allowWalk, allowSit, allowRecycle, allowTrade, allowMarketplace, allowInventoryStack, interactionType, cycleCount, vendingIDS, allowGroupItem);
                         Items.Add(id, item);
                     }
                     catch (Exception e)

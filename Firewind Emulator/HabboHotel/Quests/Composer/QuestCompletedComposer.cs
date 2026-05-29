@@ -14,6 +14,7 @@ namespace Firewind.HabboHotel.Quests.Composer
         {
             ServerMessage Message = new ServerMessage(518);
             QuestListComposer.SerializeQuest(Message, Session, Quest, Quest.Category);
+            Message.AppendBoolean(true);
             return Message;
         }
     }

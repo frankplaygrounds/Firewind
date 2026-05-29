@@ -308,7 +308,7 @@ namespace Firewind.HabboHotel.Rooms
                 {
                     Item.wiredCondition.DeleteFromDatabase(dbClient);
                     Item.wiredCondition.Dispose();
-                    room.GetWiredHandler().conditionHandler.ClearTile(Item.Coordinate);
+                    room.GetWiredHandler().conditionHandler.RemoveRefferance(Item, Item.Coordinate);
                 }
                 Item.wiredCondition = null;
             }
@@ -599,7 +599,6 @@ namespace Firewind.HabboHotel.Rooms
             {
                 return false;
             }
-            return false; //wired probably shit itself
         }
 
         internal bool SetFloorItem(GameClient Session, RoomItem Item, int newX, int newY, int newRot, bool newItem, bool OnRoller, bool sendMessage, bool updateRoomUserStatuses, bool SpecialMove = false)
@@ -894,10 +893,9 @@ namespace Firewind.HabboHotel.Rooms
 
             if (!newItem)
             {
-                room.GetWiredHandler().RemoveWiredItem(new System.Drawing.Point(oldX, oldY));
-
                 if (WiredHandler.TypeIsWire(Item.GetBaseItem().InteractionType))
                 {
+                    room.GetWiredHandler().RemoveWiredItem(new System.Drawing.Point(oldX, oldY));
                     room.GetWiredHandler().AddWire(Item, new System.Drawing.Point(newX, newY), newRot, Item.GetBaseItem().InteractionType);
                 }
             }

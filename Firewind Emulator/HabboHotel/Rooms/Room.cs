@@ -499,6 +499,25 @@ namespace Firewind.HabboHotel.Rooms
             }
         }
 
+        internal void InitUserBots()
+        {
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("SELECT * FROM user_bots WHERE room_id = " + RoomId);
+                DataTable Data = dbClient.getTable();
+
+                if (Data == null)
+                    return;
+
+                foreach (DataRow Row in Data.Rows)
+                {
+                    RoomBot Bot = Catalog.GenerateBotFromRow(Row);
+                    if (Bot != null)
+                        roomUserManager.DeployBot(Bot, null);
+                }
+            }
+        }
+
         internal RoomUser DeployBot(RoomBot Bot)
         {
             return roomUserManager.DeployBot(Bot, null);
@@ -1364,6 +1383,7 @@ namespace Firewind.HabboHotel.Rooms
             RoomData data = FirewindEnvironment.GetGame().GetRoomManager().GenerateRoomData(this.RoomId);
             InitializeFromRoomData(data);
             InitBots();
+            InitUserBots();
             InitPets();
         }
 

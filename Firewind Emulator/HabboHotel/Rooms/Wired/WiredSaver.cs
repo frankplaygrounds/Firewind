@@ -725,6 +725,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
             if (item.wiredCondition != null)
             {
+                room.GetWiredHandler().conditionHandler.RemoveRefferance(item, item.Coordinate);
                 item.wiredCondition.Dispose();
                 item.wiredCondition = null;
             }

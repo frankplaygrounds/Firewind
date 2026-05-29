@@ -102,10 +102,10 @@ namespace Firewind.HabboHotel.Users
         internal int CurrentQuestProgress;
         internal uint LastQuestId;
 
-        internal int LevelBuilder;
-        internal int LevelSocial;
-        internal int LevelIdentity;
-        internal int LevelExplorer;
+        internal int LevelBuilder = 0;
+        internal int LevelSocial = 0;
+        internal int LevelIdentity = 0;
+        internal int LevelExplorer = 0;
 
         internal int VipPoints;
 

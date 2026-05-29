@@ -9,6 +9,7 @@ using Firewind.HabboHotel.Users.Subscriptions;
 using Firewind.HabboHotel.Users;
 using Firewind.HabboHotel.Users.Messenger;
 using Firewind.HabboHotel.Achievements;
+using Firewind.HabboHotel.RoomBots;
 
 namespace Firewind.HabboHotel.Users.UserDataManagement
 {
@@ -29,12 +30,13 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
         internal Dictionary<uint, MessengerRequest> requests;
         internal List<RoomData> rooms;
         internal Dictionary<uint, Pet> pets;
+        internal Dictionary<uint, RoomBot> bots;
         internal Dictionary<uint, int> quests;
         internal Habbo user;
 
         public UserData(uint userID, Dictionary<string, UserAchievement> achievements, List<uint> favouritedRooms, List<uint> ignores, List<string> tags, 
             Dictionary<string, Subscription> subscriptions, List<Badge> badges, List<UserItem> inventory, List<AvatarEffect> effects,
-            Dictionary<uint, MessengerBuddy> friends, Dictionary<uint, MessengerRequest> requests, List<RoomData> rooms, Dictionary<uint, Pet> pets, Dictionary<uint, int> quests, Hashtable inventorySongs, Habbo user)
+            Dictionary<uint, MessengerBuddy> friends, Dictionary<uint, MessengerRequest> requests, List<RoomData> rooms, Dictionary<uint, Pet> pets, Dictionary<uint, RoomBot> bots, Dictionary<uint, int> quests, Hashtable inventorySongs, Habbo user)
         {
             this.userID = userID;
             this.achievements = achievements;
@@ -49,6 +51,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             this.requests = requests;
             this.rooms = rooms;
             this.pets = pets;
+            this.bots = bots;
             this.quests = quests;
             this.inventorySongs = inventorySongs;
             this.user = user;

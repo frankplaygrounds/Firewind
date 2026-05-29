@@ -495,6 +495,11 @@ namespace Firewind.HabboHotel.Rooms
                         if (mGameMap[Coord.X, Coord.Y] != 3)
                             mGameMap[Coord.X, Coord.Y] = 1;
                     }
+                    else if (Item.GetZ <= (Model.SqFloorHeight[Item.GetX, Item.GetY] + 0.1) && Item.GetBaseItem().InteractionType == Firewind.HabboHotel.Items.InteractionType.guilddoor && IsGuildDoorOpen(Item))
+                    {
+                        if (mGameMap[Coord.X, Coord.Y] != 3)
+                            mGameMap[Coord.X, Coord.Y] = 1;
+                    }
                     else if (Item.GetBaseItem().IsSeat || Item.GetBaseItem().InteractionType == Firewind.HabboHotel.Items.InteractionType.bed)
                     {
                         mGameMap[Coord.X, Coord.Y] = 3;
@@ -518,6 +523,12 @@ namespace Firewind.HabboHotel.Rooms
                 //Logging.WriteLine("Coord X: " + Coord.X + " Y: " + Coord.Y);
             }
             return true;
+        }
+
+        private static bool IsGuildDoorOpen(RoomItem item)
+        {
+            StringArrayStuffData data = item.data as StringArrayStuffData;
+            return data != null && data.Data.Count > 0 && data.Data[0] == "1";
         }
 
         internal void AddCoordinatedItem(RoomItem item, Point coord)
@@ -752,6 +763,7 @@ namespace Firewind.HabboHotel.Rooms
                     case InteractionType.footballgoalred:
                     case InteractionType.footballcounterred:
                     case InteractionType.banzaiscorered:
+                    case InteractionType.banzaigatered:
                     case InteractionType.freezeredcounter:
                     case InteractionType.freezeredgate:
                         {
@@ -761,6 +773,7 @@ namespace Firewind.HabboHotel.Rooms
                     case InteractionType.footballgoalgreen:
                     case InteractionType.footballcountergreen:
                     case InteractionType.banzaiscoregreen:
+                    case InteractionType.banzaigategreen:
                     case InteractionType.freezegreencounter:
                     case InteractionType.freezegreengate:
                         {
@@ -770,6 +783,7 @@ namespace Firewind.HabboHotel.Rooms
                     case InteractionType.footballgoalblue:
                     case InteractionType.footballcounterblue:
                     case InteractionType.banzaiscoreblue:
+                    case InteractionType.banzaigateblue:
                     case InteractionType.freezebluecounter:
                     case InteractionType.freezebluegate:
                         {
@@ -779,6 +793,7 @@ namespace Firewind.HabboHotel.Rooms
                     case InteractionType.footballgoalyellow:
                     case InteractionType.footballcounteryellow:
                     case InteractionType.banzaiscoreyellow:
+                    case InteractionType.banzaigateyellow:
                     case InteractionType.freezeyellowcounter:
                     case InteractionType.freezeyellowgate:
                         {

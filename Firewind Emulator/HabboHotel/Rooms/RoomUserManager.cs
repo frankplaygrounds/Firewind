@@ -417,6 +417,7 @@ namespace Firewind.HabboHotel.Rooms
 
             this.primaryPrivateUserID = primaryID;
             this.secondaryPrivateUserID = secondaryID;
+            room.InitUserBots();
             room.InitPets();
         }
 
@@ -1105,7 +1106,7 @@ namespace Firewind.HabboHotel.Rooms
                     room.GetFreeze().OnUserWalk(User);
                 }
             }
-            catch (Exception e)
+            catch
             {
             }
         }

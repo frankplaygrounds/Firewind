@@ -31,7 +31,7 @@ namespace Firewind.HabboHotel.GameClients
         internal DateTime TimePingedReceived;
 
         internal bool SetDoorPos;
-        internal Point newDoorPos;
+        internal Point newDoorPos = default(Point);
         internal  GamePacketParser packetParser;
 
 

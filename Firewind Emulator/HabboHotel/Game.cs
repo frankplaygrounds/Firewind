@@ -46,10 +46,7 @@ namespace Firewind.HabboHotel
         private GroupManager groupManager;
 
         private Thread gameLoop;
-        private Thread gameLoopSUBRooms;
-        private Thread deadLocksThread;
         private bool gameLoopActive;
-        private bool gameLoopEnded;
         private const int gameLoopSleepTime = 25;
 
         // Tasks Main GameLoop

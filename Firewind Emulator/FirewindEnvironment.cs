@@ -39,7 +39,7 @@ namespace Firewind
         public static uint friendRequestLimit = 300;
 
         // veggy needs his special features
-        internal static bool IsHabin;
+        internal static bool IsHabin = false;
 
         // Multi Tasking (configurations.ini)
         internal static bool SeparatedTasksInMainLoops = false;
@@ -422,7 +422,7 @@ namespace Firewind
         public static string LicenseHolder;
         public static int MaxUsers;
         public static bool IsDebugging;
-        public static string Key;
+        public static string Key = null;
 
         internal static bool ShutdownStarted
         {

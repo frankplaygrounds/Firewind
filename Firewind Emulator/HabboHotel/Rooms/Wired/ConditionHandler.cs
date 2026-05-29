@@ -44,6 +44,9 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
         private void AddOrUpdateRefferance(Point coordinate, IWiredCondition item)
         {
+            if (item == null)
+                return;
+
             if (roomMatrix.ContainsKey(coordinate))
             {
                 List<IWiredCondition> items = (List<IWiredCondition>)roomMatrix[coordinate];
@@ -72,17 +75,37 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
         internal void AddOrIgnoreRefferance(RoomItem item)
         {
-            lock (addQueue.SyncRoot)
+            if (item == null || item.wiredCondition == null)
+                return;
+
+            lock (roomMatrix.SyncRoot)
             {
-                addQueue.Enqueue(item);
+                AddOrUpdateRefferance(item.Coordinate, item.wiredCondition);
+            }
+        }
+
+        internal void RemoveRefferance(RoomItem item, Point coordinate)
+        {
+            if (item == null || item.wiredCondition == null)
+                return;
+
+            lock (roomMatrix.SyncRoot)
+            {
+                if (!roomMatrix.ContainsKey(coordinate))
+                    return;
+
+                List<IWiredCondition> items = (List<IWiredCondition>)roomMatrix[coordinate];
+                items.Remove(item.wiredCondition);
+                if (items.Count == 0)
+                    roomMatrix.Remove(coordinate);
             }
         }
 
         internal void ClearTile(Point coordinate)
         {
-            lock (removeQueue.SyncRoot)
+            lock (roomMatrix.SyncRoot)
             {
-                removeQueue.Enqueue(coordinate);
+                roomMatrix.Remove(coordinate);
             }
         }
 

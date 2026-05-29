@@ -108,10 +108,10 @@ namespace Firewind.Messages.StaticMessageHandlers
         //    handler.MarketplaceCanSell();
         //}
 
-        //internal static void MarketplacePostItem(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplacePostItem();
-        //}
+        internal static void MarketplacePostItem(GameClientMessageHandler handler)
+        {
+            handler.MarketplacePostItem();
+        }
 
         //internal static void MarketplaceGetOwnOffers(GameClientMessageHandler handler)
         //{
@@ -1103,7 +1103,7 @@ namespace Firewind.Messages.StaticMessageHandlers
 
         internal static void PlaceBot(GameClientMessageHandler handler)
         {
-            throw new NotImplementedException();
+            handler.PlaceBot();
         }
     }
 }

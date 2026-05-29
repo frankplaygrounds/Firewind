@@ -96,7 +96,9 @@ namespace Firewind.HabboHotel.Rooms.Games
         {
             if (banzaiStarted)
                 return;
+            DisposeField();
             room.GetGameManager().StartGame();
+            room.GetGameManager().LockGates();
             floorMap = new byte[room.GetGameMap().Model.MapSizeY, room.GetGameMap().Model.MapSizeX];
             field = new GameField(floorMap, true);
             for (int i = 1; i < 5; i++)
@@ -139,9 +141,14 @@ namespace Firewind.HabboHotel.Rooms.Games
 
         internal void BanzaiEnd()
         {
+            if (!banzaiStarted && field == null && floorMap == null)
+                return;
+
+            bool wasActive = banzaiStarted;
             banzaiStarted = false;
-            room.GetGameManager().StopGame();
-            this.floorMap = null;
+            if (wasActive)
+                room.GetGameManager().StopGame();
+            room.GetGameManager().UnlockGates();
             Team winners = room.GetGameManager().getWinningTeam();
 
             foreach (RoomItem tile in banzaiTiles.Values)
@@ -214,8 +221,9 @@ namespace Firewind.HabboHotel.Rooms.Games
                         room.SendMessage(toSend);
                     }
                 }
-                field.destroy();
             }
+
+            DisposeField();
         }
 
         internal void MovePuck(RoomItem item, GameClient mover, int newX, int newY, Team team)
@@ -335,6 +343,9 @@ namespace Firewind.HabboHotel.Rooms.Games
 
         private void SetTile(RoomItem item, Team team, RoomUser user)
         {
+            if (field == null || floorMap == null)
+                return;
+
             if (item.team == team)
             {
                 if (item.value < 3)
@@ -378,16 +389,17 @@ namespace Firewind.HabboHotel.Rooms.Games
             if (team == Team.none)
                 return;
 
-            List<RoomItem> items = room.GetGameMap().GetCoordinatedItems(coord);
-            int i = 0;
+            int lockedTiles = 0;
+            int totalTiles = 0;
             foreach (RoomItem _item in banzaiTiles.Values)
             {
                 if (_item.GetBaseItem().InteractionType != InteractionType.banzaifloor)
                     continue;
 
+                totalTiles++;
                 if (((StringData)_item.data).Data.Equals("5") || ((StringData)_item.data).Data.Equals("8") || ((StringData)_item.data).Data.Equals("11") || ((StringData)_item.data).Data.Equals("14"))
                 {
-                    i++;
+                    lockedTiles++;
                     continue;
                 }
 
@@ -396,10 +408,10 @@ namespace Firewind.HabboHotel.Rooms.Games
 
                 SetTile(_item, team, user);
                 if (((StringData)_item.data).Data.Equals("5") || ((StringData)_item.data).Data.Equals("8") || ((StringData)_item.data).Data.Equals("11") || ((StringData)_item.data).Data.Equals("14"))
-                    i++;
+                    lockedTiles++;
                 _item.UpdateState(false, true);
             }
-            if (i == banzaiTiles.Count)
+            if (totalTiles > 0 && lockedTiles == totalTiles)
                 this.BanzaiEnd();
         }
 
@@ -408,8 +420,6 @@ namespace Firewind.HabboHotel.Rooms.Games
             if (team == Team.none)
                 return;
 
-            List<RoomItem> items = room.GetGameMap().GetCoordinatedItems(coord);
-            int i = 0;
             foreach (RoomItem _item in banzaiTiles.Values)
             {
                 if (_item.GetBaseItem().InteractionType != InteractionType.banzaifloor)
@@ -441,14 +451,25 @@ namespace Firewind.HabboHotel.Rooms.Games
 
         internal void Destroy()
         {
-            banzaiTiles.Clear();
-            pucks.Clear();
-            Array.Clear(floorMap, 0, floorMap.Length);
-            field.destroy();
+            if (banzaiTiles != null)
+                banzaiTiles.Clear();
+            if (pucks != null)
+                pucks.Clear();
+            DisposeField();
 
             room = null;
             banzaiTiles = null;
             pucks = null;
+            floorMap = null;
+            field = null;
+        }
+
+        private void DisposeField()
+        {
+            if (floorMap != null)
+                Array.Clear(floorMap, 0, floorMap.Length);
+            if (field != null)
+                field.destroy();
             floorMap = null;
             field = null;
         }

@@ -56,7 +56,7 @@ namespace Firewind.Messages
                         commandRegisterInvokeable.Add("about", new ChatCommand(43, "about", 0, "Displays information about the server.", "about", new String[0]));
                     }
                 }
-                catch (Exception e)
+                catch
                 {
                     Logging.WriteLine("Failed to add the command: " + commandStringedID + ", please check the INI files.");
                 }

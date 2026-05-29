@@ -265,6 +265,8 @@ namespace Firewind.HabboHotel.Items
                         return new InteractorVendor();
                     case InteractionType.gate:
                         return new InteractorGate(GetBaseItem().Modes);
+                    case InteractionType.guilddoor:
+                        return new InteractorGuildGate();
                     case InteractionType.scoreboard:
                         return new InteractorScoreboard();
                     case InteractionType.football:
@@ -724,12 +726,12 @@ namespace Firewind.HabboHotel.Items
 
                     case InteractionType.loveshuffler:
 
-                        if (data.GetData() == "0")
+                        if (Convert.ToString(data.GetData()) == "0")
                         {
                             data =  new StringData(FirewindEnvironment.GetRandomNumber(1, 4).ToString());
                             ReqUpdate(20, false);
                         }
-                        else if (data.GetData() != "-1")
+                        else if (Convert.ToString(data.GetData()) != "-1")
                         {
                             data =  new StringData("-1");
                         }
@@ -739,7 +741,7 @@ namespace Firewind.HabboHotel.Items
 
                     case InteractionType.alert:
 
-                        if (data.GetData() == "1")
+                        if (Convert.ToString(data.GetData()) == "1")
                         {
                             data =  new StringData("0");
                             UpdateState(false, true);
@@ -749,7 +751,7 @@ namespace Firewind.HabboHotel.Items
 
                     case InteractionType.vendingmachine:
 
-                        if (data.GetData() == "1")
+                        if (Convert.ToString(data.GetData()) == "1")
                         {
                             User = GetRoom().GetRoomUserManager().GetRoomUserByHabbo(InteractingUser);
 
@@ -1032,7 +1034,7 @@ namespace Firewind.HabboHotel.Items
                     Message.Init(Outgoing.ObjectDataUpdate);
                     Message.AppendString(Id.ToString());
                     Message.AppendInt32(0);
-                    Message.AppendString(data.GetData().ToString());
+                    Message.AppendString(data is StringArrayStuffData ? data.ToString() : data.GetData().ToString());
                 }
                 else
                 {

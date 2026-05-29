@@ -16,6 +16,7 @@ using Firewind.HabboHotel.Users.UserDataManagement;
 using Firewind.Util;
 using HabboEvents;
 using Firewind.HabboHotel.Rooms;
+using Firewind.HabboHotel.RoomBots;
 
 
 namespace Firewind.HabboHotel.Users.Inventory
@@ -27,6 +28,7 @@ namespace Firewind.HabboHotel.Users.Inventory
         private Hashtable discs;
 
         private SafeDictionary<UInt32, Pet> InventoryPets;
+        private SafeDictionary<UInt32, RoomBot> InventoryBots;
         private Hashtable mAddedItems;
         private ArrayList mRemovedItems;
         private GameClient mClient;
@@ -59,6 +61,7 @@ namespace Firewind.HabboHotel.Users.Inventory
             }
 
             this.InventoryPets = new SafeDictionary<UInt32, Pet>(UserData.pets);
+            this.InventoryBots = new SafeDictionary<UInt32, RoomBot>(UserData.bots);
             this.mAddedItems = new Hashtable();
             this.mRemovedItems = new ArrayList();
             this.isUpdated = false;
@@ -180,6 +183,54 @@ namespace Firewind.HabboHotel.Users.Inventory
         }
         #endregion
 
+        #region BOTS
+        internal RoomBot GetBot(uint Id)
+        {
+            if (InventoryBots.ContainsKey(Id))
+                return InventoryBots[Id] as RoomBot;
+
+            return null;
+        }
+
+        internal void AddBot(RoomBot Bot)
+        {
+            isUpdated = false;
+            if (Bot == null || InventoryBots.ContainsKey(Bot.BotId))
+                return;
+
+            Bot.RoomId = 0;
+            InventoryBots.Add(Bot.BotId, Bot);
+        }
+
+        internal bool RemoveBot(uint BotId)
+        {
+            isUpdated = false;
+            if (!InventoryBots.ContainsKey(BotId))
+                return false;
+
+            InventoryBots.Remove(BotId);
+            return true;
+        }
+
+        internal void MoveBotToRoom(uint BotId)
+        {
+            RemoveBot(BotId);
+        }
+
+        internal ServerMessage SerializeBotInventory()
+        {
+            ServerMessage Message = new ServerMessage(Outgoing.BotInventory);
+            Message.AppendInt32(InventoryBots.Count);
+
+            foreach (RoomBot Bot in InventoryBots.Values)
+            {
+                Bot.SerializeInventory(Message);
+            }
+
+            return Message;
+        }
+        #endregion
+
         internal void LoadInventory()
         {
             floorItems.Clear();
@@ -273,12 +324,17 @@ namespace Firewind.HabboHotel.Users.Inventory
 
 
             this.InventoryPets.Clear();
+            this.InventoryBots.Clear();
             DataTable Data2;
+            DataTable BotData;
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
                 //dbClient.addParameter("userid", UserId);
                 dbClient.setQuery("SELECT id, user_id, room_id, name, type, race, color, expirience, energy, nutrition, respect, createstamp, x, y, z, have_saddle FROM user_pets WHERE user_id = " + UserId + " AND room_id = 0");
                 Data2 = dbClient.getTable();
+
+                dbClient.setQuery("SELECT * FROM user_bots WHERE user_id = " + UserId + " AND room_id = 0");
+                BotData = dbClient.getTable();
             }
 
             if (Data2 != null)
@@ -287,6 +343,16 @@ namespace Firewind.HabboHotel.Users.Inventory
                 {
                     Pet newPet = Catalog.GeneratePetFromRow(Row);
                     InventoryPets.Add(newPet.PetId, newPet);
+                }
+            }
+
+            if (BotData != null)
+            {
+                foreach (DataRow Row in BotData.Rows)
+                {
+                    RoomBot bot = Catalog.GenerateBotFromRow(Row);
+                    if (bot != null)
+                        InventoryBots.Add(bot.BotId, bot);
                 }
             }
         }

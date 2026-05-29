@@ -9,7 +9,6 @@ namespace ConsoleWriter
 {
     public class Writer
     {
-        private static Thread logWriter;
         private static Queue logQueue;
 
         public static void Init()

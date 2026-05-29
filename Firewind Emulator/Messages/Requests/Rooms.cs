@@ -2290,28 +2290,6 @@ namespace Firewind.Messages
                 return;
             }
 
-            if (Item.wiredHandler != null)
-            {
-                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
-                {
-                    //Item.wiredHandler.DeleteFromDatabase(dbClient);
-                    Item.wiredHandler.Dispose();
-                    Room.GetWiredHandler().RemoveFurniture(Item);
-                }
-                Item.wiredHandler = null;
-            }
-
-            if (Item.wiredCondition != null)
-            {
-                using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
-                {
-                    //Item.wiredCondition.DeleteFromDatabase(dbClient);
-                    Item.wiredCondition.Dispose();
-                    Room.GetWiredHandler().conditionHandler.ClearTile(Item.Coordinate);
-                }
-                Item.wiredCondition = null;
-            }
-
             int x = Request.ReadInt32();
             int y = Request.ReadInt32();
             int Rotation = Request.ReadInt32();

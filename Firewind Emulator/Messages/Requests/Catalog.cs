@@ -273,11 +273,12 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("SELECT item_id, user_id, extra_data, offer_id state FROM catalog_marketplace_offers WHERE offer_id = " + ItemId + " LIMIT 1");
+                dbClient.setQuery("SELECT item_id, user_id, extra_data, offer_id, state FROM catalog_marketplace_offers WHERE offer_id = @offer_id LIMIT 1");
+                dbClient.addParameter("offer_id", ItemId);
                 Row = dbClient.getRow();
             }
 
-            if (Row == null || Convert.ToUInt32(Row["user_id"]) != Session.GetHabbo().Id || (UInt32)Row["state"] != 1)
+            if (Row == null || Convert.ToUInt32(Row["user_id"]) != Session.GetHabbo().Id || Row["state"].ToString() != "1")
             {
                 return;
             }
@@ -293,7 +294,9 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.runFastQuery("DELETE FROM catalog_marketplace_offers WHERE offer_id = " + ItemId + "");
+                dbClient.setQuery("DELETE FROM catalog_marketplace_offers WHERE offer_id = @offer_id LIMIT 1");
+                dbClient.addParameter("offer_id", ItemId);
+                dbClient.runQuery();
             }
 
             GetResponse().Init(614);
@@ -308,7 +311,8 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("SELECT asking_price FROM catalog_marketplace_offers WHERE user_id = " + Session.GetHabbo().Id + " AND state = 2");
+                dbClient.setQuery("SELECT asking_price FROM catalog_marketplace_offers WHERE user_id = @user_id AND state = '2'");
+                dbClient.addParameter("user_id", Session.GetHabbo().Id);
                 Results = dbClient.getTable();
             }
 
@@ -332,7 +336,9 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.runFastQuery("DELETE FROM catalog_marketplace_offers WHERE user_id = " + Session.GetHabbo().Id + " AND state = 2");
+                dbClient.setQuery("DELETE FROM catalog_marketplace_offers WHERE user_id = @user_id AND state = '2'");
+                dbClient.addParameter("user_id", Session.GetHabbo().Id);
+                dbClient.runQuery();
             }
         }
 
@@ -353,7 +359,8 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("SELECT state, timestamp, total_price, extra_data, item_id FROM catalog_marketplace_offers WHERE offer_id = " + ItemId + " ");
+                dbClient.setQuery("SELECT state, timestamp, total_price, extra_data, item_id, user_id FROM catalog_marketplace_offers WHERE offer_id = @offer_id LIMIT 1");
+                dbClient.addParameter("offer_id", ItemId);
                 Row = dbClient.getRow();
             }
 
@@ -371,6 +378,15 @@ namespace Firewind.Messages
             }
 
             int prize = (int)Row["total_price"];
+            if (Convert.ToUInt32(Row["user_id"]) == Session.GetHabbo().Id || Session.GetHabbo().Credits < prize)
+            {
+                ServerMessage message = new ServerMessage(Outgoing.NotEnoughBalance);
+                message.AppendBoolean(true);
+                message.AppendBoolean(false);
+                Session.SendMessage(message);
+                return;
+            }
+
             if ((int)Row["total_price"] >= 1)
             {
                 Session.GetHabbo().Credits -= prize;
@@ -382,7 +398,9 @@ namespace Firewind.Messages
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.runFastQuery("UPDATE catalog_marketplace_offers SET state = 2 WHERE offer_id = " + ItemId + "");
+                dbClient.setQuery("UPDATE catalog_marketplace_offers SET state = '2' WHERE offer_id = @offer_id LIMIT 1");
+                dbClient.addParameter("offer_id", ItemId);
+                dbClient.runQuery();
             }
 
 
@@ -416,147 +434,124 @@ namespace Firewind.Messages
         {
             string PetType = Request.ReadString();
 
-            int count = 0, petid = 0;
+            int petid = 0;
             GetResponse().Init(Outgoing.PetRace);
 
             switch (PetType)
             {
                 case "a0 pet0":
                     GetResponse().AppendString("a0 pet0");
-                    count = 25;
                     petid = 0;
                     break;
 
                 case "a0 pet1":
                     GetResponse().AppendString("a0 pet1");
-                    count = 25;
                     petid = 1;
                     break;
 
                 case "a0 pet2":
                     GetResponse().AppendString("a0 pet2");
-                    count = 12;
                     petid = 2;
                     break;
 
                 case "a0 pet3":
                     GetResponse().AppendString("a0 pet3");
-                    count = 7;
                     petid = 3;
                     break;
 
                 case "a0 pet4":
                     GetResponse().AppendString("a0 pet4");
-                    count = 4;
                     petid = 4;
                     break;
 
                 case "a0 pet5":
                     GetResponse().AppendString("a0 pet5");
-                    count = 7;
                     petid = 5;
                     break;
 
                 case "a0 pet6":
                     GetResponse().AppendString("a0 pet6");
-                    count = 13;
                     petid = 6;
                     break;
 
                 case "a0 pet7":
                     GetResponse().AppendString("a0 pet7");
-                    count = 8;
                     petid = 7;
                     break;
 
                 case "a0 pet8":
                     GetResponse().AppendString("a0 pet8");
-                    count = 13;
                     petid = 8;
                     break;
 
                 case "a0 pet9":
                     GetResponse().AppendString("a0 pet9");
-                    count = 14;
                     petid = 9;
                     break;
 
                 case "a0 pet10":
                     GetResponse().AppendString("a0 pet10");
-                    count = 1;
                     petid = 10;
                     break;
 
                 case "a0 pet11":
                     GetResponse().AppendString("a0 pet11");
-                    count = 14;
                     petid = 11;
                     break;
 
                 case "a0 pet12":
                     GetResponse().AppendString("a0 pet12");
-                    count = 8;
                     petid = 12;
                     break;
 
                 case "a0 pet13": // Caballo - Horse
                     GetResponse().AppendString("a0 pet13");
-                    count = 17;
                     petid = 13;
                     break;
 
 
                 case "a0 pet14":
                     GetResponse().AppendString("a0 pet14");
-                    count = 9;
                     petid = 14;
                     break;
 
                 case "a0 pet15":
                     GetResponse().AppendString("a0 pet15");
-                    count = 16;
                     petid = 15;
                     break;
 
                 case "a0 pet16": // MosterPlant
                     GetResponse().AppendString("a0 pet16");
-                    count = 18;
                     petid = 16;
                     break;
 
                 case "a0 pet17": // bunnyeaster
                     GetResponse().AppendString("a0 pet17");
-                    count = 19;
                     petid = 17;
                     break;
 
                 case "a0 pet18": // bunnydepressed
                     GetResponse().AppendString("a0 pet18");
-                    count = 20;
                     petid = 18;
                     break;
 
                 case "a0 pet19": // bunnylove
                     GetResponse().AppendString("a0 pet19");
-                    count = 21;
                     petid = 19;
                     break;
 
                 case "a0 pet20": // MosterPlant
                     GetResponse().AppendString("a0 pet20");
-                    count = 22;
                     petid = 20;
                     break;
 
                 case "a0 pet21": // pigeonevil
                     GetResponse().AppendString("a0 pet21");
-                    count = 23;
                     petid = 21;
                     break;
 
                 case "a0 pet22": //pigeongood
                     GetResponse().AppendString("a0 pet22");
-                    count = 24;
                     petid = 22;
                     break;
             }

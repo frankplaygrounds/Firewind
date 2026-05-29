@@ -354,6 +354,14 @@ namespace Firewind.HabboHotel.Items
                     return InteractionType.gift;
                 case "mannequin":
                     return InteractionType.mannequin;
+                case "guild_item":
+                case "gld_item":
+                case "guildgeneric":
+                    return InteractionType.guildgeneric;
+                case "guild_gate":
+                case "gld_gate":
+                case "guilddoor":
+                    return InteractionType.guilddoor;
                 //case "":
                 //case "default":
                 //    return InteractionType.none;
@@ -833,6 +841,10 @@ namespace Firewind.HabboHotel.Items
                     return "gift";
                 case InteractionType.mannequin:
                     return "mannequin";
+                case InteractionType.guildgeneric:
+                    return "gld_item";
+                case InteractionType.guilddoor:
+                    return "guild_gate";
                 default:
                     {
                         Logging.LogException("Unknown interaction type in to string code: " + pType);

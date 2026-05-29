@@ -163,7 +163,6 @@ namespace Firewind.Messages
             }
 
             uint Id = Room.RoomId;
-            string Password = "";
 
             RoomData Data = FirewindEnvironment.GetGame().GetRoomManager().GenerateRoomData(Id);
 

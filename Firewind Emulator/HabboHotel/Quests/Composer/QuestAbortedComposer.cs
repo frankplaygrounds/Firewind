@@ -6,7 +6,9 @@ namespace Firewind.HabboHotel.Quests.Composer
     {
         internal static ServerMessage Compose()
         {
-            return new ServerMessage(1154);
+            ServerMessage Message = new ServerMessage(1154);
+            Message.AppendBoolean(false);
+            return Message;
         }
     }
 }

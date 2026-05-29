@@ -90,8 +90,6 @@ namespace Firewind.HabboHotel.Misc
         //    {
         //        return false;
         //    }
-
-            return true;
         }
     }
 }

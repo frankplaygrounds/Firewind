@@ -110,6 +110,7 @@ namespace HabboEvents
         public static int IdleStatus = 1268;
         public static int Inventory = 3306;
         public static int PetInventory = 416;
+        public static int BotInventory = 1294;
         public static int PlaceBot = 780;
         public static int PetInformation = 2967;
         public static int RespectPet = 1750;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Firewind.Messages;
 
 
 namespace Firewind.HabboHotel.RoomBots
@@ -15,6 +16,8 @@ namespace Firewind.HabboHotel.RoomBots
         internal string Name;
         internal string Motto;
         internal string Look;
+        internal uint OwnerId;
+        internal string Gender;
 
         internal int X;
         internal int Y;
@@ -38,7 +41,7 @@ namespace Firewind.HabboHotel.RoomBots
         }
 
         internal RoomBot(uint BotId, UInt32 RoomId, AIType AiType, string WalkingMode, string Name, string Motto, string Look,
-            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses)
+            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses, uint OwnerId = 0, string Gender = "M")
         {
             this.BotId = BotId;
             this.RoomId = RoomId;
@@ -47,6 +50,8 @@ namespace Firewind.HabboHotel.RoomBots
             this.Name = Name;
             this.Motto = Motto;
             this.Look = Look;
+            this.OwnerId = OwnerId;
+            this.Gender = string.IsNullOrEmpty(Gender) ? "M" : Gender;
             this.X = X;
             this.Y = Y;
             this.Z = Z;
@@ -58,6 +63,15 @@ namespace Firewind.HabboHotel.RoomBots
 
             LoadRandomSpeech(Speeches);
             LoadResponses(Responses);
+        }
+
+        internal void SerializeInventory(ServerMessage Message)
+        {
+            Message.AppendUInt(BotId);
+            Message.AppendString(Name);
+            Message.AppendString(Motto);
+            Message.AppendString(Gender.ToLower());
+            Message.AppendString(Look);
         }
 
         internal void LoadRandomSpeech(List<RandomSpeech> Speeches)

@@ -98,17 +98,9 @@ namespace Firewind.HabboHotel.Quests.Composer
             Message.AppendString(Category);
             Message.AppendInt32(Number);
             Message.AppendInt32(AmountInCat);
-            Message.AppendInt32(-1);
+            Message.AppendInt32(Quest == null ? 3 : Quest.RewardType);
             Message.AppendUInt(Quest == null ? 0 : Quest.Id);
-
-            if (Quest == null)
-            {
-                Message.AppendBoolean(true);
-            }
-            else
-            {
-                Message.AppendBoolean(false);
-            }
+            Message.AppendBoolean(Quest != null && Session.GetHabbo().CurrentQuestId == Quest.Id);
 
             Message.AppendString(Quest == null ? string.Empty : Quest.ActionName);
             Message.AppendString(Quest == null ? string.Empty : Quest.DataBit);
@@ -117,7 +109,7 @@ namespace Firewind.HabboHotel.Quests.Composer
             Message.AppendInt32(UserProgress);
             Message.AppendUInt(Quest == null ? 0 : Quest.GoalData);
 
-            Message.AppendInt32(0);
+            Message.AppendInt32(Quest == null ? 0 : Quest.TimeUnlock);
             Message.AppendString("");
             Message.AppendString("");
             Message.AppendBoolean(true);

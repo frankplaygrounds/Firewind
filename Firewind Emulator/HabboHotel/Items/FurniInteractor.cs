@@ -143,7 +143,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
         internal override bool OnTrigger(GameClient Session, RoomItem Item, int Request, bool UserHasRights)
         {
-            if (Item.data.GetData() != "-1")
+            if (Convert.ToString(Item.data.GetData()) != "-1")
             {
                 Item.data = new StringData("-1");
                 Item.UpdateState(false, true);
@@ -168,7 +168,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
             if (Gamemap.TilesTouching(Item.GetX, Item.GetY, User.X, User.Y))
             {
-                if (Item.data.GetData() != "-1")
+                if (Convert.ToString(Item.data.GetData()) != "-1")
                 {
                     if (Request == -1)
                     {
@@ -211,7 +211,7 @@ namespace Firewind.HabboHotel.Items.Interactors
                 return false;
             }
 
-            if (Item.data.GetData() != "-1")
+            if (Convert.ToString(Item.data.GetData()) != "-1")
             {
                 ((StringData)Item.data).Data = "-1";
                 Item.UpdateState();
@@ -240,7 +240,7 @@ namespace Firewind.HabboHotel.Items.Interactors
                 return false;
             }
 
-            if (Item.data.GetData() != "0")
+            if (Convert.ToString(Item.data.GetData()) != "0")
             {
                 Item.data = new StringData("0");
                 Item.UpdateState(false, true);
@@ -356,7 +356,7 @@ namespace Firewind.HabboHotel.Items.Interactors
                 return false;
             }
 
-            if (Item.data.GetData() == "0")
+            if (Convert.ToString(Item.data.GetData()) == "0")
             {
                 ((StringData)Item.data).Data = "1";
                 Item.UpdateState(false, true);
@@ -586,6 +586,51 @@ namespace Firewind.HabboHotel.Items.Interactors
             Item.UpdateState();
             Item.GetRoom().GetGameMap().updateMapForItem(Item);
             //Item.GetRoom().GenerateMaps();
+            return true;
+        }
+    }
+
+    class InteractorGuildGate : FurniInteractor
+    {
+        internal override void OnPlace(GameClient Session, RoomItem Item) { }
+        internal override void OnRemove(GameClient Session, RoomItem Item) { }
+
+        internal override bool OnTrigger(GameClient Session, RoomItem Item, int Request, bool UserHasRights)
+        {
+            if (Item == null || Item.GetRoom() == null || Session == null || Session.GetHabbo() == null)
+                return false;
+
+            StringArrayStuffData data = Item.data as StringArrayStuffData;
+            if (data == null)
+                return false;
+
+            while (data.Data.Count < 5)
+                data.Data.Add(string.Empty);
+
+            int groupId;
+            if (!int.TryParse(data.Data[1], out groupId))
+                return false;
+
+            bool isMember = false;
+            var group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(groupId);
+            if (group != null)
+                isMember = group.Members.Contains(Session.GetHabbo().Id);
+
+            if (!UserHasRights && !isMember)
+                return false;
+
+            bool isOpen = data.Data[0] == "1";
+            if (isOpen && !Item.GetRoom().GetGameMap().itemCanBePlacedHere(Item.GetX, Item.GetY))
+                return false;
+
+            data.Data[0] = isOpen ? "0" : "1";
+            Item.GetRoom().GetRoomItemHandler().UpdateItem(Item);
+
+            ServerMessage Message = new ServerMessage(Outgoing.ObjectUpdate);
+            Item.Serialize(Message, Item.GetRoom().OwnerId);
+            Item.GetRoom().SendMessage(Message);
+            Item.GetRoom().GetGameMap().updateMapForItem(Item);
+
             return true;
         }
     }

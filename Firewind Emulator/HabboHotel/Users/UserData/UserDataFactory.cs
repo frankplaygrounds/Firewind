@@ -16,6 +16,7 @@ using Firewind.HabboHotel.Users;
 using Firewind.HabboHotel.Users.Authenticator;
 using Firewind.Core;
 using Firewind.HabboHotel.Achievements;
+using Firewind.HabboHotel.RoomBots;
 
 
 namespace Firewind.HabboHotel.Users.UserDataManagement
@@ -38,6 +39,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             DataTable dRequests;
             DataTable dRooms;
             DataTable dPets;
+            DataTable dBots;
             DataTable dQuests;
             //DataTable dSongs;
             DataTable dGroups = null;
@@ -138,6 +140,9 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
 
                 dbClient.setQuery("SELECT * FROM user_pets WHERE user_id = " + userID + " AND room_id = 0");
                 dPets = dbClient.getTable();
+
+                dbClient.setQuery("SELECT * FROM user_bots WHERE user_id = " + userID + " AND room_id = 0");
+                dBots = dbClient.getTable();
 
                 dbClient.setQuery("SELECT * FROM user_quests WHERE user_id = " + userID + "");
                 dQuests = dbClient.getTable();
@@ -375,8 +380,14 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
                 pets.Add(pet.PetId, pet);
             }
 
+            Dictionary<uint, RoomBot> bots = new Dictionary<uint, RoomBot>();
 
-
+            foreach (DataRow dRow in dBots.Rows)
+            {
+                RoomBot bot = Catalog.GenerateBotFromRow(dRow);
+                if (bot != null)
+                    bots.Add(bot.BotId, bot);
+            }
 
             Dictionary<uint, int> quests = new Dictionary<uint, int>();
 
@@ -417,30 +428,15 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             dRequests = null;
             dRooms = null;
             dPets = null;
+            dBots = null;
 
             errorCode = 0;
-            return new UserData(userID, achievements, favouritedRooms, ignores, tags, subscriptions, badges, inventory, effects, friends, requests, rooms, pets, quests, songs, user);
+            return new UserData(userID, achievements, favouritedRooms, ignores, tags, subscriptions, badges, inventory, effects, friends, requests, rooms, pets, bots, quests, songs, user);
         }
 
         internal static UserData GetUserData(int UserId)
         {
-            
-            byte errorCode;
             DataRow dUserInfo;
-            
-            DataTable dAchievements;
-            DataTable dFavouriteRooms;
-            DataTable dIgnores;
-            DataTable dTags;
-            DataTable dSubscriptions;
-            DataTable dBadges;
-            DataTable dInventory;
-            DataTable dEffects;
-            DataTable dFriends;
-            DataTable dRequests;
-            DataTable dRooms;
-            DataTable dPets;
-            DataTable dQuests;
             //DataTable dSongs;
             DataTable dGroups = null;
 
@@ -455,7 +451,6 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
 
                 if (dUserInfo == null)
                 {
-                    errorCode = 1;
                     return null;
                     //Logging.LogException("No user found. Debug data: [" + sessionTicket + "], [" + ip + "]");
                     //throw new UserDataNotFoundException(string.Format("No user found with ip {0} and sso {1}. Use SSO: {2} ", ip, sessionTicket, FirewindEnvironment.useSSO.ToString()));
@@ -465,7 +460,6 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
                 userID = Convert.ToUInt32(dUserInfo["id"]);
                 if (FirewindEnvironment.GetGame().GetClientManager().GetClientByUserID(userID) != null)
                 {
-                    errorCode = 2;
                     return null;
                 }
 
@@ -717,6 +711,7 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
 
             **/
 
+            Dictionary<uint, RoomBot> bots = new Dictionary<uint, RoomBot>();
 
             Dictionary<uint, int> quests = new Dictionary<uint, int>();
             /**
@@ -745,21 +740,8 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
             Habbo user = HabboFactory.GenerateHabbo(dUserInfo, dGroups);
 
             dUserInfo = null;
-            dAchievements = null;
-            dFavouriteRooms = null;
-            dIgnores = null;
-            dTags = null;
-            dSubscriptions = null;
-            dBadges = null;
-            dInventory = null;
-            dEffects = null;
-            dFriends = null;
-            dRequests = null;
-            dRooms = null;
-            dPets = null;
 
-            errorCode = 0;
-            return new UserData(userID, achievements, favouritedRooms, ignores, tags, subscriptions, badges, inventory, effects, friends, requests, rooms, pets, quests, songs, user);
+            return new UserData(userID, achievements, favouritedRooms, ignores, tags, subscriptions, badges, inventory, effects, friends, requests, rooms, pets, bots, quests, songs, user);
         }
     }
 }
