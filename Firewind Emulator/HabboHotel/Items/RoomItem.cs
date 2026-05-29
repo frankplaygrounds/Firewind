@@ -312,6 +312,8 @@ namespace Firewind.HabboHotel.Items
                     case InteractionType.conditiontimelessthan:
                     case InteractionType.conditiontimemorethan:
                     case InteractionType.conditiontriggeronfurni:
+                    case InteractionType.specialrandom:
+                    case InteractionType.specialunseen:
                         return new WiredInteractor();
                     case InteractionType.wire:
                     case InteractionType.wireCenter:

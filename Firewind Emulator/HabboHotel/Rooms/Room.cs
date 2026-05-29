@@ -331,6 +331,14 @@ namespace Firewind.HabboHotel.Rooms
             }
         }
 
+        internal Group RoomGroup
+        {
+            get
+            {
+                return Group;
+            }
+        }
+
         internal ChatMessageManager GetChatMessageManager()
         {
             return chatMessageManager;
@@ -737,6 +745,13 @@ namespace Firewind.HabboHotel.Rooms
                 
                 if (Session.GetHabbo().HasFuse("fuse_any_room_rights"))
                         return 3;
+
+                int groupRights = GetGroupRightsLevel(Session);
+                if (groupRights > 0)
+                    return groupRights;
+
+                if (Group != null)
+                    return 0;
                 
                 if (UsersWithRights.Contains(Session.GetHabbo().Id))
                         return 1;
@@ -776,6 +791,10 @@ namespace Firewind.HabboHotel.Rooms
                 {
                     if (Session.GetHabbo().HasFuse("fuse_any_room_rights"))
                         return true;
+                    if (HasGroupRights(Session))
+                        return true;
+                    if (Group != null)
+                        return false;
                     if (UsersWithRights.Contains(Session.GetHabbo().Id))
                         return true;
                     if (EveryoneGotRights)
@@ -1017,6 +1036,49 @@ namespace Firewind.HabboHotel.Rooms
 
         private bool mDisposed;
         private Group Group;
+
+        internal void RefreshGroup()
+        {
+            if (mRoomData == null)
+                return;
+
+            mRoomData.RefreshGroup();
+            Group = mRoomData.Group;
+        }
+
+        internal void SetGroup(Group group)
+        {
+            Group = group;
+            if (mRoomData == null)
+                return;
+
+            mRoomData.Group = group;
+            mRoomData.GroupID = group != null ? group.ID : 0;
+        }
+
+        private int GetGroupRightsLevel(GameClient Session)
+        {
+            if (Group == null || Session == null || Session.GetHabbo() == null)
+                return 0;
+
+            uint userId = Session.GetHabbo().Id;
+            if ((uint)Group.OwnerID == userId)
+                return 3;
+
+            int rank;
+            if (Group.MemberRanks.TryGetValue(userId, out rank) && rank <= 1)
+                return 3;
+
+            if (Group.RightsType == 1 && Group.Members.Contains(userId))
+                return 1;
+
+            return 0;
+        }
+
+        private bool HasGroupRights(GameClient Session)
+        {
+            return GetGroupRightsLevel(Session) > 0;
+        }
 
         #region IDisposable members
 

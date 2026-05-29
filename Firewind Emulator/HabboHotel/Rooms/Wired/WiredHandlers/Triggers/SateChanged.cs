@@ -33,7 +33,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers
             {
                 _item.itemTriggerEventHandler += delegateFunction;
             }
-            this.disposed = true;
+            this.disposed = false;
         }
 
         public bool OnCycle()
@@ -62,6 +62,7 @@ namespace Firewind.HabboHotel.Rooms.Wired.WiredHandlers
 
         private void itemTriggered(object sender, ItemTriggeredArgs e)
         {
+            cycleCount = 0;
             if (delay > 0)
             {
                 triggeringQueue.Enqueue(e);

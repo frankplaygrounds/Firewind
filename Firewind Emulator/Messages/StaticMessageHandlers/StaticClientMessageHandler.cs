@@ -174,6 +174,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.SaveWiredEffect, new StaticRequestHandler(SharedPacketLib.SaveWired));
             handlers.Add(Incoming.SaveWiredTrigger, new StaticRequestHandler(SharedPacketLib.SaveWired));
             handlers.Add(Incoming.SaveWiredCondition, new StaticRequestHandler(SharedPacketLib.SaveWiredCondition));
+            handlers.Add(Incoming.ApplySnapshot, new StaticRequestHandler(SharedPacketLib.ApplySnapshot));
             handlers.Add(Incoming.UserInformation, new StaticRequestHandler(SharedPacketLib.GetUserInfo));
             handlers.Add(Incoming.LoadProfile, new StaticRequestHandler(SharedPacketLib.LoadProfile));
             handlers.Add(Incoming.ScrGetUserInfo, new StaticRequestHandler(SharedPacketLib.ScrGetUserInfo));

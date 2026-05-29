@@ -26,3 +26,17 @@ You have reached ==> [END OF SESSION]
 
 
 
+
+Hotel pre-warning =>[0 s, 0 ms]
+Socket close =>[0 s, 2 ms]
+Furni pre-save and connection close =>[0 s, 13 ms]
+Room destructor =>[0 s, 6 ms]
+Database pre-save =>[0 s, 29 ms]
+Connection shutdown =>[0 s, 0 ms]
+Game destroy =>[0 s, 8 ms]
+Database shutdown =>[0 s, 0 ms]
+Total time on shutdown 0 s, 61 ms
+You have reached ==> [END OF SESSION]
+
+
+

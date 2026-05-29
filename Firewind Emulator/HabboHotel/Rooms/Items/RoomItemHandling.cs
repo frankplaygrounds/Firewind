@@ -247,6 +247,10 @@ namespace Firewind.HabboHotel.Rooms
                     else if (WiredUtillity.TypeIsWired(Item.GetBaseItem().InteractionType))
                     {
                         WiredLoader.LoadWiredItem(Item, room, dbClient);
+                        room.GetWiredHandler().AddFurniture(Item);
+                    }
+                    else if (WiredHandler.TypeIsWire(Item.GetBaseItem().InteractionType))
+                    {
                         room.GetWiredHandler().AddWire(Item, Item.Coordinate, Item.Rot, Item.GetBaseItem().InteractionType);
                     }
 
@@ -604,6 +608,8 @@ namespace Firewind.HabboHotel.Rooms
             if (!newItem)
                 NeedsReAdd = room.GetGameMap().RemoveFromMap(Item);
             Dictionary<int, ThreeDCoord> AffectedTiles = Gamemap.GetAffectedTiles(Item.GetBaseItem().Length, Item.GetBaseItem().Width, newX, newY, newRot);
+            bool stackHeightOverride = Session != null && Session.GetHabbo() != null && Session.GetHabbo().StackHeightStatus;
+            double stackHeight = stackHeightOverride ? Session.GetHabbo().StackHeight : 0;
 
             if (!room.GetGameMap().ValidTile(newX, newY) || room.GetGameMap().SquareHasUsers(newX, newY) && !Item.GetBaseItem().IsSeat)
             {
@@ -720,7 +726,7 @@ namespace Firewind.HabboHotel.Rooms
                 // Check for items in the stack that do not allow stacking on top of them
                 foreach (RoomItem I in ItemsComplete)
                 {
-                    if (Session.GetHabbo().StackHeightStatus)
+                    if (stackHeightOverride)
                     {
                         // we dont care
                         continue;
@@ -766,9 +772,9 @@ namespace Firewind.HabboHotel.Rooms
                         continue; // cannot stack on self
                     }
 
-                    if (Session.GetHabbo().StackHeightStatus) 
+                    if (stackHeightOverride)
                     {
-                        newZ = Session.GetHabbo().StackHeight;
+                        newZ = stackHeight;
                         continue;
                     }
 

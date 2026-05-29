@@ -129,15 +129,6 @@ namespace ConnectionManager
             //Out.writeLine("Starting to listen to connection requests", Out.logFlags.ImportantLogLevel);
             connectionListener.Listen(100);
             acceptConnections = true;
-            string currentHost = System.Net.Dns.GetHostName();
-            // Get the IP from the host name
-            IPHostEntry host = System.Net.Dns.GetHostEntry(currentHost);
-            //Out.writeNotification("Started listening on port [" + portInformation + "] on host [" + currentHost + "]");
-            //Out.writeNotification("Listening on the following ip addresses:");
-            //for (int i = 0; i < host.AddressList.Length; i++)
-            //{
-            //    Out.writeNotification(host.AddressList[i].ToString());
-            //}
             try
             {
                 connectionListener.BeginAccept(new AsyncCallback(newConnectionRequest), connectionListener);

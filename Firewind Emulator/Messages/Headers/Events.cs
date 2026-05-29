@@ -105,6 +105,7 @@ namespace HabboEvents
 			public static int SaveWiredTrigger = 981;
 			public static int SaveWiredCondition = 2013;
 		public static int SaveWiredEffect = 682;
+        public static int ApplySnapshot = 2346;
 		public static int ToolForThisRoom = 514;
 		public static int ToolForUser = 2452;
 		public static int GetRoomVisits = 2973;

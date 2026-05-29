@@ -24,6 +24,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
         private Queue requestingUpdates;
 
         private WiredSolverInstance wireSlower;
+        private Dictionary<uint, List<uint>> unseenEffectHistory;
 
         private Room room;
         internal ConditionHandler conditionHandler;
@@ -39,6 +40,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
             this.requestedTriggers = new Queue();
             this.requestingUpdates = new Queue();
             this.wireSlower = new WiredSolverInstance();
+            this.unseenEffectHistory = new Dictionary<uint, List<uint>>();
 
             this.room = room;
             this.conditionHandler = new ConditionHandler(room);
@@ -65,6 +67,8 @@ namespace Firewind.HabboHotel.Rooms.Wired
         {
             RemoveFurnitureFromItems(item);
             RemoveFurnitureFromStack(item);
+            if (item.GetBaseItem().Name == "wf_xtra_unseen")
+                unseenEffectHistory.Remove(item.Id);
         }
 
         private void AddFurnitureToItems(RoomItem item)
@@ -218,14 +222,15 @@ namespace Firewind.HabboHotel.Rooms.Wired
             if (actionStacks.ContainsKey(coordinate) && conditionHandler.AllowsHandling(coordinate, user))
             {
                 bool hasRandomEffectAddon = false;
+                RoomItem unseenEffectAddon = null;
                 items = (List<RoomItem>)actionStacks[coordinate];
 
-                List<IWiredEffect> availableEffects = new List<IWiredEffect>();
+                List<RoomItem> availableEffects = new List<RoomItem>();
                 foreach (RoomItem stackItem in items)
                 {
                     if (stackItem.wiredHandler is IWiredEffect)
                     {
-                        availableEffects.Add((IWiredEffect)stackItem.wiredHandler);
+                        availableEffects.Add(stackItem);
                     }
                     else if (stackItem.GetBaseItem().Name == "wf_xtra_random")
                     {
@@ -233,17 +238,34 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         ((StringData)stackItem.data).Data = "1";
                         OnEvent(stackItem.Id);
                     }
+                    else if (stackItem.GetBaseItem().Name == "wf_xtra_unseen")
+                    {
+                        unseenEffectAddon = stackItem;
+                        ((StringData)stackItem.data).Data = "1";
+                        OnEvent(stackItem.Id);
+                    }
                 }
 
-                if (hasRandomEffectAddon)
+                if (availableEffects.Count > 0 && unseenEffectAddon != null)
                 {
-                    availableEffects[FirewindEnvironment.GetRandomNumber(0, availableEffects.Count - 1)].Handle(user, team, item);
+                    List<RoomItem> effectItems = new List<RoomItem>(availableEffects);
+                    if (hasRandomEffectAddon)
+                        ShuffleEffects(effectItems);
+
+                    RoomItem effectItem = GetUnseenEffect(unseenEffectAddon.Id, effectItems);
+                    if (effectItem != null)
+                        ((IWiredEffect)effectItem.wiredHandler).Handle(user, team, item);
+                }
+                else if (availableEffects.Count > 0 && hasRandomEffectAddon)
+                {
+                    RoomItem effectItem = availableEffects[FirewindEnvironment.GetRandomNumber(0, availableEffects.Count - 1)];
+                    ((IWiredEffect)effectItem.wiredHandler).Handle(user, team, item);
                 }
                 else
                 {
-                    foreach (IWiredEffect effect in availableEffects)
+                    foreach (RoomItem effectItem in availableEffects)
                     {
-                        effect.Handle(user, team, item);
+                        ((IWiredEffect)effectItem.wiredHandler).Handle(user, team, item);
                     }
                 }
 
@@ -259,6 +281,40 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     room.GetWiredHandler().TriggerOnWire(coordinate);
                 }
             }
+        }
+
+        private void ShuffleEffects(List<RoomItem> effects)
+        {
+            for (int i = effects.Count - 1; i > 0; i--)
+            {
+                int swapIndex = FirewindEnvironment.GetRandomNumber(0, i);
+                RoomItem effect = effects[i];
+                effects[i] = effects[swapIndex];
+                effects[swapIndex] = effect;
+            }
+        }
+
+        private RoomItem GetUnseenEffect(uint addonId, List<RoomItem> effects)
+        {
+            if (!unseenEffectHistory.ContainsKey(addonId))
+                unseenEffectHistory[addonId] = new List<uint>();
+
+            List<uint> seenEffects = unseenEffectHistory[addonId];
+            foreach (RoomItem effect in effects)
+            {
+                if (!seenEffects.Contains(effect.Id))
+                {
+                    seenEffects.Add(effect.Id);
+                    return effect;
+                }
+            }
+
+            seenEffects.Clear();
+            if (effects.Count == 0)
+                return null;
+
+            seenEffects.Add(effects[0].Id);
+            return effects[0];
         }
 
         private void CheckHandlingState(ref bool shouldBeHandled, Point coordinate)
@@ -450,14 +506,23 @@ namespace Firewind.HabboHotel.Rooms.Wired
 
         private void HandleItems(Point coord)
         {
-            WireTransfer transfer = wireSlower.getWireTransfer(coord);
             List<RoomItem> items = new List<RoomItem>(room.GetGameMap().GetCoordinatedItems(coord));
+            bool hasWiredStack = false;
             foreach (RoomItem item in items)
             {
+                if (WiredUtillity.TypeIsWired(item.GetBaseItem().InteractionType))
+                {
+                    hasWiredStack = true;
+                    continue;
+                }
+
                 item.Interactor.OnTrigger(null, item, 0, true);
             }
             items.Clear();
             items = null;
+
+            if (hasWiredStack)
+                RequestStackHandle(coord, null, null, Team.none);
         }
 
         #endregion
@@ -482,6 +547,9 @@ namespace Firewind.HabboHotel.Rooms.Wired
             if (wireSlower != null)
                 wireSlower.Destroy();
             wireSlower = null;
+            if (unseenEffectHistory != null)
+                unseenEffectHistory.Clear();
+            unseenEffectHistory = null;
             room = null;
         }
         #endregion

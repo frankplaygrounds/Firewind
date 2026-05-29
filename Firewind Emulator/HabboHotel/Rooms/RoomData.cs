@@ -109,10 +109,7 @@ namespace Firewind.HabboHotel.Rooms
             }
 
             if (FirewindEnvironment.GetGame().GetGroupManager() != null)
-            {
-                Group = FirewindEnvironment.GetGame().GetGroupManager().GetGroupForRoom((int)Id);
-                GroupID = Group != null ? Group.ID : 0;
-            }
+                RefreshGroup();
 
             switch (Row["state"].ToString().ToLower())
             {
@@ -169,6 +166,7 @@ namespace Firewind.HabboHotel.Rooms
             this.Name = Room.Name;
             this.Description = Room.Description;
             this.Owner = Room.Owner;
+            this.OwnerId = Room.OwnerId;
             this.Category = Room.Category;
             this.State = Room.State;
             this.UsersNow = Room.UsersNow;
@@ -190,6 +188,9 @@ namespace Firewind.HabboHotel.Rooms
             this.Landscape = Room.Landscape;
             this.FloorThickness = Room.FloorThickness;
             this.WallThickness = Room.WallThickness;
+            this.AllowRightsOverride = Room.EveryoneGotRights;
+            this.Group = Room.RoomGroup;
+            this.GroupID = this.Group != null ? this.Group.ID : 0;
 
             mModel = FirewindEnvironment.GetGame().GetRoomManager().GetModel(ModelName, Id);
         }
@@ -247,6 +248,19 @@ namespace Firewind.HabboHotel.Rooms
             {
                 this.Tags.Add(Tag);
             }
+        }
+
+        internal void RefreshGroup()
+        {
+            if (FirewindEnvironment.GetGame().GetGroupManager() == null)
+            {
+                Group = null;
+                GroupID = 0;
+                return;
+            }
+
+            Group = FirewindEnvironment.GetGame().GetGroupManager().GetGroupForRoom((int)Id);
+            GroupID = Group != null ? Group.ID : 0;
         }
 
         internal void Serialize(ServerMessage Message, Boolean ShowEvents)

@@ -57,6 +57,96 @@ namespace Firewind.HabboHotel.Misc
         }
 
         #region Commands
+        internal void addtag()
+        {
+            string tag;
+            if (!TryGetTagParameter(out tag))
+                return;
+
+            if (Session.GetHabbo().Tags.Exists(existingTag => existingTag.Equals(tag, StringComparison.OrdinalIgnoreCase)))
+            {
+                Session.SendNotif("You already have that tag.");
+                return;
+            }
+
+            if (Session.GetHabbo().Tags.Count >= 5)
+            {
+                Session.SendNotif("You can only have 5 tags.");
+                return;
+            }
+
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("INSERT INTO user_tags(user_id,tag) VALUES(@userid,@tag)");
+                dbClient.addParameter("userid", Session.GetHabbo().Id);
+                dbClient.addParameter("tag", tag);
+                dbClient.runQuery();
+            }
+
+            Session.GetHabbo().Tags.Add(tag);
+            SendTagUpdate();
+            Session.SendNotif("Tag added.");
+        }
+
+        internal void deltag()
+        {
+            string tag;
+            if (!TryGetTagParameter(out tag))
+                return;
+
+            int removed = Session.GetHabbo().Tags.RemoveAll(existingTag => existingTag.Equals(tag, StringComparison.OrdinalIgnoreCase));
+            if (removed == 0)
+            {
+                Session.SendNotif("You do not have that tag.");
+                return;
+            }
+
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("DELETE FROM user_tags WHERE user_id = @userid AND tag = @tag");
+                dbClient.addParameter("userid", Session.GetHabbo().Id);
+                dbClient.addParameter("tag", tag);
+                dbClient.runQuery();
+            }
+
+            SendTagUpdate();
+            Session.SendNotif("Tag removed.");
+        }
+
+        private bool TryGetTagParameter(out string tag)
+        {
+            tag = string.Empty;
+            if (Params.Length != 2)
+            {
+                Session.SendNotif("Usage: :addtag tag or :deltag tag");
+                return false;
+            }
+
+            tag = Params[1].Trim().ToLower();
+            if (tag.Length == 0 || tag.Length > 50 || !FirewindEnvironment.IsValidAlphaNumeric(tag))
+            {
+                Session.SendNotif("Tags can only contain letters and numbers.");
+                return false;
+            }
+
+            return true;
+        }
+
+        private void SendTagUpdate()
+        {
+            ServerMessage message = new ServerMessage(Outgoing.GetUserTags);
+            message.AppendUInt(Session.GetHabbo().Id);
+            message.AppendInt32(Session.GetHabbo().Tags.Count);
+            foreach (string tag in Session.GetHabbo().Tags)
+                message.AppendStringWithBreak(tag);
+
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room != null)
+                room.SendMessage(message);
+            else
+                Session.SendMessage(message);
+        }
+
         internal void moonwalk()
         {
             Room room = Session.GetHabbo().CurrentRoom;

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using Firewind.HabboHotel.Misc;
+using Firewind.HabboHotel.Groups.Types;
 using Firewind.HabboHotel.Rooms;
 using Firewind.HabboHotel.Users;
 using Firewind.HabboHotel.Users.Badges;
@@ -271,7 +273,20 @@ namespace Firewind.Messages
             Response.AppendBoolean(userID != Session.GetHabbo().Id && Data.GetMessenger().FriendshipExists(Session.GetHabbo().Id)); // is friend
             Response.AppendBoolean(Data.GetMessenger().requests.ContainsKey(Session.GetHabbo().Id)); // firend request sent
             Response.AppendBoolean(isOnline); // is online
-            Response.AppendInt32(0); // group count
+
+            List<Group> groups = FirewindEnvironment.GetGame().GetGroupManager() != null ?
+                FirewindEnvironment.GetGame().GetGroupManager().GetGroups(Data.Groups) : new List<Group>();
+            Response.AppendInt32(groups.Count); // group count
+            foreach (Group group in groups)
+            {
+                Response.AppendInt32(group.ID);
+                Response.AppendString(group.Name);
+                Response.AppendString(group.BadgeCode);
+                Response.AppendString(group.Color1);
+                Response.AppendString(group.Color2);
+                Response.AppendBoolean(group.ID == Data.FavouriteGroup);
+            }
+
             Response.AppendInt32(0); // last online in seconds
             Response.AppendBoolean(true); // show it
 

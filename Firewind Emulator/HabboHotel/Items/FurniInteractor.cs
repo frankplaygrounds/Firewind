@@ -6,6 +6,7 @@ using Firewind.HabboHotel.GameClients;
 using Firewind.HabboHotel.Pathfinding;
 using Firewind.HabboHotel.Rooms;
 using Firewind.HabboHotel.Rooms.Games;
+using Firewind.HabboHotel.Rooms.Wired;
 using System.Drawing;
 using Firewind.Messages;
 using HabboEvents;
@@ -1097,14 +1098,20 @@ namespace Firewind.HabboHotel.Items.Interactors
                 return false;
 
             String ExtraInfo = "";
+            String ExtraInfo2 = "";
             List<RoomItem> items = new List<RoomItem>();
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
                 try
                 {
-                    dbClient.setQuery("SELECT trigger_data FROM trigger_item WHERE trigger_id = @id ");
+                    dbClient.setQuery("SELECT trigger_data, trigger_data_2 FROM trigger_item WHERE trigger_id = @id ");
                     dbClient.addParameter("id", (int)Item.Id);
-                    ExtraInfo = dbClient.getString();
+                    DataRow dRow = dbClient.getRow();
+                    if (dRow != null)
+                    {
+                        ExtraInfo = dRow["trigger_data"].ToString();
+                        ExtraInfo2 = dRow["trigger_data_2"].ToString();
+                    }
                 }
                 catch { }
                 try
@@ -1359,6 +1366,13 @@ namespace Firewind.HabboHotel.Items.Interactors
                 #region Effects
                 case InteractionType.actionposreset:
                     {
+                        bool matchState;
+                        bool matchDirection;
+                        bool matchPosition;
+                        int delay;
+                        int.TryParse(ExtraInfo, out delay);
+                        WiredMatchFurniSnapshot.DecodeFlags(ExtraInfo2, false, false, false, out matchState, out matchDirection, out matchPosition);
+
                         ServerMessage message = new ServerMessage(Outgoing.WiredEffect);
                         message.AppendBoolean(false);
                         message.AppendInt32(10);
@@ -1367,12 +1381,14 @@ namespace Firewind.HabboHotel.Items.Interactors
                             message.AppendUInt(item.Id);
                         message.AppendInt32(Item.GetBaseItem().SpriteId);
                         message.AppendUInt(Item.Id);
-                        message.AppendString(ExtraInfo);
+                        message.AppendString(string.Empty);
+                        message.AppendInt32(3);
+                        message.AppendInt32(matchState ? 1 : 0);
+                        message.AppendInt32(matchDirection ? 1 : 0);
+                        message.AppendInt32(matchPosition ? 1 : 0);
                         message.AppendInt32(0);
-                        message.AppendInt32(0);
-                        message.AppendInt32(0);
-                        message.AppendInt32(0);
-                        message.AppendInt32(0);
+                        message.AppendInt32(3);
+                        message.AppendInt32(delay);
                         message.AppendInt32(0);
                         Session.SendMessage(message);
                         break;
@@ -1613,6 +1629,11 @@ namespace Firewind.HabboHotel.Items.Interactors
 
                 case InteractionType.conditionstatepos:
                     {
+                        bool matchState;
+                        bool matchDirection;
+                        bool matchPosition;
+                        WiredMatchFurniSnapshot.DecodeFlags(ExtraInfo2, false, false, false, out matchState, out matchDirection, out matchPosition);
+
                         ServerMessage message = new ServerMessage(Outgoing.WiredCondition);
                         message.AppendBoolean(false);
                         message.AppendInt32(5);
@@ -1622,9 +1643,11 @@ namespace Firewind.HabboHotel.Items.Interactors
                         message.AppendInt32(Item.GetBaseItem().SpriteId);
                         message.AppendUInt(Item.Id);
 
-                        message.AppendInt32(0);
-                        message.AppendInt32(0);
-                        message.AppendInt32(1);
+                        message.AppendString(string.Empty);
+                        message.AppendInt32(3);
+                        message.AppendInt32(matchState ? 1 : 0);
+                        message.AppendInt32(matchDirection ? 1 : 0);
+                        message.AppendInt32(matchPosition ? 1 : 0);
                         message.AppendInt32(0);
                         message.AppendInt32(0);
                         message.AppendInt32(0);

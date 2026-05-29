@@ -30,7 +30,8 @@ namespace Firewind.Messages
             if (group == null)
                 return;
 
-            Session.GetHabbo().Groups.Add(group.ID);
+            if (!Session.GetHabbo().Groups.Contains(group.ID))
+                Session.GetHabbo().Groups.Add(group.ID);
             Session.GetHabbo().FavouriteGroup = group.ID;
 
             Response.Init(Outgoing.GroupCreated);
@@ -39,6 +40,8 @@ namespace Firewind.Messages
             SendResponse();
 
             SendGroupList(Outgoing.HabboGroupsWhereMember);
+            SendFavouriteGroupUpdate(group.ID);
+            RefreshRoomUserGroup();
         }
 
         public void UpdateGuildBadge()
@@ -171,7 +174,12 @@ namespace Firewind.Messages
             {
                 SendGroupDetails(group);
                 if (group.Members.Contains(Session.GetHabbo().Id))
+                {
+                    if (Session.GetHabbo().FavouriteGroup == group.ID)
+                        SendFavouriteGroupUpdate(group.ID);
                     SendGroupList(Outgoing.HabboGroupsWhereMember);
+                    RefreshRoomUserGroup();
+                }
             }
         }
 
@@ -181,6 +189,7 @@ namespace Firewind.Messages
             FirewindEnvironment.GetGame().GetGroupManager().SetFavouriteGroup(Session.GetHabbo(), groupID);
             SendFavouriteGroupUpdate(groupID);
             SendGroupList(Outgoing.HabboGroupsWhereMember);
+            RefreshRoomUserGroup();
         }
 
         public void DeselectFavouriteHabboGroup()
@@ -188,6 +197,7 @@ namespace Firewind.Messages
             FirewindEnvironment.GetGame().GetGroupManager().ClearFavouriteGroup(Session.GetHabbo());
             SendFavouriteGroupUpdate(0);
             SendGroupList(Outgoing.HabboGroupsWhereMember);
+            RefreshRoomUserGroup();
         }
 
         public void GetGroupMemberList()
@@ -426,13 +436,56 @@ namespace Firewind.Messages
         private void SendFavouriteGroupUpdate(int groupID)
         {
             Group group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(groupID);
+            SendGroupBadgeUpdate(group);
+
+            int virtualID = 0;
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room != null)
+            {
+                RoomUser user = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+                if (user != null)
+                    virtualID = user.VirtualId;
+            }
 
             Response.Init(Outgoing.FavoritemembershipUpdate);
-            Response.AppendInt32(group != null ? 1 : 0);
-            Response.AppendInt32(group != null ? group.ID : -1);
-            Response.AppendInt32(group != null ? group.Type : -1);
+            Response.AppendInt32(virtualID);
+            Response.AppendInt32(group != null ? group.ID : 0);
+            Response.AppendInt32(3);
             Response.AppendString(group != null ? group.Name : string.Empty);
             SendResponse();
+        }
+
+        private void SendGroupBadgeUpdate(Group group)
+        {
+            if (group == null)
+                return;
+
+            ServerMessage badgeUpdate = new ServerMessage(Outgoing.HabboGroupBadges);
+            badgeUpdate.AppendInt32(1);
+            badgeUpdate.AppendInt32(group.ID);
+            badgeUpdate.AppendString(group.BadgeCode);
+
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room != null)
+                room.SendMessage(badgeUpdate);
+            else
+                Session.SendMessage(badgeUpdate);
+        }
+
+        private void RefreshRoomUserGroup()
+        {
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room == null)
+                return;
+
+            RoomUser user = room.GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+            if (user == null)
+                return;
+
+            ServerMessage update = new ServerMessage(Outgoing.SetRoomUser);
+            update.AppendInt32(1);
+            user.Serialize(update);
+            room.SendMessage(update);
         }
 
         private void AppendGuildStates(Group group)

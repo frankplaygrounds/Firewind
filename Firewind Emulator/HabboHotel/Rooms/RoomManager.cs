@@ -7,6 +7,7 @@ using System.Threading;
 using Firewind.Core;
 using Firewind.HabboHotel.Events;
 using Firewind.HabboHotel.GameClients;
+using Firewind.HabboHotel.Groups.Types;
 using Firewind.HabboHotel.Users;
 using Firewind.Messages;
 using Database_Manager.Database.Session_Details.Interfaces;
@@ -114,12 +115,18 @@ namespace Firewind.HabboHotel.Rooms
         {
             
             if (loadedRoomData.ContainsKey(RoomId))
-                return (RoomData)loadedRoomData[RoomId];
+            {
+                RoomData cachedData = (RoomData)loadedRoomData[RoomId];
+                cachedData.RefreshGroup();
+                return cachedData;
+            }
 
             RoomData Data = new RoomData();
             if (IsRoomLoaded(RoomId))
             {
-                return GetRoom(RoomId).RoomData;
+                Room room = GetRoom(RoomId);
+                room.RefreshGroup();
+                return room.RoomData;
             }
             else
             {
@@ -188,12 +195,20 @@ namespace Firewind.HabboHotel.Rooms
         internal RoomData FetchRoomData(UInt32 RoomId, DataRow dRow)
         {
             if (loadedRoomData.ContainsKey(RoomId))
-                return (RoomData)loadedRoomData[RoomId];
+            {
+                RoomData cachedData = (RoomData)loadedRoomData[RoomId];
+                cachedData.RefreshGroup();
+                return cachedData;
+            }
             else
             {
                 RoomData data = new RoomData();
                 if (IsRoomLoaded(RoomId))
-                    data.Fill(GetRoom(RoomId));
+                {
+                    Room room = GetRoom(RoomId);
+                    room.RefreshGroup();
+                    data.Fill(room);
+                }
                 else
                     data.Fill(dRow);
 
@@ -210,6 +225,20 @@ namespace Firewind.HabboHotel.Rooms
 
             return null;
             //throw new ObjectNotFoundException("No room for roomID " + RoomId + " found, script aborted.");
+        }
+
+        internal void UpdateRoomGroup(uint roomId, Group group)
+        {
+            if (loadedRoomData.ContainsKey(roomId))
+            {
+                RoomData data = (RoomData)loadedRoomData[roomId];
+                data.Group = group;
+                data.GroupID = group != null ? group.ID : 0;
+            }
+
+            Room room;
+            if (loadedRooms.TryGetValue(roomId, out room))
+                room.SetGroup(group);
         }
 
         internal RoomData CreateRoom(GameClient Session, string Name, string Model)

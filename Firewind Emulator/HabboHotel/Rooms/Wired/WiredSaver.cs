@@ -325,8 +325,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         MovementState movement = (MovementState)clientMessage.ReadInt32();
                         RotationState rotation = (RotationState)clientMessage.ReadInt32();
 
-                        bool junk3 = clientMessage.ReadBoolean();
-                        bool junk2 = clientMessage.ReadBoolean(); 
+                        string junk2 = clientMessage.ReadString();
                         int furniCount;
                         List<RoomItem> items = GetItems(clientMessage, room, out furniCount);
                         int delay = clientMessage.ReadInt32();
@@ -339,14 +338,16 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
 
                         int junk = clientMessage.ReadInt32();
-                        bool junk3 = clientMessage.ReadBoolean();
-                        bool junk2 = clientMessage.ReadBoolean(); 
+                        bool matchState = clientMessage.ReadInt32() == 1;
+                        bool matchDirection = clientMessage.ReadInt32() == 1;
+                        bool matchPosition = clientMessage.ReadInt32() == 1;
+                        string junk2 = clientMessage.ReadString();
 
                         int furniCount;
                         List<RoomItem> items = GetItems(clientMessage, room, out furniCount);
                         int delay = clientMessage.ReadInt32();
 
-                        IWiredTrigger action = new PositionReset(items, delay, room.GetRoomItemHandler(), room.GetWiredHandler(), itemID);
+                        IWiredTrigger action = new PositionReset(items, delay, room.GetRoomItemHandler(), room.GetWiredHandler(), itemID, matchState, matchDirection, matchPosition);
                         HandleTriggerSave(action, room.GetWiredHandler(), room, itemID);
 
                         break;
@@ -356,8 +357,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
 
                         int junk = clientMessage.ReadInt32();
-                        bool junk3 = clientMessage.ReadBoolean();
-                        bool junk2 = clientMessage.ReadBoolean(); 
+                        string junk2 = clientMessage.ReadString();
                         int furniCount;
                         List<RoomItem> items = GetItems(clientMessage, room, out furniCount);
                         int delay = clientMessage.ReadInt32();
@@ -437,8 +437,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                 case InteractionType.triggerstatechanged:
                     {
                         int junk = clientMessage.ReadInt32();
-                        bool junk3 = clientMessage.ReadBoolean();
-                        bool junk2 = clientMessage.ReadBoolean();
+                        string junk2 = clientMessage.ReadString();
 
                         int furniAmount;
                         List<RoomItem> items = GetItems(clientMessage, room, out furniAmount);
@@ -760,7 +759,11 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     }
                 case InteractionType.conditionstatepos:
                     {
-                        handler = new FurniStatePosMatch(item, items);
+                        bool matchState = intParams.Length == 0 || intParams[0] == 1;
+                        bool matchDirection = intParams.Length < 2 || intParams[1] == 1;
+                        bool matchPosition = intParams.Length < 3 || intParams[2] == 1;
+
+                        handler = new FurniStatePosMatch(item, items, matchState, matchDirection, matchPosition);
                         break;
                     }
 

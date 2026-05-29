@@ -272,31 +272,46 @@ namespace Firewind.HabboHotel.Items
                     return InteractionType.triggerscoreachieved;
                 case "wf_trg_furnistate":
                     return InteractionType.triggerstatechanged;
+                case "wf_trg_state_changed":
+                    return InteractionType.triggerstatechanged;
                 case "wf_trg_onfurni":
+                case "wf_trg_walks_on_furni":
                     return InteractionType.triggerwalkonfurni;
                 case "wf_trg_offfurni":
+                case "wf_trg_walks_off_furni":
                     return InteractionType.triggerwalkofffurni;
                 case "wf_act_givepoints":
+                case "wf_act_give_score":
                     return InteractionType.actiongivescore;
                 case "actionposreset":
+                case "wf_act_matchfurni":
+                case "wf_act_match_to_sshot":
                     return InteractionType.actionposreset;
                 case "wf_act_moverotate":
+                case "wf_act_move_rotate":
                     return InteractionType.actionmoverotate;
                 case "actionresettimer":
+                case "wf_act_reset_timers":
                     return InteractionType.actionresettimer;
                 case "wf_act_saymsg":
+                case "wf_act_show_message":
                     return InteractionType.actionshowmessage;
                 case "wf_act_moveuser":
+                case "wf_act_teleport_to":
                     return InteractionType.actionteleportto;
                 case "wf_act_togglefurni":
+                case "wf_act_toggle_state":
                     return InteractionType.actiontogglestate;
                 case "wf_cnd_furnis_hv_avtrs":
                     return InteractionType.conditionfurnishaveusers;
                 case "conditionstatepos":
+                case "wf_cnd_match_snapshot":
                     return InteractionType.conditionstatepos;
                 case "conditiontimelessthan":
+                case "wf_cnd_time_less_than":
                     return InteractionType.conditiontimelessthan;
                 case "conditiontimemorethan":
+                case "wf_cnd_time_more_than":
                     return InteractionType.conditiontimemorethan;
                 case "wf_cnd_trggrer_on_frn":
                     return InteractionType.conditiontriggeronfurni;
@@ -321,6 +336,7 @@ namespace Firewind.HabboHotel.Items
                 case "wf_xtra_random":
                     return InteractionType.specialrandom;
                 case "specialunseen":
+                case "wf_xtra_unseen":
                     return InteractionType.specialunseen;
                 case "wire":
                     return InteractionType.wire;

@@ -61,7 +61,10 @@ namespace Firewind.HabboHotel.Items
                         allowTrade = Convert.ToInt32(dRow["allow_trade"]) == 1;
                         allowMarketplace = Convert.ToInt32(dRow["allow_marketplace_sell"]) == 1;
                         allowInventoryStack = Convert.ToInt32(dRow["allow_inventory_stack"]) == 1;
-                        interactionType = InterractionTypes.GetTypeFromString((string)dRow["interaction_type"]);
+                        string interactionTypeName = (string)dRow["interaction_type"];
+                        interactionType = InterractionTypes.GetTypeFromString(interactionTypeName);
+                        if (interactionType == InteractionType.none && interactionTypeName == "wired")
+                            interactionType = InterractionTypes.GetTypeFromString(itemName);
                         cycleCount = (int)dRow["interaction_modes_count"];
                         vendingIDS = (string)dRow["vending_ids"];
 

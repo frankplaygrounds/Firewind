@@ -62,6 +62,12 @@ namespace Firewind.Messages
                 }
             }
 
+            if (!commandRegisterInvokeable.ContainsKey("addtag"))
+                commandRegisterInvokeable.Add("addtag", new ChatCommand(77, "addtag", 0, "Adds a profile tag.", "tag", new String[0]));
+
+            if (!commandRegisterInvokeable.ContainsKey("deltag"))
+                commandRegisterInvokeable.Add("deltag", new ChatCommand(78, "deltag", 0, "Removes a profile tag.", "tag", new String[0]));
+
             //string supersecret = "ditunvdjgnpwuiyrvb";
             //ChatCommand acommand = new ChatCommand(400, supersecret, 0, string.Empty, string.Empty, new string[0]);
             //commandRegisterInvokeable.Add(supersecret, acommand);
@@ -497,6 +503,18 @@ namespace Firewind.Messages
                 case 76:
                     {
                         commandHandler.givescore();
+                        break;
+                    }
+
+                case 77:
+                    {
+                        commandHandler.addtag();
+                        break;
+                    }
+
+                case 78:
+                    {
+                        commandHandler.deltag();
                         break;
                     }
 

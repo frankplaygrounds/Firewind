@@ -21,6 +21,7 @@ using Firewind.HabboHotel.Groups;
 using Firewind.HabboHotel.Groups.Types;
 using System.Collections;
 using Firewind.HabboHotel.Rooms.Wired;
+using Firewind.HabboHotel.Rooms.Wired.WiredHandlers.Interfaces;
 using System.Drawing;
 using HabboEvents;
 using System.Reflection;
@@ -3195,13 +3196,40 @@ namespace Firewind.Messages
         internal void SaveWired()
         {
             uint itemID = Request.ReadUInt32();
-            WiredSaver.HandleSave(Session, itemID, Session.GetHabbo().CurrentRoom, Request);
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room == null || !room.CheckRights(Session))
+                return;
+
+            WiredSaver.HandleSave(Session, itemID, room, Request);
         }
 
         internal void SaveWiredConditions()
         {
             uint itemID = Request.ReadUInt32();
-            WiredSaver.HandleConditionSave(Session, itemID, Session.GetHabbo().CurrentRoom, Request);
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room == null || !room.CheckRights(Session))
+                return;
+
+            WiredSaver.HandleConditionSave(Session, itemID, room, Request);
+        }
+
+        internal void ApplySnapshot()
+        {
+            uint itemID = Request.ReadUInt32();
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room == null || !room.CheckRights(Session))
+                return;
+
+            RoomItem item = room.GetRoomItemHandler().GetItem(itemID);
+            if (item == null)
+                return;
+
+            IWiredMatchFurni matchFurni = item.wiredHandler as IWiredMatchFurni;
+            if (matchFurni == null)
+                matchFurni = item.wiredCondition as IWiredMatchFurni;
+
+            if (matchFurni != null)
+                matchFurni.ApplySnapshot(room);
         }
 
         #region Unused

@@ -832,6 +832,11 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.SaveWiredConditions();
         }
 
+        internal static void ApplySnapshot(GameClientMessageHandler handler)
+        {
+            handler.ApplySnapshot();
+        }
+
         internal static void GetMusicData(GameClientMessageHandler handler)
         {
             handler.GetMusicData();

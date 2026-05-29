@@ -78,7 +78,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredCondition furniHasUsers = new FurniHasUser(item, new List<RoomItem>());
                         furniHasUsers.LoadFromDatabase(dbClient, room);
-                        HandleConditionLoad(furniHasUsers, item);
+                        HandleConditionLoad(furniHasUsers, item, room);
                         break;
                     }
 
@@ -86,7 +86,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredCondition furnistatepos = new FurniStatePosMatch(item, new List<RoomItem>());
                         furnistatepos.LoadFromDatabase(dbClient, room);
-                        HandleConditionLoad(furnistatepos, item);
+                        HandleConditionLoad(furnistatepos, item, room);
                         break;
                     }
 
@@ -94,7 +94,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredCondition timeLessThan = new LessThanTimer(0, room, item);
                         timeLessThan.LoadFromDatabase(dbClient, room);
-                        HandleConditionLoad(timeLessThan, item);
+                        HandleConditionLoad(timeLessThan, item, room);
                         break;
                     }
 
@@ -102,7 +102,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredCondition timeMoreThan = new MoreThanTimer(0, room, item);
                         timeMoreThan.LoadFromDatabase(dbClient, room);
-                        HandleConditionLoad(timeMoreThan, item);
+                        HandleConditionLoad(timeMoreThan, item, room);
                         break;
                     }
 
@@ -110,7 +110,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     {
                         IWiredCondition triggerOnFurni = new TriggerUserIsOnFurni(item, new List<RoomItem>());
                         triggerOnFurni.LoadFromDatabase(dbClient, room);
-                        HandleConditionLoad(triggerOnFurni, item);
+                        HandleConditionLoad(triggerOnFurni, item, room);
                         break;
                     }
 
@@ -216,12 +216,13 @@ namespace Firewind.HabboHotel.Rooms.Wired
             item.wiredHandler = handler;
         }
 
-        private static void HandleConditionLoad(IWiredCondition handler, RoomItem item)
+        private static void HandleConditionLoad(IWiredCondition handler, RoomItem item, Room room)
         {
             if (item.wiredCondition != null)
                 item.wiredCondition.Dispose();
 
             item.wiredCondition = handler;
+            room.GetWiredHandler().conditionHandler.AddOrIgnoreRefferance(item);
         }
     }
 

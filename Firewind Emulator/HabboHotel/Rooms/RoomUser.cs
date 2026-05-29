@@ -910,7 +910,7 @@ namespace Firewind.HabboHotel.Rooms
 
                 Message.AppendInt32(favouriteGroup != null ? favouriteGroup.ID : 0); // group ID
                 Message.AppendInt32(0); // Looks like unused
-                Message.AppendString(favouriteGroup != null ? favouriteGroup.BadgeCode : ""); // group badge
+                Message.AppendString(favouriteGroup != null ? favouriteGroup.Name : ""); // group name
 
                 Message.AppendString(""); // botFigure
                 Message.AppendInt32(User.AchievementPoints);

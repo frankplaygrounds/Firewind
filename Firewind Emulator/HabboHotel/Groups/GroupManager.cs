@@ -254,6 +254,7 @@ namespace Firewind.HabboHotel.Groups
             group.MemberRanks[creator.GetHabbo().Id] = 1;
 
             Groups[groupID] = group;
+            FirewindEnvironment.GetGame().GetRoomManager().UpdateRoomGroup((uint)roomID, group);
             return group;
         }
 
