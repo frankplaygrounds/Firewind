@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using Firewind.Collections;
 using Firewind.Core;
+using Firewind.HabboHotel.Groups.Types;
 using Firewind.HabboHotel.Items;
 using Firewind.HabboHotel.Pathfinding;
 using Firewind.HabboHotel.Rooms.Games;
@@ -495,7 +496,7 @@ namespace Firewind.HabboHotel.Rooms
                         if (mGameMap[Coord.X, Coord.Y] != 3)
                             mGameMap[Coord.X, Coord.Y] = 1;
                     }
-                    else if (Item.GetZ <= (Model.SqFloorHeight[Item.GetX, Item.GetY] + 0.1) && Item.GetBaseItem().InteractionType == Firewind.HabboHotel.Items.InteractionType.guilddoor && IsGuildDoorOpen(Item))
+                    else if (Item.GetZ <= (Model.SqFloorHeight[Item.GetX, Item.GetY] + 0.1) && Item.GetBaseItem().InteractionType == Firewind.HabboHotel.Items.InteractionType.guilddoor)
                     {
                         if (mGameMap[Coord.X, Coord.Y] != 3)
                             mGameMap[Coord.X, Coord.Y] = 1;
@@ -525,10 +526,114 @@ namespace Firewind.HabboHotel.Rooms
             return true;
         }
 
-        private static bool IsGuildDoorOpen(RoomItem item)
+        internal RoomItem GetGuildGateForSquare(int x, int y)
+        {
+            List<RoomItem> items = GetCoordinatedItems(new Point(x, y));
+            return items.FirstOrDefault(item => item.GetBaseItem().InteractionType == InteractionType.guilddoor);
+        }
+
+        internal bool TryOpenGuildGate(RoomUser user, RoomItem item)
+        {
+            Group group = ResolveGuildGateGroup(item);
+            if (!CanUseGuildGate(user, group))
+                return false;
+
+            StringArrayStuffData data = EnsureGuildGateData(item, group);
+            if (data == null)
+                return false;
+
+            if (data.Data[0] != "1")
+            {
+                data.Data[0] = "1";
+                item.UpdateState(false, true);
+            }
+
+            item.InteractingUser = user.HabboId;
+            item.ReqUpdate(4, true);
+            return true;
+        }
+
+        private static Group ResolveGuildGateGroup(RoomItem item)
+        {
+            if (item == null)
+                return null;
+
+            int groupId = GetGuildGateGroupId(item);
+            Group group = groupId > 0 ? FirewindEnvironment.GetGame().GetGroupManager().GetGroup(groupId) : null;
+            if (group != null)
+                return group;
+
+            Room room = item.GetRoom();
+            return room != null ? room.RoomGroup : null;
+        }
+
+        private static int GetGuildGateGroupId(RoomItem item)
         {
             StringArrayStuffData data = item.data as StringArrayStuffData;
-            return data != null && data.Data.Count > 0 && data.Data[0] == "1";
+            if (data == null || data.Data == null)
+                return 0;
+
+            int groupId;
+            if (data.Data.Count > 1 && int.TryParse(data.Data[1], out groupId) && groupId > 0)
+                return groupId;
+
+            if (data.Data.Count > 0 && data.Data[0] != "0" && data.Data[0] != "1" && int.TryParse(data.Data[0], out groupId) && groupId > 0)
+                return groupId;
+
+            return 0;
+        }
+
+        private static StringArrayStuffData EnsureGuildGateData(RoomItem item, Group group)
+        {
+            if (item == null || group == null)
+                return null;
+
+            StringArrayStuffData data = item.data as StringArrayStuffData;
+            if (data == null)
+            {
+                data = new StringArrayStuffData();
+                item.data = data;
+            }
+
+            if (data.Data == null)
+                data.Data = new List<string>();
+
+            while (data.Data.Count < 5)
+                data.Data.Add(string.Empty);
+
+            if (data.Data[0] != "1")
+                data.Data[0] = "0";
+
+            data.Data[1] = group.ID.ToString();
+            data.Data[2] = group.BadgeCode;
+            data.Data[3] = group.Color1;
+            data.Data[4] = group.Color2;
+
+            return data;
+        }
+
+        private static bool CanUseGuildGate(RoomUser user, Group group)
+        {
+            if (user == null || user.IsBot || group == null)
+                return false;
+
+            uint userId = user.HabboId;
+            if (group.OwnerID > 0 && (uint)group.OwnerID == userId)
+                return true;
+
+            if (group.PendingMembers.Contains((int)userId))
+                return false;
+
+            if (group.Members.Contains(userId))
+                return true;
+
+            int rank;
+            if (group.MemberRanks.TryGetValue(userId, out rank) && rank <= 3)
+                return true;
+
+            var client = user.GetClient();
+            return client != null && client.GetHabbo() != null && client.GetHabbo().Groups != null &&
+                client.GetHabbo().Groups.Contains(group.ID);
         }
 
         internal void AddCoordinatedItem(RoomItem item, Point coord)
@@ -584,34 +689,7 @@ namespace Firewind.HabboHotel.Rooms
                 case InteractionType.fbgate:
                     //IsTrans = true;
                     room.GetSoccer().RegisterGate(item);
-
-
-                    string[] splittedExtraData = ((StringData)item.data).Data.Split(':');
-
-                    if (string.IsNullOrEmpty(((StringData)item.data).Data) || splittedExtraData.Length <= 1)
-                    {
-                        item.Gender = "M";
-                        switch (item.team)
-                        {
-                            case Team.yellow:
-                                item.Figure = "lg-275-93.hr-115-61.hd-207-14.ch-265-93.sh-305-62";
-                                break;
-                            case Team.red:
-                                item.Figure = "lg-275-96.hr-115-61.hd-180-3.ch-265-96.sh-305-62";
-                                break;
-                            case Team.green:
-                                item.Figure = "lg-275-102.hr-115-61.hd-180-3.ch-265-102.sh-305-62";
-                                break;
-                            case Team.blue:
-                                item.Figure = "lg-275-108.hr-115-61.hd-180-3.ch-265-108.sh-305-62";
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        item.Gender = splittedExtraData[0];
-                        item.Figure = splittedExtraData[1];
-                    }
+                    item.LoadFootballGateFigures();
                     break;
 
                 case InteractionType.banzaifloor:

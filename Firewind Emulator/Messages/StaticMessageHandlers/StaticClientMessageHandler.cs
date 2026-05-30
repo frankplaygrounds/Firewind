@@ -56,6 +56,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.PurchaseFromCatalogAsGift, new StaticRequestHandler(SharedPacketLib.PurchaseFromCatalogAsGift));
             handlers.Add(Incoming.GetRecyclerPrizes, new StaticRequestHandler(SharedPacketLib.GetRecyclerRewards));
             handlers.Add(Incoming.GetMarketplaceConfiguration, new StaticRequestHandler(SharedPacketLib.GetMarketplaceConfiguration));
+            handlers.Add(Incoming.MarketplaceCanSell, new StaticRequestHandler(SharedPacketLib.MarketplaceCanSell));
             handlers.Add(Incoming.MarketplacePostItem, new StaticRequestHandler(SharedPacketLib.MarketplacePostItem));
             handlers.Add(Incoming.CatalogData2, new StaticRequestHandler(SharedPacketLib.GetCataData2));
             handlers.Add(Incoming.CheckPetName, new StaticRequestHandler(SharedPacketLib.CheckPetName));
@@ -194,6 +195,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.FindFriends, new StaticRequestHandler(SharedPacketLib.FindFriends));
             handlers.Add(Incoming.MannequeNameChange, new StaticRequestHandler(SharedPacketLib.MannequeNameChange));
             handlers.Add(Incoming.MannequeFigureChange, new StaticRequestHandler(SharedPacketLib.MannequeFigureChange));
+            handlers.Add(Incoming.SetClothingChangeData, new StaticRequestHandler(SharedPacketLib.SetLookTransfer));
 
             handlers.Add(Incoming.SetAdParameters, new StaticRequestHandler(SharedPacketLib.SetAdParameters));
 

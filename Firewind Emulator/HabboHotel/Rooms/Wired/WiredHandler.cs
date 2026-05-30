@@ -265,6 +265,7 @@ namespace Firewind.HabboHotel.Rooms.Wired
                         OnEvent(stackItem.Id);
                     }
                 }
+                SortWiredEffects(availableEffects);
 
                 if (availableEffects.Count > 0 && unseenEffectAddon != null)
                 {
@@ -301,6 +302,15 @@ namespace Firewind.HabboHotel.Rooms.Wired
                     room.GetWiredHandler().TriggerOnWire(coordinate);
                 }
             }
+        }
+
+        private static void SortWiredEffects(List<RoomItem> effects)
+        {
+            effects.Sort((left, right) =>
+            {
+                int zCompare = right.GetZ.CompareTo(left.GetZ);
+                return zCompare != 0 ? zCompare : left.Id.CompareTo(right.Id);
+            });
         }
 
         private void ShuffleEffects(List<RoomItem> effects)

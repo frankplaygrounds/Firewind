@@ -431,6 +431,7 @@ namespace Firewind.HabboHotel.Rooms
                 if (Session.GetHabbo() == null)
                     return;
 
+                RestoreFootballGateLook(Session);
                 Session.GetHabbo().GetAvatarEffectsInventoryComponent().OnRoomExit();
                 
                 if (NotifyClient)
@@ -959,36 +960,11 @@ namespace Firewind.HabboHotel.Rooms
                                     else if (User.team == Item.team)
                                         User.team = Team.none;
 
-                                    if (!string.IsNullOrEmpty(Item.Figure))
+                                    if (User != null && !User.IsBot)
                                     {
-                                        //User = GetUserForSquare(Item.Coordinate.X, Item.Coordinate.Y);
-                                        if (User != null && !User.IsBot)
+                                        if (User.Coordinate == Item.Coordinate)
                                         {
-                                            if (User.Coordinate == Item.Coordinate)
-                                            {
-                                                if (User.GetClient().GetHabbo().Gender != Item.Gender && User.GetClient().GetHabbo().Look != Item.Figure)
-                                                {
-
-                                                    User.GetClient().GetHabbo().tempGender = User.GetClient().GetHabbo().Gender;
-                                                    User.GetClient().GetHabbo().tempLook = User.GetClient().GetHabbo().Look;
-
-                                                    User.GetClient().GetHabbo().Gender = Item.Gender;
-                                                    User.GetClient().GetHabbo().Look = Item.Figure;
-                                                }
-                                                else
-                                                {
-                                                    User.GetClient().GetHabbo().Gender = User.GetClient().GetHabbo().tempGender;
-                                                    User.GetClient().GetHabbo().Look = User.GetClient().GetHabbo().tempLook;
-                                                }
-
-                                                ServerMessage RoomUpdate = new ServerMessage(Outgoing.UpdateUserInformation);
-                                                RoomUpdate.AppendInt32(User.VirtualId);
-                                                RoomUpdate.AppendStringWithBreak(User.GetClient().GetHabbo().Look);
-                                                RoomUpdate.AppendStringWithBreak(User.GetClient().GetHabbo().Gender.ToLower());
-                                                RoomUpdate.AppendStringWithBreak(User.GetClient().GetHabbo().Motto);
-                                                RoomUpdate.AppendInt32(User.GetClient().GetHabbo().AchievementPoints);
-                                                room.SendMessage(RoomUpdate);
-                                            }
+                                            ToggleFootballGateLook(User, Item);
                                         }
                                     }
                                 }
@@ -1176,8 +1152,10 @@ namespace Firewind.HabboHotel.Rooms
                 if (User.SetStep)
                 {
 
+                    RoomItem guildGate = room.GetGameMap().GetGuildGateForSquare(User.SetX, User.SetY);
+                    bool canUseGuildGate = guildGate == null || room.GetGameMap().TryOpenGuildGate(User, guildGate);
 
-                    if (room.GetGameMap().CanWalk(User.SetX, User.SetY, User.AllowOverride)||User.isMounted==true)
+                    if (canUseGuildGate && (room.GetGameMap().CanWalk(User.SetX, User.SetY, User.AllowOverride)||User.isMounted==true))
                     {
                         room.GetGameMap().UpdateUserMovement(new Point(User.Coordinate.X, User.Coordinate.Y), new Point(User.SetX, User.SetY), User);
                         List<RoomItem> items = room.GetGameMap().GetCoordinatedItems(new Point(User.X, User.Y));
@@ -1203,6 +1181,12 @@ namespace Firewind.HabboHotel.Rooms
                         }
 
                         UpdateUserStatus(User, true);
+                    }
+                    else if (guildGate != null)
+                    {
+                        User.IsWalking = false;
+                        User.RemoveStatus("mv");
+                        User.UpdateNeeded = true;
                     }
                     User.SetStep = false;
                 }
@@ -1378,6 +1362,98 @@ namespace Firewind.HabboHotel.Rooms
             {
                 UpdateUserCount(userCounter);
             }
+        }
+
+        private static void ToggleFootballGateLook(RoomUser User, RoomItem Item)
+        {
+            GameClient client = User.GetClient();
+            if (client == null || client.GetHabbo() == null)
+                return;
+
+            var habbo = client.GetHabbo();
+
+            if (habbo.FootballGateLookActive)
+            {
+                RestoreFootballGateLook(client);
+            }
+            else
+            {
+                string gateFigure = Item.GetFootballGateFigureForGender(habbo.Gender);
+                if (string.IsNullOrEmpty(gateFigure))
+                    return;
+
+                habbo.tempGender = habbo.Gender;
+                habbo.tempLook = habbo.Look;
+                habbo.Look = MergeFootballGateLook(habbo.Look, gateFigure);
+                habbo.FootballGateLookActive = true;
+            }
+
+            SendFootballGateLookUpdate(User);
+        }
+
+        private static void RestoreFootballGateLook(GameClient client)
+        {
+            if (client == null || client.GetHabbo() == null || !client.GetHabbo().FootballGateLookActive)
+                return;
+
+            var habbo = client.GetHabbo();
+            if (!string.IsNullOrEmpty(habbo.tempGender))
+                habbo.Gender = habbo.tempGender;
+            if (!string.IsNullOrEmpty(habbo.tempLook))
+                habbo.Look = habbo.tempLook;
+
+            habbo.tempGender = string.Empty;
+            habbo.tempLook = string.Empty;
+            habbo.FootballGateLookActive = false;
+        }
+
+        private static void SendFootballGateLookUpdate(RoomUser User)
+        {
+            GameClient client = User.GetClient();
+            if (client == null || client.GetHabbo() == null)
+                return;
+
+            ServerMessage RoomUpdate = new ServerMessage(Outgoing.UpdateUserInformation);
+            RoomUpdate.AppendInt32(User.VirtualId);
+            RoomUpdate.AppendStringWithBreak(client.GetHabbo().Look);
+            RoomUpdate.AppendStringWithBreak(client.GetHabbo().Gender.ToLower());
+            RoomUpdate.AppendStringWithBreak(client.GetHabbo().Motto);
+            RoomUpdate.AppendInt32(client.GetHabbo().AchievementPoints);
+
+            Room currentRoom = client.GetHabbo().CurrentRoom;
+            if (currentRoom != null)
+                currentRoom.SendMessage(RoomUpdate);
+        }
+
+        private static string MergeFootballGateLook(string currentLook, string gateLook)
+        {
+            if (string.IsNullOrEmpty(gateLook))
+                return currentLook;
+
+            HashSet<string> replaceParts = new HashSet<string> { "ch", "ca", "cc", "cp", "lg", "wa", "sh" };
+            List<string> gateParts = gateLook.Split('.')
+                .Where(part => replaceParts.Contains(GetFigurePartType(part)))
+                .ToList();
+
+            if (gateParts.Count == 0)
+                return currentLook;
+
+            HashSet<string> gateKeys = new HashSet<string>(gateParts.Select(GetFigurePartType));
+            List<string> mergedParts = currentLook.Split('.')
+                .Where(part => !gateKeys.Contains(GetFigurePartType(part)))
+                .ToList();
+
+            mergedParts.AddRange(gateParts);
+            return string.Join(".", mergedParts);
+        }
+
+        private static string GetFigurePartType(string part)
+        {
+            if (string.IsNullOrEmpty(part))
+                return string.Empty;
+
+            int separator = part.IndexOf('-');
+            return separator <= 0 ? part : part.Substring(0, separator);
         }
 
         internal void Destroy()

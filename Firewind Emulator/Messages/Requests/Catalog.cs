@@ -234,9 +234,9 @@ namespace Firewind.Messages
 
         internal void MarketplaceCanSell()
         {
-            GetResponse().Init(611);
-            GetResponse().AppendBoolean(true);
-            GetResponse().AppendInt32(99999);
+            GetResponse().Init(Outgoing.MarketplaceCanMakeOfferResult);
+            GetResponse().AppendInt32(1);
+            GetResponse().AppendInt32(0);
             SendResponse();
         }
 

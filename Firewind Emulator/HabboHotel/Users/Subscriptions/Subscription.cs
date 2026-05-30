@@ -54,10 +54,10 @@ namespace Firewind.HabboHotel.Users.Subscriptions
             {
                 TimeExpire = TimeExpire + Time;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 Logging.LogException("T: " + TimeExpire + "." + Time);
-                throw e;
+                throw;
             }
         }
     }

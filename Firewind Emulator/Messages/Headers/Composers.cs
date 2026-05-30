@@ -110,7 +110,7 @@ namespace HabboEvents
         public static int IdleStatus = 1268;
         public static int Inventory = 3306;
         public static int PetInventory = 416;
-        public static int BotInventory = 1294;
+        public static int BotInventory = 3727;
         public static int PlaceBot = 780;
         public static int PetInformation = 2967;
         public static int RespectPet = 1750;
@@ -232,6 +232,8 @@ namespace HabboEvents
         public static int NotEnoughBalance = 3269;
         public static int PurchaseError = 277;
         public static int PurchaseOK = 2069;
+        public static int MarketplaceMakeOfferResult = 610;
+        public static int MarketplaceCanMakeOfferResult = 611;
         public static int UnseenItems = 135;
 
         // Music

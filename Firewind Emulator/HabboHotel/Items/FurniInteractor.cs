@@ -597,41 +597,7 @@ namespace Firewind.HabboHotel.Items.Interactors
 
         internal override bool OnTrigger(GameClient Session, RoomItem Item, int Request, bool UserHasRights)
         {
-            if (Item == null || Item.GetRoom() == null || Session == null || Session.GetHabbo() == null)
-                return false;
-
-            StringArrayStuffData data = Item.data as StringArrayStuffData;
-            if (data == null)
-                return false;
-
-            while (data.Data.Count < 5)
-                data.Data.Add(string.Empty);
-
-            int groupId;
-            if (!int.TryParse(data.Data[1], out groupId))
-                return false;
-
-            bool isMember = false;
-            var group = FirewindEnvironment.GetGame().GetGroupManager().GetGroup(groupId);
-            if (group != null)
-                isMember = group.Members.Contains(Session.GetHabbo().Id);
-
-            if (!UserHasRights && !isMember)
-                return false;
-
-            bool isOpen = data.Data[0] == "1";
-            if (isOpen && !Item.GetRoom().GetGameMap().itemCanBePlacedHere(Item.GetX, Item.GetY))
-                return false;
-
-            data.Data[0] = isOpen ? "0" : "1";
-            Item.GetRoom().GetRoomItemHandler().UpdateItem(Item);
-
-            ServerMessage Message = new ServerMessage(Outgoing.ObjectUpdate);
-            Item.Serialize(Message, Item.GetRoom().OwnerId);
-            Item.GetRoom().SendMessage(Message);
-            Item.GetRoom().GetGameMap().updateMapForItem(Item);
-
-            return true;
+            return false;
         }
     }
 

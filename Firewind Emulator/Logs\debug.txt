@@ -1,0 +1,3 @@
+
+Game.MainGameLoop spent: 24,974941 seconds in working.
+

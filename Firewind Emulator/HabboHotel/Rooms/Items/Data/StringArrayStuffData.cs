@@ -12,6 +12,11 @@ namespace Firewind.HabboHotel.Rooms
         // 2 = (StringArrayStuffData) - int i, foreach i { string }
         internal List<string> Data;
 
+        internal StringArrayStuffData()
+        {
+            Data = new List<string>();
+        }
+
         public int GetTypeID()
         {
             return 2;

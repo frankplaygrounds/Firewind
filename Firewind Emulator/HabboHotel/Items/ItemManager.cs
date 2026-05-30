@@ -67,6 +67,8 @@ namespace Firewind.HabboHotel.Items
                         interactionType = InterractionTypes.GetTypeFromString(interactionTypeName);
                         if (interactionType == InteractionType.none && interactionTypeName == "wired")
                             interactionType = InterractionTypes.GetTypeFromString(itemName);
+                        if (interactionType == InteractionType.none && itemName == "boutique_mannequin1")
+                            interactionType = InteractionType.mannequin;
                         if (interactionType == InteractionType.none && itemName.StartsWith("gld_"))
                             interactionType = itemName.Contains("gate") ? InteractionType.guilddoor : InteractionType.guildgeneric;
                         if (interactionType == InteractionType.guilddoor || interactionType == InteractionType.guildgeneric || itemName.StartsWith("gld_"))

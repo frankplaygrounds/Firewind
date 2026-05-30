@@ -103,10 +103,10 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.GetCataData2();
         }
 
-        //internal static void MarketplaceCanSell(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplaceCanSell();
-        //}
+        internal static void MarketplaceCanSell(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceCanSell();
+        }
 
         internal static void MarketplacePostItem(GameClientMessageHandler handler)
         {

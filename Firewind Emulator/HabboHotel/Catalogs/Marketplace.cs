@@ -4,6 +4,7 @@ using System.Text;
 using Firewind.HabboHotel.GameClients;
 using Firewind.HabboHotel.Items;
 using Firewind.Messages;
+using HabboEvents;
 using Database_Manager.Database.Session_Details.Interfaces;
 using Database_Manager.Database;
 
@@ -27,8 +28,8 @@ namespace Firewind.HabboHotel.Catalogs
             
             if (Item == null || SellingPrice < 1 || SellingPrice > 10000 || !CanSellItem(Item))
             {
-                Session.GetMessageHandler().GetResponse().Init(610);
-                Session.GetMessageHandler().GetResponse().AppendBoolean(false);
+                Session.GetMessageHandler().GetResponse().Init(Outgoing.MarketplaceMakeOfferResult);
+                Session.GetMessageHandler().GetResponse().AppendInt32(0);
                 Session.GetMessageHandler().SendResponse();
                 return;
             }
@@ -53,15 +54,15 @@ namespace Firewind.HabboHotel.Catalogs
                 dbClient.addParameter("sprite_id", Item.GetBaseItem().SpriteId);
                 dbClient.addParameter("item_type", ItemType);
                 dbClient.addParameter("timestamp", FirewindEnvironment.GetUnixTimestamp());
-                dbClient.addParameter("extra_data", Item.Data);
+                dbClient.addParameter("extra_data", Item.Data.ToString());
                 dbClient.runQuery();
             }
 
             Session.GetHabbo().GetInventoryComponent().RemoveItem(ItemId, false);
             Session.GetHabbo().GetInventoryComponent().RunDBUpdate();
 
-            Session.GetMessageHandler().GetResponse().Init(610);
-            Session.GetMessageHandler().GetResponse().AppendBoolean(true);
+            Session.GetMessageHandler().GetResponse().Init(Outgoing.MarketplaceMakeOfferResult);
+            Session.GetMessageHandler().GetResponse().AppendInt32(1);
             Session.GetMessageHandler().SendResponse();
         }
 

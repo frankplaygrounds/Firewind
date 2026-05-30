@@ -25,6 +25,8 @@ namespace Firewind.HabboHotel.Items
         internal UInt32 BaseItem;
         internal string Figure;
         internal string Gender;
+        internal string FigureM;
+        internal string FigureF;
         internal uint interactingBallUser;
         internal Team team;
         internal byte interactionCountHelper;
@@ -497,6 +499,22 @@ namespace Firewind.HabboHotel.Items
                 {
                     case InteractionType.gift:
                         // do nothing
+                        break;
+                    case InteractionType.guilddoor:
+                        StringArrayStuffData guildGateData = data as StringArrayStuffData;
+                        if (guildGateData != null && guildGateData.Data.Count > 0 && guildGateData.Data[0] == "1")
+                        {
+                            if (GetRoom().GetRoomUserManager().GetUserForSquare(GetX, GetY) == null)
+                            {
+                                guildGateData.Data[0] = "0";
+                                InteractingUser = 0;
+                                UpdateState(false, true);
+                            }
+                            else
+                            {
+                                ReqUpdate(2, false);
+                            }
+                        }
                         break;
                     case InteractionType.onewaygate:
 
@@ -1034,7 +1052,15 @@ namespace Firewind.HabboHotel.Items
                     Message.Init(Outgoing.ObjectDataUpdate);
                     Message.AppendString(Id.ToString());
                     Message.AppendInt32(0);
-                    Message.AppendString(data is StringArrayStuffData ? data.ToString() : data.GetData().ToString());
+                    string extraData;
+                    StringArrayStuffData guildGateData = data as StringArrayStuffData;
+                    if (GetBaseItem().InteractionType == InteractionType.fbgate)
+                        extraData = GetFootballGateClientData();
+                    else if (GetBaseItem().InteractionType == InteractionType.guilddoor && guildGateData != null && guildGateData.Data.Count > 0)
+                        extraData = guildGateData.Data[0];
+                    else
+                        extraData = data is StringArrayStuffData ? data.ToString() : data.GetData().ToString();
+                    Message.AppendString(extraData);
                 }
                 else
                 {
@@ -1082,7 +1108,10 @@ namespace Firewind.HabboHotel.Items
                 Message.AppendInt32(Extra); // extra
                 Message.AppendInt32(data.GetTypeID()); // data type
 
-                data.AppendToMessage(Message);
+                if (GetBaseItem().InteractionType == InteractionType.fbgate)
+                    Message.AppendString(GetFootballGateClientData());
+                else
+                    data.AppendToMessage(Message);
 
                 //if (this.GetBaseItem().InteractionType == InteractionType.gift)
                 //{
@@ -1178,6 +1207,96 @@ namespace Firewind.HabboHotel.Items
                 mBaseItem = FirewindEnvironment.GetGame().GetItemManager().GetItem(BaseItem);
 
             return mBaseItem;
+        }
+
+        internal void LoadFootballGateFigures()
+        {
+            string rawData = string.Empty;
+            StringData stringData = data as StringData;
+            if (stringData != null)
+                rawData = stringData.Data;
+
+            ParseFootballGateData(rawData, out FigureM, out FigureF);
+            Gender = string.Empty;
+            Figure = string.Empty;
+        }
+
+        internal void SetFootballGateFigure(string gender, string look)
+        {
+            LoadFootballGateFigures();
+
+            if (gender == "F")
+                FigureF = look;
+            else
+                FigureM = look;
+
+            StringData stringData = data as StringData;
+            if (stringData == null)
+            {
+                stringData = new StringData(string.Empty);
+                data = stringData;
+            }
+
+            stringData.Data = GetFootballGateDatabaseData();
+            Gender = string.Empty;
+            Figure = string.Empty;
+        }
+
+        internal string GetFootballGateFigureForGender(string gender)
+        {
+            if (string.IsNullOrEmpty(FigureM) && string.IsNullOrEmpty(FigureF))
+                LoadFootballGateFigures();
+
+            return string.Equals(gender, "F", StringComparison.OrdinalIgnoreCase) ? FigureF : FigureM;
+        }
+
+        internal string GetFootballGateClientData()
+        {
+            if (string.IsNullOrEmpty(FigureM) && string.IsNullOrEmpty(FigureF))
+                LoadFootballGateFigures();
+
+            return string.Format("{0},{1}", FigureM ?? string.Empty, FigureF ?? string.Empty);
+        }
+
+        private string GetFootballGateDatabaseData()
+        {
+            return string.Format("{0};{1}", FigureM ?? string.Empty, FigureF ?? string.Empty);
+        }
+
+        private static void ParseFootballGateData(string rawData, out string figureM, out string figureF)
+        {
+            figureM = string.Empty;
+            figureF = string.Empty;
+
+            if (string.IsNullOrEmpty(rawData))
+                return;
+
+            if (rawData.Contains(";"))
+            {
+                string[] parts = rawData.Split(';');
+                figureM = parts.Length > 0 ? parts[0] : string.Empty;
+                figureF = parts.Length > 1 ? parts[1] : string.Empty;
+                return;
+            }
+
+            if (rawData.Contains(","))
+            {
+                string[] parts = rawData.Split(',');
+                figureM = parts.Length > 0 ? parts[0] : string.Empty;
+                figureF = parts.Length > 1 ? parts[1] : string.Empty;
+                return;
+            }
+
+            int separator = rawData.IndexOf(':');
+            if (separator > 0)
+            {
+                string gender = rawData.Substring(0, separator).ToUpper();
+                string figure = rawData.Substring(separator + 1);
+                if (gender == "F")
+                    figureF = figure;
+                else
+                    figureM = figure;
+            }
         }
 
         internal Room GetRoom()

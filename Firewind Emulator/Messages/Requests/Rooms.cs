@@ -3138,10 +3138,13 @@ namespace Firewind.Messages
             if (Gender != "M" && Gender != "F")
                 return;
 
-            RoomItemToSet.Figure = FirewindEnvironment.FilterFigure(Look);
-            RoomItemToSet.Gender = Gender;
+            if (RoomItemToSet == null || RoomItemToSet.GetBaseItem().InteractionType != InteractionType.fbgate)
+                return;
 
-            ((StringData)RoomItemToSet.data).Data = Gender + ":" + Look;
+            string filteredLook = FirewindEnvironment.FilterFigure(Look);
+
+            RoomItemToSet.SetFootballGateFigure(Gender, filteredLook);
+            RoomItemToSet.UpdateState();
         }
 
         //internal void PetRaces()

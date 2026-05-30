@@ -37,6 +37,7 @@ namespace Firewind.HabboHotel.Users
 
         internal string tempLook;
         internal string tempGender;
+        internal bool FootballGateLookActive;
 
         internal string Look;
         internal string Gender;

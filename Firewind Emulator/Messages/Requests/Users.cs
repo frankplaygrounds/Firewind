@@ -36,9 +36,10 @@ namespace Firewind.Messages
             Boolean SafeChat = true;
             Boolean IsGuide = false;
             Boolean VoteInCompetitions = false;
+            Boolean CanTrade = true;
 
             GetResponse().Init(Outgoing.Allowances);
-            GetResponse().AppendInt32(3); // count
+            GetResponse().AppendInt32(4); // count
             GetResponse().AppendString("SAFE_CHAT");
             GetResponse().AppendBoolean(SafeChat);
             GetResponse().AppendString((!SafeChat) ? "requirement.unfulfilled.safety_quiz_1" : "");
@@ -48,6 +49,9 @@ namespace Firewind.Messages
             GetResponse().AppendString("VOTE_IN_COMPETITIONS");
             GetResponse().AppendBoolean(VoteInCompetitions);
             GetResponse().AppendString((!VoteInCompetitions) ? "requirement.unfulfilled.helper_level_2" : "");
+            GetResponse().AppendString("TRADE");
+            GetResponse().AppendBoolean(CanTrade);
+            GetResponse().AppendString((!CanTrade) ? "requirement.unfulfilled.no_trade_lock" : "");
             SendResponse();
 
             GetResponse().Init(Outgoing.AchievementPoints);
@@ -312,6 +316,9 @@ namespace Firewind.Messages
 
             FirewindEnvironment.GetGame().GetQuestManager().ProgressUserQuest(Session, HabboHotel.Quests.QuestType.PROFILE_CHANGE_LOOK);
 
+            Session.GetHabbo().tempLook = string.Empty;
+            Session.GetHabbo().tempGender = string.Empty;
+            Session.GetHabbo().FootballGateLookActive = false;
             Session.GetHabbo().Look = FirewindEnvironment.FilterFigure(Look);
             Session.GetHabbo().Gender = Gender.ToLower();
 
