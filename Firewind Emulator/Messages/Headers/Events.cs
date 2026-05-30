@@ -226,8 +226,8 @@ namespace HabboEvents
         // Catalog
         public static int GetCatalogIndex = 2053;
         public static int GetMarketplaceConfiguration = 1937;
-        public static int MarketplaceCanSell = 3012;
-        public static int MarketplacePostItem = 2699;
+        public static int MarketplaceCanSell = 2054;
+        public static int MarketplacePostItem = 2465;
         public static int CatalogData2 = 3355;
         public static int GetSomethingUnknown = 3509;
         public static int OpenCatalogPage = 991;

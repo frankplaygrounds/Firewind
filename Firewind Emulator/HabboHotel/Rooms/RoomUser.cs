@@ -859,7 +859,14 @@ namespace Firewind.HabboHotel.Rooms
                 Message.AppendInt32(BotAI.BaseId);
                 Message.AppendString(BotData.Name);
                 Message.AppendString(BotData.Motto);
-                Message.AppendString(BotData.Look.ToLower() + ((PetData.HaveSaddle) ? "3 2 -1 1 3 -1 1 4 9 0" : "2 2 -1 1 3 -1 1"));
+
+                string botLook = BotData.Look;
+                if (BotData.AiType == AIType.Pet)
+                {
+                    bool hasSaddle = PetData != null && PetData.HaveSaddle;
+                    botLook = BotData.Look.ToLower() + (hasSaddle ? "3 2 -1 1 3 -1 1 4 9 0" : "2 2 -1 1 3 -1 1");
+                }
+                Message.AppendString(botLook);
                 Message.AppendInt32(VirtualId);
                 Message.AppendInt32(X);
                 Message.AppendInt32(Y);

@@ -597,7 +597,34 @@ namespace Firewind.HabboHotel.Items.Interactors
 
         internal override bool OnTrigger(GameClient Session, RoomItem Item, int Request, bool UserHasRights)
         {
-            return false;
+            if (Session == null || Session.GetHabbo() == null || Item == null || Item.GetRoom() == null)
+                return false;
+
+            RoomUser User = Item.GetRoom().GetRoomUserManager().GetRoomUserByHabbo(Session.GetHabbo().Id);
+            if (User == null || !Item.GetRoom().GetGameMap().CanUseGuildGate(User, Item))
+                return false;
+
+            if (User.X == Item.GetX && User.Y == Item.GetY)
+                return true;
+
+            Item.InteractingUser = User.HabboId;
+
+            if (!Gamemap.TilesTouching(User.X, User.Y, Item.GetX, Item.GetY))
+            {
+                if (User.CanWalk)
+                {
+                    User.MoveTo(Item.SquareInFront);
+                    Item.ReqUpdate(1, true);
+                }
+                return true;
+            }
+
+            if (!Item.GetRoom().GetGameMap().TryOpenGuildGate(User, Item))
+                return false;
+
+            User.AllowOverride = true;
+            User.MoveTo(Item.Coordinate.X, Item.Coordinate.Y, true);
+            return true;
         }
     }
 

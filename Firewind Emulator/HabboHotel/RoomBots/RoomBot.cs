@@ -69,8 +69,7 @@ namespace Firewind.HabboHotel.RoomBots
         {
             Message.AppendUInt(BotId);
             Message.AppendString(Name);
-            Message.AppendString(Motto);
-            Message.AppendString(Gender.ToLower());
+            Message.AppendString(Gender.ToUpper());
             Message.AppendString(Look);
         }
 

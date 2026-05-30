@@ -1,0 +1,33 @@
+
+Error in packet [829] BODY: "[0][0][0][1][0][0][0][3][0][0][0][9]": 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Rooms.RoomUser.Serialize(ServerMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 862
+   at Firewind.HabboHotel.Rooms.RoomUserManager.DeployBot(RoomBot Bot, Pet PetData) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUserManager.cs:line 128
+   at Firewind.Messages.GameClientMessageHandler.PlaceBot() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/Requests/Bots.cs:line 418
+   at Firewind.Messages.StaticMessageHandlers.SharedPacketLib.PlaceBot(GameClientMessageHandler handler) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/SharedPacketLib.cs:line 1106
+   at Firewind.Messages.StaticMessageHandlers.StaticClientMessageHandler.HandlePacket(GameClientMessageHandler handler, ClientMessage message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/StaticClientMessageHandler.cs:line 31
+   at Firewind.Messages.GameClientMessageHandler.HandleRequest(ClientMessage request) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/GameClientMessageHander.cs:line 69
+   at Firewind.HabboHotel.GameClients.GameClient.parser_onNewPacket(ClientMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/GameClients/GameClient.cs:line 77
+
+
+Error in packet [829] BODY: "[0][0][0][1][0][0][0][7][0][0][0][8]": 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Rooms.RoomUser.Serialize(ServerMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 862
+   at Firewind.HabboHotel.Rooms.RoomUserManager.DeployBot(RoomBot Bot, Pet PetData) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUserManager.cs:line 128
+   at Firewind.Messages.GameClientMessageHandler.PlaceBot() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/Requests/Bots.cs:line 418
+   at Firewind.Messages.StaticMessageHandlers.SharedPacketLib.PlaceBot(GameClientMessageHandler handler) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/SharedPacketLib.cs:line 1106
+   at Firewind.Messages.StaticMessageHandlers.StaticClientMessageHandler.HandlePacket(GameClientMessageHandler handler, ClientMessage message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/StaticClientMessageHandler.cs:line 31
+   at Firewind.Messages.GameClientMessageHandler.HandleRequest(ClientMessage request) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/GameClientMessageHander.cs:line 69
+   at Firewind.HabboHotel.GameClients.GameClient.parser_onNewPacket(ClientMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/GameClients/GameClient.cs:line 77
+
+
+Error in packet [829] BODY: "[0][0][0][2][0][0][0][2][0][0][0][8]": 
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Rooms.RoomUser.Serialize(ServerMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 862
+   at Firewind.HabboHotel.Rooms.RoomUserManager.DeployBot(RoomBot Bot, Pet PetData) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUserManager.cs:line 128
+   at Firewind.Messages.GameClientMessageHandler.PlaceBot() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/Requests/Bots.cs:line 418
+   at Firewind.Messages.StaticMessageHandlers.SharedPacketLib.PlaceBot(GameClientMessageHandler handler) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/SharedPacketLib.cs:line 1106
+   at Firewind.Messages.StaticMessageHandlers.StaticClientMessageHandler.HandlePacket(GameClientMessageHandler handler, ClientMessage message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/StaticMessageHandlers/StaticClientMessageHandler.cs:line 31
+   at Firewind.Messages.GameClientMessageHandler.HandleRequest(ClientMessage request) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/GameClientMessageHander.cs:line 69
+   at Firewind.HabboHotel.GameClients.GameClient.parser_onNewPacket(ClientMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/GameClients/GameClient.cs:line 77
+

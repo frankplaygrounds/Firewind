@@ -502,9 +502,33 @@ namespace Firewind.HabboHotel.Items
                         break;
                     case InteractionType.guilddoor:
                         StringArrayStuffData guildGateData = data as StringArrayStuffData;
+                        bool movedGuildGateUser = false;
+                        if (InteractingUser != 0)
+                        {
+                            RoomUser guildGateUser = GetRoom().GetRoomUserManager().GetRoomUserByHabbo(InteractingUser);
+                            if (guildGateUser == null || !GetRoom().GetGameMap().CanUseGuildGate(guildGateUser, this))
+                            {
+                                InteractingUser = 0;
+                            }
+                            else if (!(guildGateUser.X == GetX && guildGateUser.Y == GetY) &&
+                                Gamemap.TilesTouching(guildGateUser.X, guildGateUser.Y, GetX, GetY))
+                            {
+                                if (GetRoom().GetGameMap().TryOpenGuildGate(guildGateUser, this))
+                                {
+                                    guildGateUser.AllowOverride = true;
+                                    guildGateUser.MoveTo(Coordinate.X, Coordinate.Y, true);
+                                    movedGuildGateUser = true;
+                                }
+                            }
+                            else if (guildGateUser.IsWalking)
+                            {
+                                ReqUpdate(1, false);
+                            }
+                        }
+
                         if (guildGateData != null && guildGateData.Data.Count > 0 && guildGateData.Data[0] == "1")
                         {
-                            if (GetRoom().GetRoomUserManager().GetUserForSquare(GetX, GetY) == null)
+                            if (!movedGuildGateUser && GetRoom().GetRoomUserManager().GetUserForSquare(GetX, GetY) == null)
                             {
                                 guildGateData.Data[0] = "0";
                                 InteractingUser = 0;

@@ -232,8 +232,8 @@ namespace HabboEvents
         public static int NotEnoughBalance = 3269;
         public static int PurchaseError = 277;
         public static int PurchaseOK = 2069;
-        public static int MarketplaceMakeOfferResult = 610;
-        public static int MarketplaceCanMakeOfferResult = 611;
+        public static int MarketplaceMakeOfferResult = 279;
+        public static int MarketplaceCanMakeOfferResult = 2444;
         public static int UnseenItems = 135;
 
         // Music

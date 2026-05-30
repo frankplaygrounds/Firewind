@@ -498,6 +498,7 @@ namespace Firewind.HabboHotel.Rooms
                     }
                     else if (Item.GetZ <= (Model.SqFloorHeight[Item.GetX, Item.GetY] + 0.1) && Item.GetBaseItem().InteractionType == Firewind.HabboHotel.Items.InteractionType.guilddoor)
                     {
+                        mItemHeightMap[Coord.X, Coord.Y] = 0;
                         if (mGameMap[Coord.X, Coord.Y] != 3)
                             mGameMap[Coord.X, Coord.Y] = 1;
                     }
@@ -551,6 +552,11 @@ namespace Firewind.HabboHotel.Rooms
             item.InteractingUser = user.HabboId;
             item.ReqUpdate(4, true);
             return true;
+        }
+
+        internal bool CanUseGuildGate(RoomUser user, RoomItem item)
+        {
+            return CanUseGuildGate(user, ResolveGuildGateGroup(item));
         }
 
         private static Group ResolveGuildGateGroup(RoomItem item)
@@ -1025,6 +1031,9 @@ namespace Firewind.HabboHotel.Rooms
 
                 foreach (RoomItem Item in ItemsOnSquare)
                 {
+                    if (Item.GetBaseItem().InteractionType == InteractionType.guilddoor)
+                        continue;
+
                     if (Item.TotalHeight > HighestStack)
                     {
                         if (Item.GetBaseItem().IsSeat || Item.GetBaseItem().InteractionType == InteractionType.bed)

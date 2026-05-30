@@ -17,3 +17,16 @@ SYSTEM CRITICAL EXCEPTION: System.InvalidOperationException: Cannot read keys wh
 
 User frank shut down the server 30/05/2026 04:31:38
 
+
+System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Rooms.RoomUser.Serialize(ServerMessage Message) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 862
+   at Firewind.Messages.GameClientMessageHandler.OnRoomUserAdd() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/Requests/Rooms.cs:line 571
+   at Firewind.HabboHotel.Rooms.RoomUserManager.OnUserAdd(Object sender, EventArgs args) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUserManager.cs:line 381
+
+
+SYSTEM CRITICAL EXCEPTION: System.InvalidOperationException: Cannot read keys when either application does not have a console or when console input has been redirected. Try Console.Read.
+   at System.ConsolePal.ReadKey(Boolean intercept)
+   at Firewind.FirewindEnvironment.Initialize() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/FirewindEnvironment.cs:line 207
+   at Firewind.Program.InitEnvironment() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Program.cs:line 84
+   at Firewind.Program.Main(String[] args) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Program.cs:line 59
+
