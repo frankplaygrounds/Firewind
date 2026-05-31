@@ -2,6 +2,7 @@
 using Firewind.Core;
 using Firewind.HabboHotel.Pathfinding;
 using Firewind.HabboHotel.Rooms;
+using Firewind.HabboHotel.Catalogs;
 using Firewind.Messages;
 using System.Drawing;
 using HabboEvents;
@@ -94,13 +95,21 @@ namespace Firewind.HabboHotel.RoomBots
 
         internal override void OnTimerTick()
         {
-            if (GetBotData() == null)
+            RoomBot botData = GetBotData();
+            if (botData == null)
                 return;
+            if (botData.IsExpired)
+            {
+                Catalog.DeleteUserBot(botData.BotId);
+                GetRoom().GetRoomUserManager().RemoveBot(GetRoomUser().VirtualId, false);
+                return;
+            }
+
             if (SpeechTimer <= 0)
             {
-                if (GetBotData().RandomSpeech.Count > 0)
+                if (botData.RandomSpeech.Count > 0)
                 {
-                    RandomSpeech Speech = GetBotData().GetRandomSpeech();
+                    RandomSpeech Speech = botData.GetRandomSpeech();
                     GetRoomUser().Chat(null, Speech.Message, Speech.Shout);
                 }
 
@@ -113,7 +122,7 @@ namespace Firewind.HabboHotel.RoomBots
 
             if (ActionTimer <= 0)
             {
-                switch (GetBotData().WalkingMode.ToLower())
+                switch (botData.WalkingMode.ToLower())
                 {
                     default:
                     case "stand":

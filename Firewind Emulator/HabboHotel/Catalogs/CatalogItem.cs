@@ -81,7 +81,20 @@ namespace Firewind.HabboHotel.Catalogs
 
         internal bool IsBotProduct(uint ItemIds)
         {
-            return ItemIds == 0 || Name.StartsWith("bot_", StringComparison.OrdinalIgnoreCase);
+            return ItemIds == 0 ||
+                Name.StartsWith("bot_", StringComparison.OrdinalIgnoreCase) ||
+                Name.StartsWith("rentable_bot_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        internal bool ContainsBotProduct()
+        {
+            foreach (uint itemId in Items)
+            {
+                if (IsBotProduct(itemId))
+                    return true;
+            }
+
+            return false;
         }
 
         internal void SerializeClub(ServerMessage Message, GameClients.GameClient Session)

@@ -141,7 +141,8 @@ namespace Firewind.HabboHotel.Users.UserDataManagement
                 dbClient.setQuery("SELECT * FROM user_pets WHERE user_id = " + userID + " AND room_id = 0");
                 dPets = dbClient.getTable();
 
-                dbClient.setQuery("SELECT * FROM user_bots WHERE user_id = " + userID + " AND room_id = 0");
+                Catalog.DeleteExpiredRentableBots(dbClient);
+                dbClient.setQuery("SELECT user_bots.*, users.username AS owner_name FROM user_bots LEFT JOIN users ON users.id = user_bots.user_id WHERE user_bots.user_id = " + userID + " AND user_bots.room_id = 0");
                 dBots = dbClient.getTable();
 
                 dbClient.setQuery("SELECT * FROM user_quests WHERE user_id = " + userID + "");

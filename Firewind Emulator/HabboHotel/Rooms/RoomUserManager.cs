@@ -117,7 +117,7 @@ namespace Firewind.HabboHotel.Rooms
             }
             else
             {
-                BotUser.BotAI.Init(-1, BotUser.VirtualId, room.RoomId, BotUser, room);
+                BotUser.BotAI.Init(Bot.IsRentable ? 0 - (int)Bot.BotId : -1, BotUser.VirtualId, room.RoomId, BotUser, room);
             }
 
             UpdateUserStatus(BotUser, false);

@@ -220,9 +220,26 @@ namespace Firewind.HabboHotel.Users.Inventory
         internal ServerMessage SerializeBotInventory()
         {
             ServerMessage Message = new ServerMessage(Outgoing.BotInventory);
-            Message.AppendInt32(InventoryBots.Count);
+            List<RoomBot> bots = new List<RoomBot>();
+            List<uint> expiredBotIds = new List<uint>();
 
             foreach (RoomBot Bot in InventoryBots.Values)
+            {
+                if (Bot.IsExpired)
+                    expiredBotIds.Add(Bot.BotId);
+                else
+                    bots.Add(Bot);
+            }
+
+            foreach (uint botId in expiredBotIds)
+            {
+                RemoveBot(botId);
+                Catalog.DeleteUserBot(botId);
+            }
+
+            Message.AppendInt32(bots.Count);
+
+            foreach (RoomBot Bot in bots)
             {
                 Bot.SerializeInventory(Message);
             }
@@ -333,7 +350,8 @@ namespace Firewind.HabboHotel.Users.Inventory
                 dbClient.setQuery("SELECT id, user_id, room_id, name, type, race, color, expirience, energy, nutrition, respect, createstamp, x, y, z, have_saddle FROM user_pets WHERE user_id = " + UserId + " AND room_id = 0");
                 Data2 = dbClient.getTable();
 
-                dbClient.setQuery("SELECT * FROM user_bots WHERE user_id = " + UserId + " AND room_id = 0");
+                Catalog.DeleteExpiredRentableBots(dbClient);
+                dbClient.setQuery("SELECT user_bots.*, users.username AS owner_name FROM user_bots LEFT JOIN users ON users.id = user_bots.user_id WHERE user_bots.user_id = " + UserId + " AND user_bots.room_id = 0");
                 BotData = dbClient.getTable();
             }
 

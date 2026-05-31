@@ -872,7 +872,13 @@ namespace Firewind.HabboHotel.Rooms
                 Message.AppendInt32(Y);
                 Message.AppendString(TextHandling.GetString(Z));
                 Message.AppendInt32(0);
-                Message.AppendInt32((BotData.AiType == AIType.Pet) ? 2 : 3);
+                int botUserType = 3;
+                if (BotData.AiType == AIType.Pet)
+                    botUserType = 2;
+                else if (BotData.IsRentable)
+                    botUserType = 4;
+
+                Message.AppendInt32(botUserType);
                 if (BotData.AiType == AIType.Pet)
                 {
                     Message.AppendUInt(PetData.Type);
@@ -888,6 +894,11 @@ namespace Firewind.HabboHotel.Rooms
                     Message.AppendInt32(0);
                     Message.AppendInt32(0);
                     Message.AppendString("");
+                }
+                else if (BotData.IsRentable)
+                {
+                    Message.AppendString(BotData.Gender.ToLower());
+                    Message.AppendInt32(BotData.RentableSecondsLeft);
                 }
             }
             else if (!IsBot && GetClient() != null && GetClient().GetHabbo() != null)

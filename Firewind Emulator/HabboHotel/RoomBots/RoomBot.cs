@@ -17,7 +17,9 @@ namespace Firewind.HabboHotel.RoomBots
         internal string Motto;
         internal string Look;
         internal uint OwnerId;
+        internal string OwnerName;
         internal string Gender;
+        internal int ExpireTimestamp;
 
         internal int X;
         internal int Y;
@@ -40,8 +42,35 @@ namespace Firewind.HabboHotel.RoomBots
             }
         }
 
+        internal bool IsRentable
+        {
+            get
+            {
+                return (this.AiType == AIType.Rentable);
+            }
+        }
+
+        internal bool IsExpired
+        {
+            get
+            {
+                return IsRentable && ExpireTimestamp > 0 && ExpireTimestamp <= FirewindEnvironment.GetUnixTimestamp();
+            }
+        }
+
+        internal int RentableSecondsLeft
+        {
+            get
+            {
+                if (!IsRentable || ExpireTimestamp <= 0)
+                    return 0;
+
+                return Math.Max(0, ExpireTimestamp - FirewindEnvironment.GetUnixTimestamp());
+            }
+        }
+
         internal RoomBot(uint BotId, UInt32 RoomId, AIType AiType, string WalkingMode, string Name, string Motto, string Look,
-            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses, uint OwnerId = 0, string Gender = "M")
+            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses, uint OwnerId = 0, string Gender = "M", string OwnerName = "", int ExpireTimestamp = 0)
         {
             this.BotId = BotId;
             this.RoomId = RoomId;
@@ -51,7 +80,9 @@ namespace Firewind.HabboHotel.RoomBots
             this.Motto = Motto;
             this.Look = Look;
             this.OwnerId = OwnerId;
+            this.OwnerName = OwnerName;
             this.Gender = string.IsNullOrEmpty(Gender) ? "M" : Gender;
+            this.ExpireTimestamp = ExpireTimestamp;
             this.X = X;
             this.Y = Y;
             this.Z = Z;
@@ -119,6 +150,7 @@ namespace Firewind.HabboHotel.RoomBots
             {
                 default:
                 case AIType.Generic:
+                case AIType.Rentable:
                     return new GenericBot(VirtualId);
                 case AIType.Guide:
                     return new GuideBot();
@@ -132,6 +164,7 @@ namespace Firewind.HabboHotel.RoomBots
     {
         Pet,
         Guide,
-        Generic
+        Generic,
+        Rentable
     }
 }

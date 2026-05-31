@@ -246,6 +246,11 @@ namespace Firewind.HabboHotel.Catalogs
                 Session.SendMessage(new ServerMessage(Outgoing.PurchaseError));
                 return;
             }
+            if (Item.ContainsBotProduct() && !RentableBotsEnabled())
+            {
+                Session.SendMessage(new ServerMessage(Outgoing.PurchaseError));
+                return;
+            }
 
             uint GiftUserId = 0;
             //int giftWrappingCost = 0;
@@ -366,7 +371,12 @@ namespace Firewind.HabboHotel.Catalogs
             {
                 if (Item.IsBotProduct(i))
                 {
-                    RoomBot bot = CreateBot(Session.GetHabbo().Id, "Jon", CatalogItem.DefaultBotFigure, string.Empty, "M");
+                    RoomBot bot = CreateCatalogBot(Session, Item, extraParameter);
+                    if (bot == null || bot.BotId == 0)
+                    {
+                        Session.SendMessage(new ServerMessage(Outgoing.PurchaseError));
+                        return;
+                    }
 
                     Session.GetMessageHandler().GetResponse().Init(Outgoing.PurchaseOK);
                     Item.Serialize(Session.GetMessageHandler().GetResponse());
@@ -685,30 +695,166 @@ namespace Firewind.HabboHotel.Catalogs
             int z = GetBotInt(Row, "z");
             int rotation = GetBotInt(Row, "rotation");
             string walkingMode = GetBotString(Row, "walk_mode", "freeroam");
+            string botType = GetBotString(Row, "bot_type", ownerId > 0 ? "rentable" : "generic");
+            string ownerName = GetBotString(Row, "owner_name", string.Empty);
+            int expireTimestamp = GetBotInt(Row, "expire_timestamp");
+            AIType aiType = botType.Equals("rentable", StringComparison.OrdinalIgnoreCase) ? AIType.Rentable : AIType.Generic;
 
-            return new RoomBot(botId, roomId, AIType.Generic, walkingMode, name, motto, figure,
-                x, y, z, rotation, 0, 0, 0, 0, ref randomSpeech, ref botResponses, ownerId, gender);
+            return new RoomBot(botId, roomId, aiType, walkingMode, name, motto, figure,
+                x, y, z, rotation, 0, 0, 0, 0, ref randomSpeech, ref botResponses, ownerId, gender, ownerName, expireTimestamp);
         }
 
         internal static RoomBot CreateBot(uint userId, string name, string look, string motto, string gender)
         {
+            return CreateBot(userId, name, look, motto, gender, true, GetRentableBotDurationSeconds(), string.Empty);
+        }
+
+        internal static RoomBot CreateBot(uint userId, string name, string look, string motto, string gender, bool isRentable, int durationSeconds, string ownerName)
+        {
             List<RandomSpeech> randomSpeech = new List<RandomSpeech>();
             List<BotResponse> botResponses = new List<BotResponse>();
-            RoomBot bot = new RoomBot(0, 0, AIType.Generic, "freeroam", name, motto, look, 0, 0, 0, 0, 0, 0, 0, 0,
-                ref randomSpeech, ref botResponses, userId, gender);
+            int expireTimestamp = (isRentable && durationSeconds > 0) ? FirewindEnvironment.GetUnixTimestamp() + durationSeconds : 0;
+            AIType aiType = isRentable ? AIType.Rentable : AIType.Generic;
+            RoomBot bot = new RoomBot(0, 0, aiType, "freeroam", name, motto, look, 0, 0, 0, 0, 0, 0, 0, 0,
+                ref randomSpeech, ref botResponses, userId, gender, ownerName, expireTimestamp);
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("INSERT INTO user_bots (user_id,name,gender,figure,motto,room_id,walk_mode) VALUES (@user_id,@name,@gender,@figure,@motto,0,'freeroam')");
+                dbClient.setQuery("INSERT INTO user_bots (user_id,name,gender,figure,motto,room_id,walk_mode,bot_type,expire_timestamp) VALUES (@user_id,@name,@gender,@figure,@motto,0,'freeroam',@bot_type,@expire_timestamp)");
                 dbClient.addParameter("user_id", userId);
                 dbClient.addParameter("name", name);
                 dbClient.addParameter("gender", gender);
                 dbClient.addParameter("figure", look);
                 dbClient.addParameter("motto", motto);
+                dbClient.addParameter("bot_type", isRentable ? "rentable" : "generic");
+                dbClient.addParameter("expire_timestamp", expireTimestamp);
                 bot.BotId = (uint)dbClient.insertQuery();
             }
 
             return bot;
+        }
+
+        private static RoomBot CreateCatalogBot(GameClient session, CatalogItem item, string extraParameter)
+        {
+            Dictionary<string, string> botData = ParseBotPurchaseData(extraParameter);
+            string name = CleanBotString(GetBotPurchaseValue(botData, "name", GetConfigEntry("catalog.rentablebots.default.name", "Jon")), 32, "Jon");
+            string motto = CleanBotString(GetBotPurchaseValue(botData, "motto", GetConfigEntry("catalog.rentablebots.default.motto", string.Empty)), 120, string.Empty);
+            string look = CleanBotString(GetBotPurchaseValue(botData, "figure", GetConfigEntry("catalog.rentablebots.default.figure", CatalogItem.DefaultBotFigure)), 255, CatalogItem.DefaultBotFigure);
+            string gender = CleanBotGender(GetBotPurchaseValue(botData, "gender", GetConfigEntry("catalog.rentablebots.default.gender", "M")));
+
+            if (string.IsNullOrEmpty(look))
+                look = CatalogItem.DefaultBotFigure;
+
+            look = FirewindEnvironment.FilterFigure(look);
+
+            return CreateBot(session.GetHabbo().Id, name, look, motto, gender, true, GetRentableBotDurationSeconds(), session.GetHabbo().Username);
+        }
+
+        internal static void DeleteExpiredRentableBots(IQueryAdapter dbClient)
+        {
+            dbClient.runFastQuery("DELETE FROM user_bots WHERE bot_type = 'rentable' AND expire_timestamp > 0 AND expire_timestamp <= " + FirewindEnvironment.GetUnixTimestamp());
+        }
+
+        internal static void DeleteUserBot(uint botId)
+        {
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.runFastQuery("DELETE FROM user_bots WHERE id = " + botId + " LIMIT 1");
+            }
+        }
+
+        internal static int GetRentableBotDurationSeconds()
+        {
+            int duration = GetConfigInt("catalog.rentablebots.default.duration", 604800);
+            return Math.Max(0, duration);
+        }
+
+        private static bool RentableBotsEnabled()
+        {
+            string enabled = GetConfigEntry("catalog.rentablebots.enabled", "true").ToLower();
+            return enabled == "true" || enabled == "1" || enabled == "yes";
+        }
+
+        private static string GetConfigEntry(string key, string defaultValue)
+        {
+            return FirewindEnvironment.GetConfig().GetEntry(key, defaultValue);
+        }
+
+        private static int GetConfigInt(string key, int defaultValue)
+        {
+            int value;
+            if (!int.TryParse(GetConfigEntry(key, defaultValue.ToString()), out value))
+                return defaultValue;
+
+            return value;
+        }
+
+        private static Dictionary<string, string> ParseBotPurchaseData(string extraParameter)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (string.IsNullOrWhiteSpace(extraParameter))
+                return result;
+
+            if (extraParameter.IndexOf(':') == -1 && extraParameter.IndexOf('=') == -1 && extraParameter.IndexOf(';') == -1)
+            {
+                result["name"] = extraParameter;
+                return result;
+            }
+
+            foreach (string rawPart in extraParameter.Split(';'))
+            {
+                string part = rawPart.Trim();
+                if (part.Length == 0)
+                    continue;
+
+                int separator = part.IndexOf(':');
+                if (separator == -1)
+                    separator = part.IndexOf('=');
+
+                if (separator <= 0 || separator >= part.Length - 1)
+                    continue;
+
+                result[part.Substring(0, separator).Trim()] = part.Substring(separator + 1).Trim();
+            }
+
+            return result;
+        }
+
+        private static string GetBotPurchaseValue(Dictionary<string, string> botData, string key, string defaultValue)
+        {
+            if (botData.ContainsKey(key))
+                return botData[key];
+
+            if (key == "name" && botData.ContainsKey("bot_name"))
+                return botData["bot_name"];
+
+            if (key == "figure" && botData.ContainsKey("look"))
+                return botData["look"];
+
+            if (key == "gender" && botData.ContainsKey("sex"))
+                return botData["sex"];
+
+            return defaultValue;
+        }
+
+        private static string CleanBotString(string value, int maxLength, string defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return defaultValue;
+
+            value = value.Trim();
+            if (value.Length > maxLength)
+                value = value.Substring(0, maxLength);
+
+            return value;
+        }
+
+        private static string CleanBotGender(string gender)
+        {
+            if (!string.IsNullOrEmpty(gender) && gender.StartsWith("F", StringComparison.OrdinalIgnoreCase))
+                return "F";
+
+            return "M";
         }
 
         private static string GetBotString(DataRow row, string column, string defaultValue)

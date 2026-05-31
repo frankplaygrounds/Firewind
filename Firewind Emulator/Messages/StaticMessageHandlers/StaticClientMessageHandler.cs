@@ -32,10 +32,10 @@ namespace Firewind.Messages.StaticMessageHandlers
             }
             else
             {
-                if (!FirewindEnvironment.IsDebugging || unknownPackets.Contains(message.Id))
+                if (unknownPackets.Contains(message.Id))
                     return;
                 unknownPackets.Add(message.Id);
-                Logging.LogDebug("Unknown packet ID: " + message.Id);
+                Logging.WriteLine("Unknown packet ID: " + message.Id);
             }
         }
 

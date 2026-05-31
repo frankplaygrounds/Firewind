@@ -15,6 +15,7 @@ using Firewind.Core;
 using Firewind.HabboHotel.RoomBots;
 using System.Collections.Generic;
 using Firewind.HabboHotel.Items;
+using Firewind.HabboHotel.Catalogs;
 
 namespace Firewind.Messages
 {
@@ -34,6 +35,31 @@ namespace Firewind.Messages
             if (Bot == null || !Bot.IsBot)
             {
                 return;
+            }
+
+            if (Bot.BotData != null && Bot.BotData.OwnerId > 0)
+            {
+                if (Bot.BotData.IsExpired)
+                {
+                    Catalog.DeleteUserBot(Bot.BotData.BotId);
+                    if (Bot.BotData.OwnerId == Session.GetHabbo().Id)
+                        Session.GetHabbo().GetInventoryComponent().RemoveBot(Bot.BotData.BotId);
+                }
+                else
+                {
+                    using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+                    {
+                        dbClient.setQuery("UPDATE user_bots SET room_id = 0, x = 0, y = 0, z = 0 WHERE id = @id LIMIT 1");
+                        dbClient.addParameter("id", Bot.BotData.BotId);
+                        dbClient.runQuery();
+                    }
+
+                    if (Bot.BotData.OwnerId == Session.GetHabbo().Id)
+                        Session.GetHabbo().GetInventoryComponent().AddBot(Bot.BotData);
+                }
+
+                if (Bot.BotData.OwnerId == Session.GetHabbo().Id)
+                    Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
             }
 
             Room.GetRoomUserManager().RemoveBot(Bot.VirtualId, true);
@@ -394,6 +420,14 @@ namespace Firewind.Messages
             RoomBot Bot = Session.GetHabbo().GetInventoryComponent().GetBot(botID);
             if (Bot == null)
                 return;
+
+            if (Bot.IsExpired)
+            {
+                Catalog.DeleteUserBot(botID);
+                Session.GetHabbo().GetInventoryComponent().RemoveBot(botID);
+                Session.SendMessage(Session.GetHabbo().GetInventoryComponent().SerializeBotInventory());
+                return;
+            }
 
             if (!Room.GetGameMap().SquareIsOpen(x, y, false) || !Room.GetGameMap().CanWalk(x, y, false))
                 return;

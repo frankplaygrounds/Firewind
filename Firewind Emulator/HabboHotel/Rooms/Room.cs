@@ -503,7 +503,8 @@ namespace Firewind.HabboHotel.Rooms
         {
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("SELECT * FROM user_bots WHERE room_id = " + RoomId);
+                Catalog.DeleteExpiredRentableBots(dbClient);
+                dbClient.setQuery("SELECT user_bots.*, users.username AS owner_name FROM user_bots LEFT JOIN users ON users.id = user_bots.user_id WHERE user_bots.room_id = " + RoomId);
                 DataTable Data = dbClient.getTable();
 
                 if (Data == null)
