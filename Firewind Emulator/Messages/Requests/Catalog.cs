@@ -240,8 +240,23 @@ namespace Firewind.Messages
             SendResponse();
         }
 
+        internal void MarketplaceItemStats()
+        {
+            if (Request.RemainingLength >= 4)
+                Request.ReadInt32(); // item type: floor item = 1, wall item = 2
+
+            if (Request.RemainingLength >= 4)
+                Request.ReadInt32(); // furni type/sprite id
+        }
+
         internal void MarketplacePostItem()
         {
+            if (Request.RemainingLength < 12)
+            {
+                MarketplaceCanSell();
+                return;
+            }
+
             if (Session.GetHabbo().GetInventoryComponent() == null)
             {
                 return;

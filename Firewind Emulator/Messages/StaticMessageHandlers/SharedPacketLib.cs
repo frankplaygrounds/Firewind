@@ -98,6 +98,11 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.GetMarketplaceConfiguration();
         }
 
+        internal static void MarketplaceItemStats(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceItemStats();
+        }
+
         internal static void GetCataData2(GameClientMessageHandler handler)
         {
             handler.GetCataData2();

@@ -26,16 +26,16 @@ namespace Firewind.Messages.StaticMessageHandlers
             if (handlers.ContainsKey(message.Id))
             {
                 if (FirewindEnvironment.IsDebugging)
-                    Logging.LogDebug("Event handled => " + message.Id + " ");
+                    Logging.WriteLine("Event handled => " + message.Id + " ");
                 StaticRequestHandler currentHandler = (StaticRequestHandler)handlers[message.Id];
                 currentHandler.Invoke(handler);
             }
             else
             {
-                if (!FirewindEnvironment.IsDebugging/* || unknownPackets.Contains(message.Id)*/)
+                if (!FirewindEnvironment.IsDebugging || unknownPackets.Contains(message.Id))
                     return;
                 unknownPackets.Add(message.Id);
-                Logging.LogDebug("Unknown packet ID: " + message.Id);
+                Logging.WriteLine("Unknown packet ID: " + message.Id);
             }
         }
 
@@ -56,6 +56,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.PurchaseFromCatalogAsGift, new StaticRequestHandler(SharedPacketLib.PurchaseFromCatalogAsGift));
             handlers.Add(Incoming.GetRecyclerPrizes, new StaticRequestHandler(SharedPacketLib.GetRecyclerRewards));
             handlers.Add(Incoming.GetMarketplaceConfiguration, new StaticRequestHandler(SharedPacketLib.GetMarketplaceConfiguration));
+            handlers.Add(Incoming.MarketplaceItemStats, new StaticRequestHandler(SharedPacketLib.MarketplaceItemStats));
             handlers.Add(Incoming.MarketplaceCanSell, new StaticRequestHandler(SharedPacketLib.MarketplaceCanSell));
             handlers.Add(Incoming.MarketplacePostItem, new StaticRequestHandler(SharedPacketLib.MarketplacePostItem));
             handlers.Add(Incoming.CatalogData2, new StaticRequestHandler(SharedPacketLib.GetCataData2));

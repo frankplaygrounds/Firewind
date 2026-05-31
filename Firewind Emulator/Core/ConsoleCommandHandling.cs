@@ -39,7 +39,7 @@ namespace Firewind.Core
                 //    return;
                 //}
 
-                Logging.DisabledState = true;
+                Logging.DisabledState = false;
                 Logging.WriteLine("Console writing disabled. Waiting for user input.");
                 return;
             }
