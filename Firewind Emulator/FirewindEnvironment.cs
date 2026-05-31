@@ -77,7 +77,7 @@ namespace Firewind
             Logging.WriteLine("     Go to the GitHub repo for bug reporting/contributions!");
             cultureInfo = CultureInfo.CreateSpecificCulture("en-GB");
             IsDebugging = IsDebugging ? System.Diagnostics.Debugger.IsAttached : false;
-
+            //IsDebugging = true;
             try
             {
                 LanguageLocale.Init();
@@ -86,7 +86,7 @@ namespace Firewind
                 PetLocale.Init();
 
                 if (IsDebugging)
-                    Configuration = new ConfigurationData(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, @"Settings_test/configuration.ini"));
+                    Configuration = new ConfigurationData(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, @"Settings/configuration.ini"));
                 else
                 Configuration = new ConfigurationData(System.IO.Path.Combine(System.Windows.Forms.Application.StartupPath, @"Settings/configuration.ini"));
 
