@@ -698,10 +698,15 @@ namespace Firewind.HabboHotel.Catalogs
             string botType = GetBotString(Row, "bot_type", ownerId > 0 ? "rentable" : "generic");
             string ownerName = GetBotString(Row, "owner_name", string.Empty);
             int expireTimestamp = GetBotInt(Row, "expire_timestamp");
+            int danceId = GetBotInt(Row, "dance_id");
+            bool chatAuto = GetBotBool(Row, "chat_auto");
+            bool chatRandom = GetBotBool(Row, "chat_random");
+            int chatDelay = GetBotInt(Row, "chat_delay");
+            List<string> chatLines = GetBotChatLines(Row);
             AIType aiType = botType.Equals("rentable", StringComparison.OrdinalIgnoreCase) ? AIType.Rentable : AIType.Generic;
 
             return new RoomBot(botId, roomId, aiType, walkingMode, name, motto, figure,
-                x, y, z, rotation, 0, 0, 0, 0, ref randomSpeech, ref botResponses, ownerId, gender, ownerName, expireTimestamp);
+                x, y, z, rotation, 0, 0, 0, 0, ref randomSpeech, ref botResponses, ownerId, gender, ownerName, expireTimestamp, danceId, chatAuto, chatRandom, chatDelay, chatLines);
         }
 
         internal static RoomBot CreateBot(uint userId, string name, string look, string motto, string gender)
@@ -720,7 +725,7 @@ namespace Firewind.HabboHotel.Catalogs
 
             using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
             {
-                dbClient.setQuery("INSERT INTO user_bots (user_id,name,gender,figure,motto,room_id,walk_mode,bot_type,expire_timestamp) VALUES (@user_id,@name,@gender,@figure,@motto,0,'freeroam',@bot_type,@expire_timestamp)");
+                dbClient.setQuery("INSERT INTO user_bots (user_id,name,gender,figure,motto,room_id,walk_mode,bot_type,expire_timestamp,dance_id,chat_auto,chat_random,chat_delay,chat_lines) VALUES (@user_id,@name,@gender,@figure,@motto,0,'freeroam',@bot_type,@expire_timestamp,0,'0','0',7,'')");
                 dbClient.addParameter("user_id", userId);
                 dbClient.addParameter("name", name);
                 dbClient.addParameter("gender", gender);
@@ -748,6 +753,30 @@ namespace Firewind.HabboHotel.Catalogs
             look = FirewindEnvironment.FilterFigure(look);
 
             return CreateBot(session.GetHabbo().Id, name, look, motto, gender, true, GetRentableBotDurationSeconds(), session.GetHabbo().Username);
+        }
+
+        internal static void SaveUserBotSettings(RoomBot bot)
+        {
+            if (bot == null || bot.BotId == 0)
+                return;
+
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                string chatLines = bot.ChatLines == null ? string.Empty : string.Join("\r", bot.ChatLines.ToArray());
+                dbClient.setQuery("UPDATE user_bots SET name = @name, motto = @motto, gender = @gender, figure = @figure, walk_mode = @walk_mode, dance_id = @dance_id, chat_auto = @chat_auto, chat_random = @chat_random, chat_delay = @chat_delay, chat_lines = @chat_lines WHERE id = @id LIMIT 1");
+                dbClient.addParameter("name", bot.Name);
+                dbClient.addParameter("motto", bot.Motto);
+                dbClient.addParameter("gender", bot.Gender);
+                dbClient.addParameter("figure", bot.Look);
+                dbClient.addParameter("walk_mode", bot.WalkingMode);
+                dbClient.addParameter("dance_id", bot.DanceId);
+                dbClient.addParameter("chat_auto", bot.ChatAuto ? "1" : "0");
+                dbClient.addParameter("chat_random", bot.ChatRandom ? "1" : "0");
+                dbClient.addParameter("chat_delay", bot.ChatDelay);
+                dbClient.addParameter("chat_lines", chatLines);
+                dbClient.addParameter("id", bot.BotId);
+                dbClient.runQuery();
+            }
         }
 
         internal static void DeleteExpiredRentableBots(IQueryAdapter dbClient)
@@ -871,6 +900,29 @@ namespace Firewind.HabboHotel.Catalogs
                 return 0;
 
             return Convert.ToInt32(row[column]);
+        }
+
+        private static bool GetBotBool(DataRow row, string column)
+        {
+            string value = GetBotString(row, column, "0").ToLower();
+            return value == "1" || value == "true" || value == "yes";
+        }
+
+        private static List<string> GetBotChatLines(DataRow row)
+        {
+            List<string> result = new List<string>();
+            string rawLines = GetBotString(row, "chat_lines", string.Empty);
+            if (string.IsNullOrEmpty(rawLines))
+                return result;
+
+            foreach (string line in rawLines.Split('\r'))
+            {
+                string cleanedLine = line.Trim();
+                if (cleanedLine.Length > 0)
+                    result.Add(cleanedLine);
+            }
+
+            return result;
         }
 
         private static IRoomItemData BuildGroupItemData(GameClient Session, string groupData, bool isDoor)

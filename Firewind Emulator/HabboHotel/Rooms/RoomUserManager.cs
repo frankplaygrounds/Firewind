@@ -130,6 +130,15 @@ namespace Firewind.HabboHotel.Rooms
 
             BotUser.BotAI.OnSelfEnterRoom();
 
+            BotUser.DanceId = Bot.DanceId;
+            if (BotUser.DanceId > 0)
+            {
+                ServerMessage DanceMessage = new ServerMessage(Outgoing.Dance);
+                DanceMessage.AppendInt32(BotUser.VirtualId);
+                DanceMessage.AppendInt32(BotUser.DanceId);
+                room.SendMessage(DanceMessage);
+            }
+
             if (BotUser.BotData.AiType == AIType.Guide)
                 room.guideBotIsCalled = true;
             if (BotUser.IsPet)
@@ -608,6 +617,17 @@ namespace Firewind.HabboHotel.Rooms
         {
             if (pets.ContainsKey(PetId))
                 return (RoomUser)pets[PetId];
+
+            return null;
+        }
+
+        internal RoomUser GetBotByBotId(uint BotId)
+        {
+            foreach (RoomUser user in UserList.Values)
+            {
+                if (user.IsBot && user.BotData != null && user.BotData.BotId == BotId)
+                    return user;
+            }
 
             return null;
         }

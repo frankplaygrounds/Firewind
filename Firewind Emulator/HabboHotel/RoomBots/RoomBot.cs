@@ -20,6 +20,13 @@ namespace Firewind.HabboHotel.RoomBots
         internal string OwnerName;
         internal string Gender;
         internal int ExpireTimestamp;
+        internal int DanceId;
+        internal bool ChatAuto;
+        internal bool ChatRandom;
+        internal int ChatDelay;
+        internal int ChatTimeOut;
+        internal int LastChatIndex;
+        internal List<string> ChatLines;
 
         internal int X;
         internal int Y;
@@ -70,7 +77,7 @@ namespace Firewind.HabboHotel.RoomBots
         }
 
         internal RoomBot(uint BotId, UInt32 RoomId, AIType AiType, string WalkingMode, string Name, string Motto, string Look,
-            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses, uint OwnerId = 0, string Gender = "M", string OwnerName = "", int ExpireTimestamp = 0)
+            int X, int Y, int Z, int Rot, int minX, int minY, int maxX, int maxY, ref List<RandomSpeech> Speeches, ref List<BotResponse> Responses, uint OwnerId = 0, string Gender = "M", string OwnerName = "", int ExpireTimestamp = 0, int DanceId = 0, bool ChatAuto = false, bool ChatRandom = false, int ChatDelay = 7, List<string> ChatLines = null)
         {
             this.BotId = BotId;
             this.RoomId = RoomId;
@@ -83,6 +90,13 @@ namespace Firewind.HabboHotel.RoomBots
             this.OwnerName = OwnerName;
             this.Gender = string.IsNullOrEmpty(Gender) ? "M" : Gender;
             this.ExpireTimestamp = ExpireTimestamp;
+            this.DanceId = Math.Max(0, Math.Min(4, DanceId));
+            this.ChatAuto = ChatAuto;
+            this.ChatRandom = ChatRandom;
+            this.ChatDelay = Math.Max(1, ChatDelay);
+            this.ChatTimeOut = 0;
+            this.LastChatIndex = -1;
+            this.ChatLines = ChatLines ?? new List<string>();
             this.X = X;
             this.Y = Y;
             this.Z = Z;
@@ -142,6 +156,21 @@ namespace Firewind.HabboHotel.RoomBots
         internal RandomSpeech GetRandomSpeech()
         {
             return RandomSpeech[FirewindEnvironment.GetRandomNumber(0, (RandomSpeech.Count - 1))];
+        }
+
+        internal string GetNextChatLine()
+        {
+            if (ChatLines == null || ChatLines.Count == 0)
+                return string.Empty;
+
+            if (ChatRandom)
+                return ChatLines[FirewindEnvironment.GetRandomNumber(0, ChatLines.Count - 1)];
+
+            LastChatIndex++;
+            if (LastChatIndex >= ChatLines.Count)
+                LastChatIndex = 0;
+
+            return ChatLines[LastChatIndex];
         }
 
         internal BotAI GenerateBotAI(int VirtualId)

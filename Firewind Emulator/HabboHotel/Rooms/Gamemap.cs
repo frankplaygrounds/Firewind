@@ -450,6 +450,16 @@ namespace Firewind.HabboHotel.Rooms
                     Model.OpenSquare(Coord.X, Coord.Y, Item.GetZ);
                     Model.SetUpdateState();
                 }
+
+                if (Item.GetBaseItem().InteractionType == InteractionType.guilddoor)
+                {
+                    mItemHeightMap[Coord.X, Coord.Y] = 0;
+                    if (mGameMap[Coord.X, Coord.Y] != 3)
+                        mGameMap[Coord.X, Coord.Y] = 1;
+
+                    return true;
+                }
+
                 if (mItemHeightMap[Coord.X, Coord.Y] <= Item.TotalHeight)
                 {
                     mItemHeightMap[Coord.X, Coord.Y] = Item.TotalHeight - mDynamicModel.SqFloorHeight[Item.GetX, Item.GetY];

@@ -68,6 +68,12 @@ namespace Firewind.Messages
             if (!commandRegisterInvokeable.ContainsKey("deltag"))
                 commandRegisterInvokeable.Add("deltag", new ChatCommand(78, "deltag", 0, "Removes a profile tag.", "tag", new String[0]));
 
+            if (!commandRegisterInvokeable.ContainsKey("bot"))
+                commandRegisterInvokeable.Add("bot", new ChatCommand(1012, "bot", 0, "Configures rentable bots.", "list | look/say/shout/dance/name/motto/chat/walk", new String[0]));
+
+            if (!commandRegisterInvokeable.ContainsKey("bots"))
+                commandRegisterInvokeable.Add("bots", new ChatCommand(1012, "bots", 0, "Configures rentable bots.", "list | look/say/shout/dance/name/motto/chat/walk", new String[0]));
+
             //string supersecret = "ditunvdjgnpwuiyrvb";
             //ChatCommand acommand = new ChatCommand(400, supersecret, 0, string.Empty, string.Empty, new string[0]);
             //commandRegisterInvokeable.Add(supersecret, acommand);
@@ -573,6 +579,11 @@ namespace Firewind.Messages
                 case 1011:
                     {
                         commandHandler.startquestion();
+                        break;
+                    }
+                case 1012:
+                    {
+                        commandHandler.bot();
                         break;
                     }
 

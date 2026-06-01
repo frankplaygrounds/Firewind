@@ -30,3 +30,6 @@ SYSTEM CRITICAL EXCEPTION: System.InvalidOperationException: Cannot read keys wh
    at Firewind.Program.InitEnvironment() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Program.cs:line 84
    at Firewind.Program.Main(String[] args) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Program.cs:line 59
 
+
+Failed to send ping packet, possible fack up!
+

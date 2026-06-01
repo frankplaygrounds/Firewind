@@ -25,14 +25,29 @@ namespace Firewind.Messages
         {
             Room Room = FirewindEnvironment.GetGame().GetRoomManager().GetRoom(Session.GetHabbo().CurrentRoomId);
 
-            if (Room == null || !Room.CheckRights(Session, true))
+            if (Room == null)
             {
                 return;
             }
 
-            RoomUser Bot = Room.GetRoomUserManager().GetRoomUserByVirtualId(Request.ReadInt32());
+            int botReference = Request.ReadInt32();
+            RoomUser Bot = Room.GetRoomUserManager().GetRoomUserByVirtualId(botReference);
+            if (Bot == null)
+            {
+                long botId = botReference;
+                if (botId < 0)
+                    botId = -botId;
+
+                if (botId <= UInt32.MaxValue)
+                    Bot = Room.GetRoomUserManager().GetBotByBotId((uint)botId);
+            }
 
             if (Bot == null || !Bot.IsBot)
+            {
+                return;
+            }
+
+            if (!Room.CheckRights(Session, true) && (Bot.BotData == null || Bot.BotData.OwnerId != Session.GetHabbo().Id))
             {
                 return;
             }

@@ -19,6 +19,8 @@ using Firewind.Util;
 using HabboEvents;
 using Firewind.Collections;
 using System.Threading;
+using Firewind.HabboHotel.Catalogs;
+using Firewind.HabboHotel.RoomBots;
 
 namespace Firewind.HabboHotel.Misc
 {
@@ -145,6 +147,315 @@ namespace Firewind.HabboHotel.Misc
                 room.SendMessage(message);
             else
                 Session.SendMessage(message);
+        }
+
+        internal void bot()
+        {
+            Room room = Session.GetHabbo().CurrentRoom;
+            if (room == null)
+                return;
+
+            if (Params.Length < 2 || Params[1].Equals("help", StringComparison.OrdinalIgnoreCase))
+            {
+                SendBotUsage();
+                return;
+            }
+
+            string action = Params[1].ToLower();
+            if (action == "list")
+            {
+                SendBotList(room);
+                return;
+            }
+
+            if (Params.Length < 3)
+            {
+                SendBotUsage();
+                return;
+            }
+
+            uint botId;
+            if (!uint.TryParse(Params[2], out botId) || botId == 0)
+            {
+                Session.SendNotif("Use :bot list to see bot ids.");
+                return;
+            }
+
+            RoomUser botUser = GetManagedRentableBot(room, botId);
+            if (botUser == null)
+            {
+                Session.SendNotif("That rentable bot is not in this room or you cannot manage it.");
+                return;
+            }
+
+            RoomBot botData = botUser.BotData;
+            switch (action)
+            {
+                case "look":
+                    if (Params.Length >= 4)
+                    {
+                        string look = FirewindEnvironment.FilterFigure(Params[3].ToLower());
+                        if (string.IsNullOrEmpty(look))
+                        {
+                            Session.SendNotif("That figure is invalid.");
+                            return;
+                        }
+
+                        botData.Look = look;
+                        if (Params.Length >= 5)
+                            botData.Gender = NormalizeBotGender(Params[4]);
+                    }
+                    else
+                    {
+                        botData.Look = Session.GetHabbo().Look;
+                        botData.Gender = NormalizeBotGender(Session.GetHabbo().Gender);
+                    }
+
+                    RefreshBotUser(room, botUser);
+                    Catalog.SaveUserBotSettings(botData);
+                    Session.SendNotif("Bot look updated.");
+                    break;
+
+                case "say":
+                case "shout":
+                    string message = JoinParameters(3);
+                    if (message.Length == 0)
+                    {
+                        Session.SendNotif("Usage: :bot " + action + " " + botId + " message");
+                        return;
+                    }
+
+                    botUser.Chat(null, CleanBotCommandText(message, 120, string.Empty), action == "shout");
+                    break;
+
+                case "dance":
+                    int danceId;
+                    if (Params.Length < 4 || !int.TryParse(Params[3], out danceId) || danceId < 0 || danceId > 4)
+                    {
+                        Session.SendNotif("Usage: :bot dance " + botId + " 0-4");
+                        return;
+                    }
+
+                    botData.DanceId = danceId;
+                    botUser.DanceId = danceId;
+                    SendBotDance(room, botUser);
+                    Catalog.SaveUserBotSettings(botData);
+                    Session.SendNotif("Bot dance updated.");
+                    break;
+
+                case "name":
+                    string name = CleanBotCommandText(JoinParameters(3), 32, string.Empty);
+                    if (name.Length == 0)
+                    {
+                        Session.SendNotif("Usage: :bot name " + botId + " name");
+                        return;
+                    }
+
+                    botData.Name = name;
+                    RefreshBotUser(room, botUser);
+                    Catalog.SaveUserBotSettings(botData);
+                    Session.SendNotif("Bot name updated.");
+                    break;
+
+                case "motto":
+                    botData.Motto = CleanBotCommandText(JoinParameters(3), 120, string.Empty);
+                    RefreshBotUser(room, botUser);
+                    Catalog.SaveUserBotSettings(botData);
+                    Session.SendNotif("Bot motto updated.");
+                    break;
+
+                case "chat":
+                    UpdateBotChat(botData, botId);
+                    Catalog.SaveUserBotSettings(botData);
+                    break;
+
+                case "walk":
+                    if (Params.Length < 4)
+                    {
+                        Session.SendNotif("Usage: :bot walk " + botId + " stand|freeroam");
+                        return;
+                    }
+
+                    string walkMode = Params[3].ToLower();
+                    if (walkMode == "roam")
+                        walkMode = "freeroam";
+                    if (walkMode != "stand" && walkMode != "freeroam")
+                    {
+                        Session.SendNotif("Usage: :bot walk " + botId + " stand|freeroam");
+                        return;
+                    }
+
+                    botData.WalkingMode = walkMode;
+                    Catalog.SaveUserBotSettings(botData);
+                    Session.SendNotif("Bot walking mode updated.");
+                    break;
+
+                default:
+                    SendBotUsage();
+                    break;
+            }
+        }
+
+        private void UpdateBotChat(RoomBot botData, uint botId)
+        {
+            if (Params.Length < 4)
+            {
+                Session.SendNotif("Usage: :bot chat " + botId + " off|on delay line1|line2");
+                return;
+            }
+
+            string mode = Params[3].ToLower();
+            if (mode == "off")
+            {
+                botData.ChatAuto = false;
+                botData.ChatTimeOut = 0;
+                Session.SendNotif("Bot auto chat disabled.");
+                return;
+            }
+
+            bool random = mode == "random";
+            if (mode != "on" && !random)
+            {
+                Session.SendNotif("Usage: :bot chat " + botId + " off|on delay line1|line2");
+                return;
+            }
+
+            int delay;
+            if (Params.Length < 6 || !int.TryParse(Params[4], out delay))
+            {
+                Session.SendNotif("Usage: :bot chat " + botId + " on 10 line1|line2");
+                return;
+            }
+
+            delay = Math.Max(1, Math.Min(600, delay));
+            List<string> lines = ParseBotChatLines(JoinParameters(5));
+            if (lines.Count == 0)
+            {
+                Session.SendNotif("Add at least one chat line. Separate lines with |.");
+                return;
+            }
+
+            botData.ChatAuto = true;
+            botData.ChatRandom = random;
+            botData.ChatDelay = delay;
+            botData.ChatLines = lines;
+            botData.ChatTimeOut = FirewindEnvironment.GetUnixTimestamp() + delay;
+            botData.LastChatIndex = -1;
+            Session.SendNotif("Bot auto chat updated.");
+        }
+
+        private List<string> ParseBotChatLines(string value)
+        {
+            List<string> lines = new List<string>();
+            foreach (string rawLine in value.Split('|'))
+            {
+                string line = CleanBotCommandText(rawLine, 120, string.Empty);
+                if (line.Length > 0)
+                    lines.Add(line);
+
+                if (lines.Count >= 10)
+                    break;
+            }
+
+            return lines;
+        }
+
+        private RoomUser GetManagedRentableBot(Room room, uint botId)
+        {
+            RoomUser botUser = room.GetRoomUserManager().GetBotByBotId(botId);
+            if (botUser == null || botUser.BotData == null || !botUser.BotData.IsRentable)
+                return null;
+
+            if (CanManageBot(room, botUser))
+                return botUser;
+
+            return null;
+        }
+
+        private bool CanManageBot(Room room, RoomUser botUser)
+        {
+            if (botUser.BotData.OwnerId == Session.GetHabbo().Id)
+                return true;
+
+            return room.CheckRights(Session, true);
+        }
+
+        private void SendBotList(Room room)
+        {
+            StringBuilder list = new StringBuilder();
+            foreach (RoomUser user in room.GetRoomUserManager().UserList.Values)
+            {
+                if (!user.IsBot || user.BotData == null || !user.BotData.IsRentable || !CanManageBot(room, user))
+                    continue;
+
+                list.Append(user.BotData.BotId);
+                list.Append(": ");
+                list.Append(user.BotData.Name);
+                list.Append("\r");
+            }
+
+            if (list.Length == 0)
+                Session.SendNotif("No manageable rentable bots are in this room.");
+            else
+                Session.SendNotif(list.ToString());
+        }
+
+        private void SendBotUsage()
+        {
+            Session.SendNotif(":bot list\r:bot look id [figure gender]\r:bot say id message\r:bot shout id message\r:bot dance id 0-4\r:bot name id name\r:bot motto id text\r:bot chat id off|on delay line1|line2\r:bot walk id stand|freeroam");
+        }
+
+        private void RefreshBotUser(Room room, RoomUser botUser)
+        {
+            ServerMessage update = new ServerMessage(Outgoing.SetRoomUser);
+            update.AppendInt32(1);
+            botUser.Serialize(update);
+            room.SendMessage(update);
+        }
+
+        private void SendBotDance(Room room, RoomUser botUser)
+        {
+            ServerMessage message = new ServerMessage(Outgoing.Dance);
+            message.AppendInt32(botUser.VirtualId);
+            message.AppendInt32(botUser.DanceId);
+            room.SendMessage(message);
+        }
+
+        private string NormalizeBotGender(string gender)
+        {
+            if (!string.IsNullOrEmpty(gender) && gender.StartsWith("F", StringComparison.OrdinalIgnoreCase))
+                return "F";
+
+            return "M";
+        }
+
+        private string CleanBotCommandText(string value, int maxLength, string defaultValue)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return defaultValue;
+
+            value = value.Trim();
+            if (value.Length > maxLength)
+                value = value.Substring(0, maxLength);
+
+            return value;
+        }
+
+        private string JoinParameters(int startIndex)
+        {
+            if (Params == null || Params.Length <= startIndex)
+                return string.Empty;
+
+            StringBuilder builder = new StringBuilder();
+            for (int i = startIndex; i < Params.Length; i++)
+            {
+                if (builder.Length > 0)
+                    builder.Append(' ');
+
+                builder.Append(Params[i]);
+            }
+
+            return builder.ToString();
         }
 
         internal void moonwalk()

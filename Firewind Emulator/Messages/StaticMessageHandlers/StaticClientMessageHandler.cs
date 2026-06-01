@@ -56,8 +56,15 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.PurchaseFromCatalogAsGift, new StaticRequestHandler(SharedPacketLib.PurchaseFromCatalogAsGift));
             handlers.Add(Incoming.GetRecyclerPrizes, new StaticRequestHandler(SharedPacketLib.GetRecyclerRewards));
             handlers.Add(Incoming.GetMarketplaceConfiguration, new StaticRequestHandler(SharedPacketLib.GetMarketplaceConfiguration));
+            handlers.Add(Incoming.MarketplaceItemStats, new StaticRequestHandler(SharedPacketLib.MarketplaceItemStats));
             handlers.Add(Incoming.MarketplaceCanSell, new StaticRequestHandler(SharedPacketLib.MarketplaceCanSell));
             handlers.Add(Incoming.MarketplacePostItem, new StaticRequestHandler(SharedPacketLib.MarketplacePostItem));
+            handlers.Add(Incoming.MarketplaceGetOffers, new StaticRequestHandler(SharedPacketLib.MarketplaceGetOffers));
+            handlers.Add(Incoming.MarketplaceGetOwnOffers, new StaticRequestHandler(SharedPacketLib.MarketplaceGetOwnOffers));
+            handlers.Add(Incoming.MarketplaceGetOwnOffersInventory, new StaticRequestHandler(SharedPacketLib.MarketplaceGetOwnOffers));
+            handlers.Add(Incoming.MarketplaceTakeBack, new StaticRequestHandler(SharedPacketLib.MarketplaceTakeBack));
+            handlers.Add(Incoming.MarketplaceClaimCredits, new StaticRequestHandler(SharedPacketLib.MarketplaceClaimCredits));
+            handlers.Add(Incoming.MarketplacePurchase, new StaticRequestHandler(SharedPacketLib.MarketplacePurchase));
             handlers.Add(Incoming.CatalogData2, new StaticRequestHandler(SharedPacketLib.GetCataData2));
             handlers.Add(Incoming.CheckPetName, new StaticRequestHandler(SharedPacketLib.CheckPetName));
             handlers.Add(Incoming.CatalogGetRace, new StaticRequestHandler(SharedPacketLib.PetRaces));
@@ -257,6 +264,7 @@ namespace Firewind.Messages.StaticMessageHandlers
             handlers.Add(Incoming.GetPetCommands, new StaticRequestHandler(SharedPacketLib.GetPetCommands));
             handlers.Add(Incoming.GetBotInventory, new StaticRequestHandler(SharedPacketLib.GetBotInventory));
             handlers.Add(Incoming.PlaceBot, new StaticRequestHandler(SharedPacketLib.PlaceBot));
+            handlers.Add(Incoming.PickupBot, new StaticRequestHandler(SharedPacketLib.KickBot));
 
             // Trax/Jukebox
             handlers.Add(Incoming.GetPlaylists, new StaticRequestHandler(SharedPacketLib.GetPlaylists));

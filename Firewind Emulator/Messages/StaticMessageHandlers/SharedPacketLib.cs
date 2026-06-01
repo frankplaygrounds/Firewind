@@ -118,30 +118,30 @@ namespace Firewind.Messages.StaticMessageHandlers
             handler.MarketplacePostItem();
         }
 
-        //internal static void MarketplaceGetOwnOffers(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplaceGetOwnOffers();
-        //}
+        internal static void MarketplaceGetOwnOffers(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceGetOwnOffers();
+        }
 
-        //internal static void MarketplaceTakeBack(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplaceTakeBack();
-        //}
+        internal static void MarketplaceTakeBack(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceTakeBack();
+        }
 
-        //internal static void MarketplaceClaimCredits(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplaceClaimCredits();
-        //}
+        internal static void MarketplaceClaimCredits(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceClaimCredits();
+        }
 
-        //internal static void MarketplaceGetOffers(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplaceGetOffers();
-        //}
+        internal static void MarketplaceGetOffers(GameClientMessageHandler handler)
+        {
+            handler.MarketplaceGetOffers();
+        }
 
-        //internal static void MarketplacePurchase(GameClientMessageHandler handler)
-        //{
-        //    handler.MarketplacePurchase();
-        //}
+        internal static void MarketplacePurchase(GameClientMessageHandler handler)
+        {
+            handler.MarketplacePurchase();
+        }
 
         internal static void CheckPetName(GameClientMessageHandler handler)
         {

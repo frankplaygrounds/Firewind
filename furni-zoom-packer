@@ -1,0 +1,6 @@
+#!/usr/bin/env python3
+"""Executable wrapper for the Habbo furniture zoom packer."""
+
+from tools.furni_zoom_packer.cli import main
+
+raise SystemExit(main())

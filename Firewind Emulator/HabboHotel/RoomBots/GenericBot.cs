@@ -105,6 +105,23 @@ namespace Firewind.HabboHotel.RoomBots
                 return;
             }
 
+            if (botData.ChatAuto && botData.ChatLines.Count > 0)
+            {
+                int now = FirewindEnvironment.GetUnixTimestamp();
+                if (botData.ChatTimeOut <= 0)
+                {
+                    botData.ChatTimeOut = now + botData.ChatDelay;
+                }
+                else if (botData.ChatTimeOut <= now)
+                {
+                    string chatLine = botData.GetNextChatLine();
+                    if (!string.IsNullOrEmpty(chatLine))
+                        GetRoomUser().Chat(null, chatLine, false);
+
+                    botData.ChatTimeOut = now + Math.Max(1, botData.ChatDelay);
+                }
+            }
+
             if (SpeechTimer <= 0)
             {
                 if (botData.RandomSpeech.Count > 0)

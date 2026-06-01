@@ -232,6 +232,12 @@ namespace HabboEvents
         public static int NotEnoughBalance = 3269;
         public static int PurchaseError = 277;
         public static int PurchaseOK = 2069;
+        public static int MarketplaceOffers = 2262;
+        public static int MarketplaceOwnOffers = 3734;
+        public static int MarketplaceBuyResult = 286;
+        public static int MarketplaceCancelSaleResult = 3861;
+        public static int MarketplaceItemStats = 1713;
+        public static int MarketplaceConfiguration = 1972;
         public static int MarketplaceMakeOfferResult = 279;
         public static int MarketplaceCanMakeOfferResult = 2444;
         public static int UnseenItems = 135;

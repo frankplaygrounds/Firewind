@@ -128,7 +128,7 @@ namespace Firewind.HabboHotel.Catalogs
                 Data = dbClient.getTable();
             }
 
-            ServerMessage Message = new ServerMessage(615);
+            ServerMessage Message = new ServerMessage(Outgoing.MarketplaceOffers);
 
             if (Data != null)
             {
@@ -140,15 +140,18 @@ namespace Firewind.HabboHotel.Catalogs
                     Message.AppendInt32(1);
                     Message.AppendInt32(int.Parse(Row["item_type"].ToString()));
                     Message.AppendInt32((int)Row["sprite_id"]); // Sprite ID
-                    Message.AppendString(""); // Extra Chr (R52)
+                    SerializeProductData(Message, int.Parse(Row["item_type"].ToString()));
                     Message.AppendInt32((int)Row["total_price"]); // Price
-                    Message.AppendInt32((int)Row["sprite_id"]); // ??
+                    Message.AppendInt32(0); // Status/unknown
                     Message.AppendInt32((int)Row["total_price"]); // Avg
-                    Message.AppendInt32(0); // Offers
+                    Message.AppendInt32(1); // Offers
                 }
+
+                Message.AppendInt32(Data.Rows.Count);
             }
             else
             {
+                Message.AppendInt32(0);
                 Message.AppendInt32(0);
             }
 
@@ -174,7 +177,7 @@ namespace Firewind.HabboHotel.Catalogs
             if (RawProfit.Length > 0)
                 Profits = int.Parse(RawProfit);
 
-            ServerMessage Message = new ServerMessage(616);
+            ServerMessage Message = new ServerMessage(Outgoing.MarketplaceOwnOffers);
             Message.AppendInt32(Profits);
 
             if (Data != null)
@@ -196,16 +199,34 @@ namespace Firewind.HabboHotel.Catalogs
                     Message.AppendInt32(state); // 1 = active, 2 = sold, 3 = expired
                     Message.AppendInt32(int.Parse(Row["item_type"].ToString())); // always 1 (??)
                     Message.AppendInt32((int)Row["sprite_id"]);
-                    Message.AppendString(""); // Extra Chr (R52)
+                    SerializeProductData(Message, int.Parse(Row["item_type"].ToString()));
                     Message.AppendInt32((int)Row["total_price"]); // ??
                     Message.AppendInt32(MinutesLeft);
-                    Message.AppendInt32((int)Row["sprite_id"]);
+                    Message.AppendInt32(0);
                 }
             }
             else
                 Message.AppendInt32(0);
 
             return Message;
+        }
+
+        private static void SerializeProductData(ServerMessage Message, int itemType)
+        {
+            if (itemType == 3)
+            {
+                Message.AppendInt32(0);
+                Message.AppendInt32(0);
+            }
+            else if (itemType == 2)
+            {
+                Message.AppendString(string.Empty);
+            }
+            else
+            {
+                Message.AppendInt32(0);
+                Message.AppendString(string.Empty);
+            }
         }
     }
 }

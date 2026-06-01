@@ -229,6 +229,12 @@ namespace HabboEvents
         public static int MarketplaceItemStats = 2054;
         public static int MarketplaceCanSell = 2699;
         public static int MarketplacePostItem = 2465;
+        public static int MarketplaceGetOffers = 1325;
+        public static int MarketplaceGetOwnOffers = 1753;
+        public static int MarketplaceGetOwnOffersInventory = 3376;
+        public static int MarketplaceTakeBack = 1199;
+        public static int MarketplaceClaimCredits = 521;
+        public static int MarketplacePurchase = 2805;
         public static int CatalogData2 = 3355;
         public static int GetSomethingUnknown = 3509;
         public static int OpenCatalogPage = 991;
@@ -240,8 +246,9 @@ namespace HabboEvents
         // Bots
         public static int GetBotInventory = 1642;
         public static int PlaceBot = 829;
+        public static int PickupBot = 3833;
 
-		// Wired
+			// Wired
 		public static int UpdateCondition = 2013;
 
 		// Trax/jukebox

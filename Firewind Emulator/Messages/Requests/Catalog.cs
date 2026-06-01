@@ -167,7 +167,7 @@ namespace Firewind.Messages
 
         internal void GetMarketplaceConfiguration()
         {
-            GetResponse().Init(Outgoing.ShopData1);
+            GetResponse().Init(Outgoing.MarketplaceConfiguration);
             //  1 1 1 5 1 10000 48 7
             GetResponse().AppendBoolean(true);
             GetResponse().AppendInt32(1);
@@ -242,11 +242,23 @@ namespace Firewind.Messages
 
         internal void MarketplaceItemStats()
         {
-            if (Request.RemainingLength >= 4)
-                Request.ReadInt32(); // item type: floor item = 1, wall item = 2
+            int itemType = 0;
+            int spriteId = 0;
 
             if (Request.RemainingLength >= 4)
-                Request.ReadInt32(); // furni type/sprite id
+                itemType = Request.ReadInt32(); // floor item = 1, wall item = 2
+
+            if (Request.RemainingLength >= 4)
+                spriteId = Request.ReadInt32(); // furni type/sprite id
+
+            GetResponse().Init(Outgoing.MarketplaceItemStats);
+            GetResponse().AppendInt32(GetMarketplaceAveragePrice(spriteId, 7));
+            GetResponse().AppendInt32(GetMarketplaceItemsOnSale(spriteId));
+            GetResponse().AppendInt32(30);
+            GetResponse().AppendInt32(0);
+            GetResponse().AppendInt32(itemType);
+            GetResponse().AppendInt32(spriteId);
+            SendResponse();
         }
 
         internal void MarketplacePostItem()
@@ -314,7 +326,7 @@ namespace Firewind.Messages
                 dbClient.runQuery();
             }
 
-            GetResponse().Init(614);
+            GetResponse().Init(Outgoing.MarketplaceCancelSaleResult);
             GetResponse().AppendUInt(Convert.ToUInt32(Row["offer_id"]));
             GetResponse().AppendBoolean(true);
             SendResponse();
@@ -395,10 +407,7 @@ namespace Firewind.Messages
             int prize = (int)Row["total_price"];
             if (Convert.ToUInt32(Row["user_id"]) == Session.GetHabbo().Id || Session.GetHabbo().Credits < prize)
             {
-                ServerMessage message = new ServerMessage(Outgoing.NotEnoughBalance);
-                message.AppendBoolean(true);
-                message.AppendBoolean(false);
-                Session.SendMessage(message);
+                SendMarketplaceBuyResult(4, 0, ItemId, prize);
                 return;
             }
 
@@ -419,21 +428,45 @@ namespace Firewind.Messages
             }
 
 
-            Session.GetMessageHandler().GetResponse().Init(67);
-            Session.GetMessageHandler().GetResponse().AppendUInt(Item.ItemId);
-            Session.GetMessageHandler().GetResponse().AppendString(Item.Name);
-            Session.GetMessageHandler().GetResponse().AppendInt32(prize);
-            Session.GetMessageHandler().GetResponse().AppendInt32(0);
-            Session.GetMessageHandler().GetResponse().AppendInt32(0);
-            Session.GetMessageHandler().GetResponse().AppendInt32(1);
-            Session.GetMessageHandler().GetResponse().AppendString(Item.Type.ToString());
-            Session.GetMessageHandler().GetResponse().AppendInt32(Item.SpriteId);
-            Session.GetMessageHandler().GetResponse().AppendString("");
-            Session.GetMessageHandler().GetResponse().AppendInt32(1);
-            Session.GetMessageHandler().GetResponse().AppendInt32(0);
-            Session.GetMessageHandler().SendResponse();
+            SendMarketplaceBuyResult(1, 0, ItemId, prize);
 
             Session.SendMessage(Marketplace.SerializeOffers(-1, -1, "", 1));
+        }
+
+        private int GetMarketplaceItemsOnSale(int spriteId)
+        {
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("SELECT COUNT(*) FROM catalog_marketplace_offers WHERE state = '1' AND timestamp >= @timestamp AND sprite_id = @sprite_id");
+                dbClient.addParameter("timestamp", Marketplace.FormatTimestamp());
+                dbClient.addParameter("sprite_id", spriteId);
+                return dbClient.getInteger();
+            }
+        }
+
+        private int GetMarketplaceAveragePrice(int spriteId, int days)
+        {
+            using (IQueryAdapter dbClient = FirewindEnvironment.GetDatabaseManager().getQueryreactor())
+            {
+                dbClient.setQuery("SELECT AVG(asking_price) AS average_price FROM catalog_marketplace_offers WHERE state = '2' AND timestamp >= @timestamp AND sprite_id = @sprite_id");
+                dbClient.addParameter("timestamp", FirewindEnvironment.GetUnixTimestamp() - (days * 86400));
+                dbClient.addParameter("sprite_id", spriteId);
+                DataRow row = dbClient.getRow();
+                if (row == null || row["average_price"] == DBNull.Value)
+                    return 0;
+
+                return Convert.ToInt32(row["average_price"]);
+            }
+        }
+
+        private void SendMarketplaceBuyResult(int result, int newOfferId, uint requestedOfferId, int price)
+        {
+            GetResponse().Init(Outgoing.MarketplaceBuyResult);
+            GetResponse().AppendInt32(result);
+            GetResponse().AppendInt32(newOfferId);
+            GetResponse().AppendUInt(requestedOfferId);
+            GetResponse().AppendInt32(price);
+            SendResponse();
         }
 
         internal void CheckPetName()
