@@ -19,6 +19,7 @@ namespace Firewind.HabboHotel.Catalogs
         internal readonly int PageID;
         internal readonly int CrystalCost;
         internal readonly uint songID;
+        internal readonly string ExtraData;
         internal readonly bool IsLimited;
         internal int LimitedSelled;
         internal readonly int LimitedStack;
@@ -34,6 +35,12 @@ namespace Firewind.HabboHotel.Catalogs
             }
         }
 
+        private static uint ParseItemIdToken(string itemIdToken)
+        {
+            string baseItemId = itemIdToken.Split(':')[0].Trim();
+            return uint.Parse(baseItemId);
+        }
+
         internal CatalogItem(DataRow Row)
         {
             this.Id = Convert.ToUInt32(Row["id"]);
@@ -46,12 +53,12 @@ namespace Firewind.HabboHotel.Catalogs
                 foreach (string s in splitted)
                 {
                     if (!string.IsNullOrWhiteSpace(s))
-                        this.Items.Add((uint)int.Parse(s));
+                        this.Items.Add(ParseItemIdToken(s));
                 }
             }
             else if (!string.IsNullOrWhiteSpace(this.ItemIdString) || this.ItemIdString == "0")
             {
-                    this.Items.Add(uint.Parse(ItemIdString));
+                    this.Items.Add(ParseItemIdToken(ItemIdString));
             }
             this.PageID = (int)Row["page_id"];
             this.CreditsCost = (int)Row["cost_credits"];
@@ -59,6 +66,7 @@ namespace Firewind.HabboHotel.Catalogs
             this.Amount = (int)Row["amount"];
             this.CrystalCost = (int)Row["cost_points"];
             this.songID = Convert.ToUInt32(Row["song_id"]);
+            this.ExtraData = Row.Table.Columns.Contains("extradata") ? (Row["extradata"] as string ?? string.Empty) : string.Empty;
             this.LimitedSelled = (int)Row["limited_sells"];
             this.LimitedStack = (int)Row["limited_stack"];
             this.IsLimited = (this.LimitedStack > 0);
@@ -95,6 +103,24 @@ namespace Firewind.HabboHotel.Catalogs
             }
 
             return false;
+        }
+
+        internal string GetPurchaseExtraData(Item baseItem)
+        {
+            if (!string.IsNullOrEmpty(ExtraData))
+                return ExtraData;
+
+            if (Name.Contains("wallpaper_single") || Name.Contains("floor_single") || Name.Contains("landscape_single"))
+            {
+                string[] analyze = Name.Split('_');
+                if (analyze.Length > 2)
+                    return analyze[2];
+            }
+
+            if (this.songID > 0 && baseItem != null && baseItem.InteractionType == InteractionType.musicdisc)
+                return songID.ToString();
+
+            return string.Empty;
         }
 
         internal void SerializeClub(ServerMessage Message, GameClients.GameClient Session)
@@ -193,19 +219,7 @@ namespace Firewind.HabboHotel.Catalogs
                             Message.AppendString(baseItem.Type.ToString());
                             Message.AppendInt32(baseItem.SpriteId);
 
-                            if (Name.Contains("wallpaper_single") || Name.Contains("floor_single") || Name.Contains("landscape_single"))
-                            {
-                                string[] Analyze = Name.Split('_');
-                                Message.AppendString(Analyze[2]);
-                            }
-                            else if (this.songID > 0 && baseItem.InteractionType == InteractionType.musicdisc)
-                            {
-                                Message.AppendString(songID.ToString());
-                            }
-                            else
-                            {
-                                Message.AppendString(string.Empty);
-                            }
+                            Message.AppendString(GetPurchaseExtraData(baseItem));
                         }
                     }
 

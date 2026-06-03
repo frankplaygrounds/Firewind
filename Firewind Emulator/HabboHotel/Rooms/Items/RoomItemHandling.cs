@@ -607,8 +607,9 @@ namespace Firewind.HabboHotel.Rooms
             if (!newItem)
                 NeedsReAdd = room.GetGameMap().RemoveFromMap(Item);
             Dictionary<int, ThreeDCoord> AffectedTiles = Gamemap.GetAffectedTiles(Item.GetBaseItem().Length, Item.GetBaseItem().Width, newX, newY, newRot);
-            bool stackHeightOverride = Session != null && Session.GetHabbo() != null && Session.GetHabbo().StackHeightStatus;
-            double stackHeight = stackHeightOverride ? Session.GetHabbo().StackHeight : 0;
+            var habbo = Session != null ? Session.GetHabbo() : null;
+            bool stackHeightOverride = habbo != null && habbo.StackHeightStatus;
+            double stackHeight = stackHeightOverride ? habbo.StackHeight : 0;
 
             if (!room.GetGameMap().ValidTile(newX, newY) || room.GetGameMap().SquareHasUsers(newX, newY) && !Item.GetBaseItem().IsSeat)
             {
@@ -635,19 +636,8 @@ namespace Firewind.HabboHotel.Rooms
 
             // Start calculating new Z coordinate
             Double newZ = room.GetGameMap().Model.SqFloorHeight[newX, newY];
-            try
-            {
-                if (Math.Abs(Session.GetHabbo().StackHeight) < 40 && Math.Abs(Session.GetHabbo().StackHeight) > -40)
-                {
-                    newZ = Session.GetHabbo().StackHeight;
-                } else
-                {
-                    Session.SendMOTD("Whoops, something went wrong!\n\nStack height must be between -40 and 40. \nThe item was placed at a stack height of 0.\n\nReset your stack height by typing :bh");
-                    newZ = 0;
-                }
-            } catch { 
-                //was either ran by wired or i fucked up
-            }
+            if (stackHeightOverride)
+                newZ = stackHeight;
 
             if (!OnRoller)
             {

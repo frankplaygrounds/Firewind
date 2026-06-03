@@ -154,13 +154,18 @@ namespace Firewind.HabboHotel.Catalogs
         //    return false;
         //}
 
+        private static bool CanSerializeInIndex(CatalogPage page, int rank)
+        {
+            return page.Visible && page.MinRank <= rank;
+        }
+
         internal int GetTreeSize(int rank, int TreeId)
         {
             int i = 0;
 
             foreach (CatalogPage Page in Pages.Values)
             {
-                if (Page.MinRank > rank)
+                if (!CanSerializeInIndex(Page, rank))
                 {
                     continue;
                 }
@@ -173,6 +178,27 @@ namespace Firewind.HabboHotel.Catalogs
 
 
             return i;
+        }
+
+        private void SerializeIndexTree(CatalogPage Page, int rank, ServerMessage Index, HashSet<int> serializedPages)
+        {
+            if (!serializedPages.Add(Page.PageId))
+            {
+                return;
+            }
+
+            Page.Serialize(rank, Index);
+
+            foreach (CatalogPage childPage in Pages.Values)
+            {
+                if (childPage.ParentId != Page.PageId || !CanSerializeInIndex(childPage, rank))
+                {
+                    continue;
+                }
+
+                if (serializedPages.Add(childPage.PageId))
+                    childPage.Serialize(rank, Index);
+            }
         }
 
         internal CatalogPage GetPage(int Page)
@@ -445,7 +471,8 @@ namespace Firewind.HabboHotel.Catalogs
                     Session.SendNotif(LanguageLocale.GetValue("catalog.gift.send.error"));
                     return;
                 }
-                IRoomItemData itemData = new StringData(extraParameter);
+                string purchaseExtraParameter = string.IsNullOrEmpty(extraParameter) ? Item.GetPurchaseExtraData(baseItem) : extraParameter;
+                IRoomItemData itemData = new StringData(purchaseExtraParameter);
                 switch (baseItem.InteractionType)
                 {
                     case InteractionType.none:
@@ -500,12 +527,12 @@ namespace Firewind.HabboHotel.Catalogs
 
                         try
                         {
-                            if (string.IsNullOrEmpty(extraParameter))
+                            if (string.IsNullOrEmpty(purchaseExtraParameter))
                                 Number = 0;
                             else
-                                Number = Double.Parse(extraParameter, FirewindEnvironment.cultureInfo);
+                                Number = Double.Parse(purchaseExtraParameter, FirewindEnvironment.cultureInfo);
                         }
-                        catch (Exception e) { Logging.HandleException(e, "Catalog.HandlePurchase: " + extraParameter); }
+                        catch (Exception e) { Logging.HandleException(e, "Catalog.HandlePurchase: " + purchaseExtraParameter); }
 
                         itemData = new StringData(Number.ToString().Replace(',', '.'));
                         break; // maintain extra data // todo: validate
@@ -1174,20 +1201,13 @@ namespace Firewind.HabboHotel.Catalogs
             Index.AppendString("");
             Index.AppendInt32(GetTreeSize(rank, -1));
 
+            HashSet<int> serializedPages = new HashSet<int>();
             foreach (CatalogPage Page in Pages.Values)
             {
-                if (Page.ParentId != -1 || Page.MinRank > rank)
+                if (Page.ParentId != -1 || !CanSerializeInIndex(Page, rank))
                     continue;
 
-                Page.Serialize(rank, Index);
-
-                foreach (CatalogPage _Page in Pages.Values)
-                {
-                    if (_Page.ParentId != Page.PageId)
-                        continue;
-
-                    _Page.Serialize(rank, Index);
-                }
+                SerializeIndexTree(Page, rank, Index, serializedPages);
             }
             Index.AppendBoolean(false); // is updated
             return Index;

@@ -63,16 +63,16 @@ namespace Firewind.HabboHotel.Items
             this.InteractionType = InteractionType;
             this.Modes = Modes;
             this.VendingIds = new List<int>();
-            if (VendingIds.Contains(","))
+            if (!string.IsNullOrWhiteSpace(VendingIds))
             {
-                foreach (string VendingId in VendingIds.Split(','))
+                foreach (string VendingId in VendingIds.Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    this.VendingIds.Add(int.Parse(VendingId));
+                    int parsedVendingId;
+                    if (int.TryParse(VendingId.Trim(), out parsedVendingId) && parsedVendingId > 0)
+                    {
+                        this.VendingIds.Add(parsedVendingId);
+                    }
                 }
-            }
-            else if (!VendingIds.Equals("") && (int.Parse(VendingIds)) > 0)
-            {
-                this.VendingIds.Add(int.Parse(VendingIds));
             }
         }
     }

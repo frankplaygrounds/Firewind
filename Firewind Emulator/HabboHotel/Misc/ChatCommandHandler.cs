@@ -1826,13 +1826,21 @@ namespace Firewind.HabboHotel.Misc
                 return;
             }
 
-            if (!double.TryParse(Params[1], out Session.GetHabbo().StackHeight))
+            double stackHeight;
+            if (!double.TryParse(Params[1], out stackHeight))
             {
                 Session.SendNotif("Please enter a valid integer or double value.");
                 Session.GetHabbo().StackHeightStatus = false;
                 return;
             }
 
+            if (double.IsNaN(stackHeight) || stackHeight > 40 || stackHeight < -40)
+            {
+                Session.SendNotif("Build height must be between -40 and 40.");
+                return;
+            }
+
+            Session.GetHabbo().StackHeight = stackHeight;
             Session.GetHabbo().StackHeightStatus = true;
 
             ServerMessage servermsg = new ServerMessage();

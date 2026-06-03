@@ -28,3 +28,51 @@ Stack trace:
 
 
 
+
+In-game command error: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Misc.ChatCommandHandler.language() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Misc/ChatCommandHandler.cs:line 1378
+   at Firewind.Messages.ChatCommandRegister.InvokeCommand(ChatCommandHandler commandHandler, Int32 commandID) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/ChatCommandRegister.cs:line 253
+   at Firewind.HabboHotel.Misc.ChatCommandHandler.WasExecuted() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Misc/ChatCommandHandler.cs:line 44
+   at Firewind.HabboHotel.Rooms.RoomUser.Chat(GameClient Session, String Message, Boolean Shout) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 351
+
+
+
+In-game command error: System.NullReferenceException: Object reference not set to an instance of an object.
+   at Firewind.HabboHotel.Misc.ChatCommandHandler.language() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Misc/ChatCommandHandler.cs:line 1378
+   at Firewind.Messages.ChatCommandRegister.InvokeCommand(ChatCommandHandler commandHandler, Int32 commandID) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/Messages/ChatCommandRegister.cs:line 253
+   at Firewind.HabboHotel.Misc.ChatCommandHandler.WasExecuted() in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Misc/ChatCommandHandler.cs:line 44
+   at Firewind.HabboHotel.Rooms.RoomUser.Chat(GameClient Session, String Message, Boolean Shout) in /Users/Iaad/Documents/GitHub/Firewind/Firewind Emulator/HabboHotel/Rooms/RoomUser.cs:line 351
+
+
+
+Error in furni data! Item ID: "242" and data: ""
+
+
+
+Error in furni data! Item ID: "243" and data: ""
+
+
+
+Error in furni data! Item ID: "242" and data: ""
+
+
+
+Error in furni data! Item ID: "243" and data: ""
+
+
+
+Error in furni data! Item ID: "242" and data: ""
+
+
+
+Error in furni data! Item ID: "243" and data: ""
+
+
+
+Error in furni data! Item ID: "242" and data: ""
+
+
+
+Error in furni data! Item ID: "243" and data: ""
+
+

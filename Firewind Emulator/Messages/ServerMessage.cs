@@ -108,8 +108,14 @@ namespace Firewind.Messages
 
         public void AppendString(string s)
         {
-            AppendShort(s.Length);
-            AppendBytes(FirewindEnvironment.GetDefaultEncoding().GetBytes(s), false);
+            if (s == null)
+            {
+                s = string.Empty;
+            }
+
+            byte[] stringBytes = FirewindEnvironment.GetDefaultEncoding().GetBytes(s);
+            AppendShort(stringBytes.Length);
+            AppendBytes(stringBytes, false);
         }
 
         public void AppendBytes(byte[] b, bool IsInt)

@@ -6,7 +6,10 @@ import tempfile
 import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
+from tools.furni_zoom_packer.cli import main as zoom_cli_main
 from tools.furni_zoom_packer.packer import pack_swf
 from tools.furni_zoom_packer.swf import SwfFile
 
@@ -127,6 +130,53 @@ class FurniZoomPackerTests(unittest.TestCase):
                 (sample_dir() / "legacy_zoom_furni1.swf").read_bytes(),
                 output.read_bytes(),
             )
+
+
+class FurniZoomPackerCliTests(unittest.TestCase):
+    def test_directory_mode_preserves_relative_paths(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="furni-pack-cli-test-") as temp:
+            temp_path = Path(temp)
+            input_dir = temp_path / "in"
+            output_dir = temp_path / "out"
+            input_file = input_dir / "nested" / "chair.swf"
+            input_file.parent.mkdir(parents=True)
+            input_file.write_bytes(b"swf")
+
+            def fake_pack(input_path: Path, output_path: Path, debug_dir: Path | None):
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                output_path.write_bytes(input_path.read_bytes() + b"-packed")
+                return SimpleNamespace(
+                    furniture_class="chair",
+                    direct_injections=[object()],
+                    alias_injections=[],
+                    warnings=[],
+                    injected_count=1,
+                )
+
+            with patch("tools.furni_zoom_packer.cli.pack_swf", side_effect=fake_pack):
+                exit_code = zoom_cli_main([str(input_dir), str(output_dir)])
+
+            self.assertEqual(0, exit_code)
+            self.assertEqual(b"swf-packed", (output_dir / "nested" / "chair.swf").read_bytes())
+
+    def test_directory_mode_can_copy_on_error(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="furni-pack-cli-test-") as temp:
+            temp_path = Path(temp)
+            input_dir = temp_path / "in"
+            output_dir = temp_path / "out"
+            report = temp_path / "report.json"
+            input_file = input_dir / "broken.swf"
+            input_file.parent.mkdir(parents=True)
+            input_file.write_bytes(b"original")
+
+            with patch("tools.furni_zoom_packer.cli.pack_swf", side_effect=RuntimeError("no xml")):
+                exit_code = zoom_cli_main(
+                    [str(input_dir), str(output_dir), "--copy-on-error", "--report", str(report)]
+                )
+
+            self.assertEqual(0, exit_code)
+            self.assertEqual(b"original", (output_dir / "broken.swf").read_bytes())
+            self.assertIn('"failed": 1', report.read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

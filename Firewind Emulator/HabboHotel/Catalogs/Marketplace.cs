@@ -12,8 +12,18 @@ namespace Firewind.HabboHotel.Catalogs
 {
     class Marketplace
     {
+        internal static bool Enabled
+        {
+            get { return false; }
+        }
+
         internal static Boolean CanSellItem(UserItem Item)
         {
+            if (!Enabled)
+            {
+                return false;
+            }
+
             if (!Item.GetBaseItem().AllowTrade || !Item.GetBaseItem().AllowMarketplaceSell)
             {
                 return false;

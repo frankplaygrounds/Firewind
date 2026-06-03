@@ -105,7 +105,7 @@ namespace Firewind.HabboHotel.Catalogs
             Message.AppendInt32(Id);
             Message.AppendString(Layout);
             Message.AppendString(Caption);
-            Message.AppendInt32(FirewindEnvironment.GetGame().GetCatalog().GetTreeSize(Rank, Id));
+            Message.AppendInt32(ParentId == -1 ? FirewindEnvironment.GetGame().GetCatalog().GetTreeSize(Rank, Id) : 0);
         }
     }
 }

@@ -169,7 +169,7 @@ namespace Firewind.Messages
         {
             GetResponse().Init(Outgoing.MarketplaceConfiguration);
             //  1 1 1 5 1 10000 48 7
-            GetResponse().AppendBoolean(true);
+            GetResponse().AppendBoolean(Marketplace.Enabled);
             GetResponse().AppendInt32(1);
             GetResponse().AppendInt32(0);
             GetResponse().AppendInt32(0);
@@ -235,7 +235,7 @@ namespace Firewind.Messages
         internal void MarketplaceCanSell()
         {
             GetResponse().Init(Outgoing.MarketplaceCanMakeOfferResult);
-            GetResponse().AppendInt32(1);
+            GetResponse().AppendInt32(Marketplace.Enabled ? 1 : 0);
             GetResponse().AppendInt32(0);
             SendResponse();
         }
@@ -481,130 +481,14 @@ namespace Firewind.Messages
         internal void PetRaces()
         {
             string PetType = Request.ReadString();
+            string requestedPetType = PetType ?? string.Empty;
 
-            int petid = 0;
+            int petid;
+            bool hasPetId = TryParsePetTypeId(requestedPetType, out petid);
             GetResponse().Init(Outgoing.PetRace);
+            GetResponse().AppendString(requestedPetType);
 
-            switch (PetType)
-            {
-                case "a0 pet0":
-                    GetResponse().AppendString("a0 pet0");
-                    petid = 0;
-                    break;
-
-                case "a0 pet1":
-                    GetResponse().AppendString("a0 pet1");
-                    petid = 1;
-                    break;
-
-                case "a0 pet2":
-                    GetResponse().AppendString("a0 pet2");
-                    petid = 2;
-                    break;
-
-                case "a0 pet3":
-                    GetResponse().AppendString("a0 pet3");
-                    petid = 3;
-                    break;
-
-                case "a0 pet4":
-                    GetResponse().AppendString("a0 pet4");
-                    petid = 4;
-                    break;
-
-                case "a0 pet5":
-                    GetResponse().AppendString("a0 pet5");
-                    petid = 5;
-                    break;
-
-                case "a0 pet6":
-                    GetResponse().AppendString("a0 pet6");
-                    petid = 6;
-                    break;
-
-                case "a0 pet7":
-                    GetResponse().AppendString("a0 pet7");
-                    petid = 7;
-                    break;
-
-                case "a0 pet8":
-                    GetResponse().AppendString("a0 pet8");
-                    petid = 8;
-                    break;
-
-                case "a0 pet9":
-                    GetResponse().AppendString("a0 pet9");
-                    petid = 9;
-                    break;
-
-                case "a0 pet10":
-                    GetResponse().AppendString("a0 pet10");
-                    petid = 10;
-                    break;
-
-                case "a0 pet11":
-                    GetResponse().AppendString("a0 pet11");
-                    petid = 11;
-                    break;
-
-                case "a0 pet12":
-                    GetResponse().AppendString("a0 pet12");
-                    petid = 12;
-                    break;
-
-                case "a0 pet13": // Caballo - Horse
-                    GetResponse().AppendString("a0 pet13");
-                    petid = 13;
-                    break;
-
-
-                case "a0 pet14":
-                    GetResponse().AppendString("a0 pet14");
-                    petid = 14;
-                    break;
-
-                case "a0 pet15":
-                    GetResponse().AppendString("a0 pet15");
-                    petid = 15;
-                    break;
-
-                case "a0 pet16": // MosterPlant
-                    GetResponse().AppendString("a0 pet16");
-                    petid = 16;
-                    break;
-
-                case "a0 pet17": // bunnyeaster
-                    GetResponse().AppendString("a0 pet17");
-                    petid = 17;
-                    break;
-
-                case "a0 pet18": // bunnydepressed
-                    GetResponse().AppendString("a0 pet18");
-                    petid = 18;
-                    break;
-
-                case "a0 pet19": // bunnylove
-                    GetResponse().AppendString("a0 pet19");
-                    petid = 19;
-                    break;
-
-                case "a0 pet20": // MosterPlant
-                    GetResponse().AppendString("a0 pet20");
-                    petid = 20;
-                    break;
-
-                case "a0 pet21": // pigeonevil
-                    GetResponse().AppendString("a0 pet21");
-                    petid = 21;
-                    break;
-
-                case "a0 pet22": //pigeongood
-                    GetResponse().AppendString("a0 pet22");
-                    petid = 22;
-                    break;
-            }
-
-            if (PetRace.RaceGotRaces(petid))
+            if (hasPetId && PetRace.RaceGotRaces(petid))
             {
                 List<PetRace> Races = PetRace.GetRacesForRaceId(petid);
                 GetResponse().AppendInt32(Races.Count);
@@ -619,10 +503,28 @@ namespace Firewind.Messages
             }
             else
             {
-                Session.SendNotif("¡Ha ocurrido un error cuando ibas a ver esta mascota, repórtalo a un administrador!");
                 GetResponse().AppendInt32(0);
             }
             SendResponse();
+        }
+
+        private static bool TryParsePetTypeId(string petType, out int petId)
+        {
+            petId = 0;
+            if (string.IsNullOrWhiteSpace(petType))
+                return false;
+
+            string normalizedPetType = petType.Trim().ToLowerInvariant();
+            int petIndex = normalizedPetType.LastIndexOf("pet", StringComparison.Ordinal);
+            if (petIndex < 0)
+                return false;
+
+            int startIndex = petIndex + 3;
+            int endIndex = startIndex;
+            while (endIndex < normalizedPetType.Length && char.IsDigit(normalizedPetType[endIndex]))
+                endIndex++;
+
+            return endIndex > startIndex && int.TryParse(normalizedPetType.Substring(startIndex, endIndex - startIndex), out petId);
         }
 
         //internal void RegisterCatalog()
