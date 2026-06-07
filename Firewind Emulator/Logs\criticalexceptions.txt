@@ -33,3 +33,6 @@ SYSTEM CRITICAL EXCEPTION: System.InvalidOperationException: Cannot read keys wh
 
 Failed to send ping packet, possible fack up!
 
+
+User frank shut down the server 06/06/2026 03:51:23
+

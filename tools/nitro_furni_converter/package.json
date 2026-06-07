@@ -1,0 +1,22 @@
+{
+  "name": "nitro-furni-converter",
+  "version": "0.1.0",
+  "description": "Standalone Habbo furniture .nitro to zoom-complete, graphics-cleaned .swf converter.",
+  "main": "index.js",
+  "type": "commonjs",
+  "bin": {
+    "nitro-furni-converter": "index.js"
+  },
+  "scripts": {
+    "test:workflow": "node scripts/test-workflow.js",
+    "check": "node --check index.js && node scripts/check-sources.js && node scripts/test-swf-cleaner.js && node scripts/test-deploy-files.js"
+  },
+  "dependencies": {
+    "fast-xml-parser": "^5.8.0",
+    "pngjs": "^7.0.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}
