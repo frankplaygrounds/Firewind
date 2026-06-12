@@ -6,11 +6,24 @@ const { SwfFormatError } = require('../errors');
 const TAG_END = 0;
 const TAG_DEFINE_BINARY_DATA = 87;
 const TAG_SYMBOL_CLASS = 76;
+const TAG_DEFINE_BITS_LOSSLESS = 20;
+const TAG_DEFINE_BITS_JPEG2 = 21;
+const TAG_DEFINE_BITS_JPEG3 = 35;
+const TAG_DEFINE_BITS_LOSSLESS2 = 36;
+const TAG_DEFINE_BITS_JPEG4 = 90;
+
+const CHARACTER_ID_TAGS = new Set([
+  2, 6, 7, 11, 13, 14, 20, 21, 22, 32, 33, 34, 35, 36, 37, 39, 46, 48, 56,
+  60, 62, 75, 83, 84, 87, 90, 91
+]);
 
 const TAG_NAMES = {
   0: 'End',
   1: 'ShowFrame',
   9: 'SetBackgroundColor',
+  20: 'DefineBitsLossless',
+  21: 'DefineBitsJPEG2',
+  35: 'DefineBitsJPEG3',
   36: 'DefineBitsLossless2',
   41: 'ProductInfo',
   43: 'FrameLabel',
@@ -19,7 +32,8 @@ const TAG_NAMES = {
   76: 'SymbolClass',
   77: 'Metadata',
   82: 'DoABC',
-  87: 'DefineBinaryData'
+  87: 'DefineBinaryData',
+  90: 'DefineBitsJPEG4'
 };
 
 function tagName(code) {
@@ -77,6 +91,22 @@ function parseSymbolClass(payload) {
     symbols.push({ characterId, name: string.value });
   }
   return symbols;
+}
+
+function encodeSymbolClass(symbols) {
+  const chunks = [Buffer.alloc(2)];
+  chunks[0].writeUInt16LE(symbols.length, 0);
+  for (const symbol of symbols) {
+    const id = Buffer.alloc(2);
+    id.writeUInt16LE(symbol.characterId, 0);
+    chunks.push(id, Buffer.from(symbol.name, 'utf8'), Buffer.from([0]));
+  }
+  return Buffer.concat(chunks);
+}
+
+function tagCharacterId(tag) {
+  if (!CHARACTER_ID_TAGS.has(tag.code) || tag.payload.length < 2) return null;
+  return tag.payload.readUInt16LE(0);
 }
 
 class SwfFile {
@@ -149,6 +179,73 @@ class SwfFile {
     return symbols;
   }
 
+  usedCharacterIds() {
+    const ids = new Set();
+    for (const tag of this.tags) {
+      const id = tagCharacterId(tag);
+      if (id !== null) ids.add(id);
+    }
+    for (const symbol of this.parseSymbols()) ids.add(symbol.characterId);
+    return ids;
+  }
+
+  nextCharacterId() {
+    const ids = this.usedCharacterIds();
+    for (let id = 1; id <= 0xffff; id += 1) {
+      if (!ids.has(id)) return id;
+    }
+    throw new SwfFormatError('No free SWF character IDs remain.');
+  }
+
+  tagByCharacterId(characterId, codes = null) {
+    const allowed = codes ? new Set(codes) : null;
+    for (let tagIndex = 0; tagIndex < this.tags.length; tagIndex += 1) {
+      const tag = this.tags[tagIndex];
+      if (allowed && !allowed.has(tag.code)) continue;
+      if (tagCharacterId(tag) === characterId) return { tag, tagIndex };
+    }
+    return null;
+  }
+
+  insertTagBefore(predicate, tag) {
+    const index = this.tags.findIndex(predicate);
+    if (index === -1) {
+      this.tags.push(tag);
+      return this.tags.length - 1;
+    }
+    this.tags.splice(index, 0, tag);
+    return index;
+  }
+
+  addSymbol(characterId, name) {
+    let symbolTag = null;
+    for (const tag of this.tags) {
+      if (tag.code === TAG_SYMBOL_CLASS) {
+        symbolTag = tag;
+        break;
+      }
+    }
+
+    if (!symbolTag) {
+      symbolTag = { code: TAG_SYMBOL_CLASS, payload: encodeSymbolClass([]) };
+      this.insertTagBefore((tag) => tag.code === 1 || tag.code === TAG_END, symbolTag);
+    }
+
+    const symbols = parseSymbolClass(symbolTag.payload);
+    const same = symbols.find((symbol) => symbol.characterId === characterId && symbol.name === name);
+    if (same) return false;
+    if (symbols.some((symbol) => symbol.characterId === characterId)) {
+      throw new SwfFormatError(`Character ID ${characterId} is already exported with another symbol name.`);
+    }
+    if (symbols.some((symbol) => symbol.name === name)) {
+      throw new SwfFormatError(`Symbol name ${name} is already exported with another character ID.`);
+    }
+
+    symbols.push({ characterId, name });
+    symbolTag.payload = encodeSymbolClass(symbols);
+    return true;
+  }
+
   binaryData() {
     const out = [];
     for (let tagIndex = 0; tagIndex < this.tags.length; tagIndex += 1) {
@@ -184,5 +281,13 @@ module.exports = {
   TAG_END,
   TAG_DEFINE_BINARY_DATA,
   TAG_SYMBOL_CLASS,
+  TAG_DEFINE_BITS_LOSSLESS,
+  TAG_DEFINE_BITS_JPEG2,
+  TAG_DEFINE_BITS_JPEG3,
+  TAG_DEFINE_BITS_LOSSLESS2,
+  TAG_DEFINE_BITS_JPEG4,
+  CHARACTER_ID_TAGS,
+  encodeSymbolClass,
+  tagCharacterId,
   tagName
 };

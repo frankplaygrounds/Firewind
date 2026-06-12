@@ -9,10 +9,11 @@
   },
   "scripts": {
     "test:workflow": "node scripts/test-workflow.js",
-    "check": "node --check index.js && node scripts/check-sources.js && node scripts/test-swf-cleaner.js && node scripts/test-deploy-files.js"
+    "check": "node --check index.js && node scripts/check-sources.js && node scripts/test-swf-cleaner.js && node scripts/test-swf-adapter.js && node scripts/test-deploy-files.js"
   },
   "dependencies": {
     "fast-xml-parser": "^5.8.0",
+    "jpeg-js": "^0.4.4",
     "pngjs": "^7.0.0"
   },
   "engines": {

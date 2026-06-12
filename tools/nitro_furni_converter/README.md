@@ -56,6 +56,14 @@ node index.js \
 
 `--deploy-skip-output` implies `--deploy`. It compiles each Nitro through a temporary SWF, deploys the final cleaned SWF to `dcr/hof_furni`, updates gamedata/DB, then removes the temporary compile output.
 
+Patch existing SWFs in place when they are missing bundled zoomed-out furniture assets:
+
+```bash
+node index.js --adapt-swf /path/to/swf-folder
+```
+
+`--adapt-swf` recursively scans `.swf` files, reads the Habbo furniture XML already bundled in each SWF, detects `_64_` assets without `_32_` partners, generates the missing `_32_` bitmaps/aliases, updates the manifest/assets/visualization XML, clones the matching ActionScript asset class inside `DoABC`, writes through a temporary sibling file, and replaces the original SWF. It does not need `--air-home` because it patches the SWF/ABC structures directly instead of compiling from Nitro.
+
 Furniture with color variations is detected automatically from Nitro visualization `colors` metadata. For example, a library named `example_chair` with color IDs `1`, `2`, and `3` deploys one DCR file, `example_chair.swf`, and creates catalog/gamedata/product entries for `example_chair*1`, `example_chair*2`, and `example_chair*3`.
 
 Dry-run the Nitro parse, zoom planning, atlas export, and AS3 project generation without compiling:
@@ -72,6 +80,7 @@ Useful options:
 --verbose             Show debug logs and compiler output
 --skip-cleanup        Leave visualization <graphics> wrappers in place
 --skip-verify         Skip final SWF validation
+--adapt-swf           Patch existing SWFs in place, no Nitro or output path
 --deploy              Enable Firewind-Web/gamedata/catalog deployment
 --deploy-skip-output  Deploy only; do not keep normal output SWFs
 --web-root <path>     Override the Firewind-Web path
@@ -102,6 +111,27 @@ Useful options:
 10. Verifies that the SWF parses, required XML binaries exist, generated zoom assets are present, duplicate asset names were not introduced, and graphical tags were removed.
 11. When `--deploy` is used, deploys the final SWF to Firewind-Web, updates gamedata, and adds or updates the catalog DB records.
 12. When `--deploy-skip-output` is used, removes the temporary compiled SWF after deployment and leaves only the DCR copy.
+
+## SWF Adapt Mode
+
+`--adapt-swf` is for furniture SWFs that already exist in `dcr/hof_furni` or another folder. It does not rebuild the whole SWF. Instead it:
+
+1. Reads `SymbolClass`, `DoABC`, furniture `DefineBinaryData` XML, and bitmap tags from the SWF.
+2. Parses `manifest`, `assets`, and `visualizationData`.
+3. Finds direct `_64_` bitmap assets whose `_32_` equivalent is missing or not bundled.
+4. Decodes `DefineBitsLossless`, `DefineBitsLossless2`, `DefineBitsJPEG2`, or `DefineBitsJPEG3` source images.
+5. Scales the source image to half size, inserts a new bitmap tag, exports it with a matching symbol name, and clones the existing `_64_` ABC asset class plus script initializer under the new `_32_` class name.
+6. Adds missing `_32_` direct assets to `assets` XML and `manifest`.
+7. Adds missing `_32_` alias assets by pointing them at the generated scaled source.
+8. Clones the size `64` visualization into size `32` if no size `32` visualization exists.
+9. Removes visualization `<graphics>` wrappers from files that were actually adapted unless `--skip-cleanup` is used.
+10. Writes the patched SWF to a temporary file next to the original, verifies it can be read, then atomically replaces the original.
+
+Dry-run an existing folder without changing files:
+
+```bash
+node index.js --adapt-swf --dry-run --verbose /path/to/swf-folder
+```
 
 ## Reference Decisions
 
@@ -167,6 +197,12 @@ Syntax-check the project:
 npm run check
 ```
 
+Adapt the local DCR folder in place:
+
+```bash
+node index.js --adapt-swf /Users/Iaad/Documents/GitHub/Firewind-Web/swf/dcr/hof_furni
+```
+
 ## Known Limitations
 
 - SWF creation requires `mxmlc`; this project does not include a full SWF/ABC compiler.
@@ -174,6 +210,9 @@ npm run check
 - Furniture with nonstandard scale naming may need future convention inference from reference SWFs.
 - Final Habbo client loading cannot be fully proven locally without running the target client; the verifier checks SWF structure and furniture library assets.
 - The native SWF parser supports the SWF structures needed by furniture libraries (`FWS`/`CWS`, `SymbolClass`, `DefineBinaryData`, and normal tag rewriting). `ZWS`/LZMA SWFs are not supported.
+- The native ABC patcher clones existing asset classes in standard Habbo/Flex furniture SWFs. Highly custom ABC layouts may be skipped with a clear error rather than written incorrectly.
+- `--adapt-swf` can generate from `DefineBitsLossless`, `DefineBitsLossless2`, `DefineBitsJPEG2`, and `DefineBitsJPEG3` bitmap tags. SWFs whose only usable `_64_` source is in another image/tag format are skipped with a warning.
+- `--adapt-swf` patches files in place. Use `--dry-run` first on large folders, and keep external backups if you are adapting irreplaceable SWF packs.
 - Nitro metadata does not always say whether an item should be sit/walk/stack or use a special interaction. Deployment defaults to a normal floor item; use CLI flags to override behavior for special furniture.
 - Automatic `*n` variation detection is based on Nitro visualization color IDs. If a furniture line uses a different convention, pass `--variant-ids 1,2,3` or disable it with `--no-variants`.
 
@@ -207,6 +246,18 @@ The JSON declared a direct bitmap asset but did not include a matching frame. Th
 `visualization XML still contains a graphics wrapper`
 
 Cleanup was skipped or the visualization XML has an unexpected structure. Run without `--skip-cleanup` and inspect `--debug-dir`.
+
+`Skipped ... no supported bitmap symbol was found`
+
+`--adapt-swf` found a `_64_` XML asset but could not match it to an exported bitmap tag the adapter can decode. The SWF may use a nonstandard export name or an unsupported bitmap tag.
+
+`Could not clone ABC class(es)`
+
+The SWF has a bitmap/XML asset but no matching ActionScript asset class in `DoABC`. Habbo clients usually load furniture assets through those classes, so the adapter refuses to write a half-patched SWF.
+
+`The item disappears only when zoomed out`
+
+Rerun `--adapt-swf` with the current version. Older builds could leave a half-patched SWF where `_32_` XML/bitmap tags existed but the `_32_` ActionScript class initializer was missing from `DoABC`.
 
 `Could not create Recently Added catalog page`
 

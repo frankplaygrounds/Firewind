@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { convertNitroToSwf } = require('./pipeline');
+const { SwfZoomAdapter } = require('./swf/SwfZoomAdapter');
 const { Logger } = require('./logger');
 const { ConverterError } = require('./errors');
 const { safeFilename } = require('./utils');
@@ -9,8 +10,10 @@ function usage() {
   return `Usage:
   node index.js [options] input-furniture.nitro [output-furniture.swf]
   node index.js [options] input-folder [output-folder]
+  node index.js --adapt-swf [options] swf-folder-or-file
 
 Options:
+  --adapt-swf          Patch existing SWFs in place with missing zoomed-out assets
   --air-home <path>     AIR/Flex SDK directory, or direct path to mxmlc
   --work-dir <path>     Temporary project directory
   --keep-temp           Keep temporary files after a real conversion
@@ -63,6 +66,7 @@ function parseArgs(argv) {
     dryRun: false,
     skipCleanup: false,
     skipVerify: false,
+    adaptSwf: false,
     deploy: false,
     deploySkipOutput: false,
     deployOptions: {
@@ -92,6 +96,8 @@ function parseArgs(argv) {
       options.skipCleanup = true;
     } else if (arg === '--skip-verify') {
       options.skipVerify = true;
+    } else if (arg === '--adapt-swf') {
+      options.adaptSwf = true;
     } else if (arg === '--deploy') {
       options.deploy = true;
     } else if (arg === '--deploy-skip-output') {
@@ -182,7 +188,10 @@ function parseArgs(argv) {
   }
 
   if (options.help) return options;
-  if (positional.length < 1 || positional.length > 2) {
+  if (options.adaptSwf && positional.length !== 1) {
+    throw new ConverterError('--adapt-swf expects exactly one SWF file or folder and writes changes in place.', { exitCode: 2 });
+  }
+  if (!options.adaptSwf && (positional.length < 1 || positional.length > 2)) {
     throw new ConverterError(usage(), { exitCode: 2 });
   }
   options.inputFile = path.resolve(positional[0]);
@@ -200,6 +209,23 @@ function collectNitroFiles(inputDir) {
       if (entry.isDirectory()) {
         stack.push(fullPath);
       } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.nitro')) {
+        files.push(fullPath);
+      }
+    }
+  }
+  return files.sort((a, b) => a.localeCompare(b));
+}
+
+function collectSwfFiles(inputDir) {
+  const files = [];
+  const stack = [inputDir];
+  while (stack.length) {
+    const current = stack.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const fullPath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        stack.push(fullPath);
+      } else if (entry.isFile() && entry.name.toLowerCase().endsWith('.swf')) {
         files.push(fullPath);
       }
     }
@@ -231,6 +257,49 @@ async function runSingle(options, logger) {
       ? null
       : path.resolve(path.dirname(options.inputFile), `${path.basename(options.inputFile, path.extname(options.inputFile))}.swf`));
   await convertNitroToSwf({ ...options, outputFile, logger });
+}
+
+async function runAdaptSingle(options, logger) {
+  new SwfZoomAdapter({ logger }).adaptFile(options.inputFile, {
+    dryRun: options.dryRun,
+    skipCleanup: options.skipCleanup,
+    skipVerify: options.skipVerify
+  });
+}
+
+async function runAdaptDirectory(options, logger) {
+  const files = collectSwfFiles(options.inputFile);
+  if (!files.length) throw new ConverterError(`No .swf files found in ${options.inputFile}.`);
+
+  const adapter = new SwfZoomAdapter({ logger });
+  let failed = 0;
+  let adapted = 0;
+  let skipped = 0;
+
+  for (let index = 0; index < files.length; index += 1) {
+    const inputFile = files[index];
+    const relative = path.relative(options.inputFile, inputFile);
+    logger.info(`[${index + 1}/${files.length}] ${relative}`);
+    try {
+      const result = adapter.adaptFile(inputFile, {
+        dryRun: options.dryRun,
+        skipCleanup: options.skipCleanup,
+        skipVerify: options.skipVerify
+      });
+      if (result.changed) adapted += 1;
+      else skipped += 1;
+    } catch (error) {
+      failed += 1;
+      const message = error && error.message ? error.message : String(error);
+      logger.warn(`Failed ${relative}: ${message}`);
+      if (error && error.details && options.verbose) {
+        for (const line of error.details) logger.warn(line);
+      }
+    }
+  }
+
+  logger.info(`Processed ${files.length} SWF file(s): ${adapted} adapted, ${skipped} skipped, ${failed} failed.`);
+  if (failed) throw new ConverterError(`${failed} SWF file(s) failed in adapt mode.`);
 }
 
 async function runDirectory(options, logger) {
@@ -282,7 +351,11 @@ async function runCli(argv) {
   }
   const logger = new Logger({ verbose: options.verbose, quiet: options.quiet });
   const stat = fs.statSync(options.inputFile);
-  if (stat.isDirectory()) {
+  if (options.adaptSwf && stat.isDirectory()) {
+    await runAdaptDirectory(options, logger);
+  } else if (options.adaptSwf) {
+    await runAdaptSingle(options, logger);
+  } else if (stat.isDirectory()) {
     await runDirectory(options, logger);
   } else {
     await runSingle(options, logger);
